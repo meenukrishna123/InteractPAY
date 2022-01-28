@@ -1,4 +1,8 @@
-.App {
+.Interactpay {
+  background-color: #032d60;
+  color: #fff;
+}
+/* .App {
   text-align: center;
 }
 
@@ -46,4 +50,4 @@
   to {
     transform: rotate(360deg);
   }
-}
+} */
