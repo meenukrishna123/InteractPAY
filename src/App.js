@@ -3,11 +3,11 @@ import "./App.css";
 
 function App() {
   console.log("I was triggered during render");
-  const queryParams = new URLSearchParams(window.location.search);
-const id = queryParams.get('accountId');
+//   const queryParams = new URLSearchParams(window.location.search);
+// const id = queryParams.get('accountId');
 // const name = queryParams.get('name');
 // const type = queryParams.get('type');
-console.log("get url params==>"+id);
+// console.log("get url params==>"+id);
   onloadeddata();
 
   return (
@@ -16,8 +16,8 @@ console.log("get url params==>"+id);
         <div class="container">
           <a class="navbar-brand" href="#">
             {/* <div> */}
-            <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i>
-
+            {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
+            {/* <i class="material-icons"></i> */}
             <span class="ml-2 font-weight-bold">InterACT Pay</span>
             {/* </div>
           <p>Your payment solution</p> */}
@@ -67,7 +67,7 @@ console.log("get url params==>"+id);
               <div>
                 <div class="row">
                   <div class="col-md-10">
-                    <h5 class=" p-3">Please submit your payment details.</h5>
+                    <h5 class=" p-3">Please submit your payment details...</h5>
                   </div>
                   <div class="col-md-2 float-right mt-2">
                     <div
@@ -193,8 +193,8 @@ function onloadeddata() {
               </p>
             </div>
             <span>
-              <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-              <i class="fas fa-trash-alt text-dark"></i>
+              {/* <i class="fas fa-pencil-alt mr-3 text-dark"></i>
+              <i class="fas fa-trash-alt text-dark"></i> */}
             </span>
           </li>
         );
