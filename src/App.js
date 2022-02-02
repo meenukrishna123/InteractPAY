@@ -8,9 +8,9 @@ function App() {
 // const name = queryParams.get('name');
 // const type = queryParams.get('type');
 // console.log("get url params==>"+id);
-  onloadeddata();
-  var payList = window.namesList;
-
+ onloadeddata();
+  //var payList = window.namesList;
+ //console.log("get url params==>"+y);
   return (
     <div className="App">
       <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3">
@@ -68,7 +68,7 @@ function App() {
               <div>
                 <div class="row">
                   <div class="col-md-10">
-                    <h5 class=" p-3">Please submit your payment details11git.</h5>
+                    <h5 class=" p-3">Please submit your payment detailsss.</h5>
                   </div>
                   <div class="col-md-2 float-right mt-2">
                     <div
@@ -98,7 +98,7 @@ function App() {
                   </div>
                 </div>
               </div>
-              <ul class="list-group list-group-flush listDetails">{payList}</ul>
+              <ul class="list-group list-group-flush listDetails">{window.namesList}</ul>
             </div>
           <button class="btn btn-primary float-right mt-4" onClick={createTransaction}>Pay</button>
           </div>
@@ -118,29 +118,31 @@ function selectedPaymentMethod(event){
         _listItem.classList.add("activeList");
 }
 function createTransaction(){
-  console.log("createTransaction");
-  fetch("https://api.stripe.com/v1/payment_intents?amount=16548&currency=usd&payment_method=pm_1KHTFdJZdmpiz6ZwytG2Z37S&confirm=true&customer=cus_Ku19ymdRtCdzMs&receipt_email=akshaya.sreekumarmail@gmail.com", {
-    "method": "POST",
-    "headers": {
-      "x-rapidapi-host": "https://api.stripe.com",
-      //"x-rapidapi-key": "apikey",
-      "content-type": "application/json",
-      "accept": "application/json",
-      Authorization:
-          "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-    },
-    // "body": JSON.stringify({
-    //   name: this.state.name,
-    //   notes: this.state.notes
-    // })
-  })
-  .then(response => response.json())
-  .then(response => {
-    console.log(response)
-  })
-  .catch(err => {
-    console.log(err);
-  });
+//   console.log("createTransaction");
+//   fetch("https://api.stripe.com/v1/payment_intents?amount=16548&currency=usd&payment_method=pm_1KHTFdJZdmpiz6ZwytG2Z37S&confirm=true&customer=cus_Ku19ymdRtCdzMs&receipt_email=akshaya.sreekumarmail@gmail.com", {
+//     "method": "POST",
+//     "headers": {
+//       "x-rapidapi-host": "https://api.stripe.com",
+//       //"x-rapidapi-key": "apikey",
+//       "content-type": "application/json",
+//       "accept": "application/json",
+//       Authorization:
+//           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+//     },
+//     // "body": JSON.stringify({
+//     //   name: this.state.name,
+//     //   notes: this.state.notes
+//     // })
+//   })
+//   .then(response => response.json())
+//   .then(response => {
+//     console.log(response)
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });
+
+return "I am Okay";
 }
 function onloadeddata() {
   console.log("I was loaded");
@@ -156,14 +158,13 @@ function onloadeddata() {
       },
     }
   )
-    .then((response) => response.json())
+   .then((response) => response.json())
     .then((response) => {
       //console.log("ListPaymentMethods--->" +JSON.stringify(response));
       var cardList = response.data;
       var paymentMethodList = [];
       var jsonValues = JSON.parse(JSON.stringify(cardList));
       var crd = new Object();
-      //this.getfieldsApex(this.contactId);
       for (var i = 0; i < jsonValues.length; i++) {
         crd = jsonValues[i].card;
         crd.id = jsonValues[i].id;
@@ -181,8 +182,9 @@ function onloadeddata() {
         }
       }
       console.log("default ===> " + JSON.stringify(paymentMethodList));
-       window.namesList = paymentMethodList.map(function (listValues, index) {
-        console.log("window.namesList-->" +window.namesList);
+      window.namesList = paymentMethodList.map(function (listValues, index) {
+        //console.log("window.namesList11-->" +namesList);
+        //console.log("------>namesList" +namesList);
         return (
           <li class="list-group-item d-flex justify-content-between align-items-center" data-id={listValues.id} onClick={selectedPaymentMethod}>
             <div data-id={listValues.id} onClick={selectedPaymentMethod}>
@@ -200,11 +202,18 @@ function onloadeddata() {
           </li>
         );
       });
+      console.log("----!-->namesList-->");
+      return "Return from thenresponse";
+      
       return window.namesList;
+      // var testval = "SampleReturn";
+      // return testval;
     })
     .catch((err) => {
       console.log(err);
     });
+    //return testval;
+    //return "return from onload";
 }
 
 export default App;
