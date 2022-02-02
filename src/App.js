@@ -202,8 +202,8 @@ function onloadeddata() {
           </li>
         );
       });
-      console.log("----!-->namesList-->");
-      return "Return from thenresponse";
+      console.log("----!-->namesList-->"+window.namesList);
+      //return "Return from thenresponse";
       
       return window.namesList;
       // var testval = "SampleReturn";
