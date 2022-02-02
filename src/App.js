@@ -9,6 +9,7 @@ function App() {
 // const type = queryParams.get('type');
 // console.log("get url params==>"+id);
   onloadeddata();
+  var payList = window.namesList;
 
   return (
     <div className="App">
@@ -67,7 +68,7 @@ function App() {
               <div>
                 <div class="row">
                   <div class="col-md-10">
-                    <h5 class=" p-3">Please submit your payment details...</h5>
+                    <h5 class=" p-3">Please submit your payment details11git.</h5>
                   </div>
                   <div class="col-md-2 float-right mt-2">
                     <div
@@ -97,7 +98,7 @@ function App() {
                   </div>
                 </div>
               </div>
-              <ul class="list-group list-group-flush listDetails">{window.namesList}</ul>
+              <ul class="list-group list-group-flush listDetails">{payList}</ul>
             </div>
           <button class="btn btn-primary float-right mt-4" onClick={createTransaction}>Pay</button>
           </div>
@@ -180,8 +181,8 @@ function onloadeddata() {
         }
       }
       console.log("default ===> " + JSON.stringify(paymentMethodList));
-      window.namesList = paymentMethodList.map(function (listValues, index) {
-        console.log("window.namesList-->" + window.namesList);
+       window.namesList = paymentMethodList.map(function (listValues, index) {
+        console.log("window.namesList-->" +window.namesList);
         return (
           <li class="list-group-item d-flex justify-content-between align-items-center" data-id={listValues.id} onClick={selectedPaymentMethod}>
             <div data-id={listValues.id} onClick={selectedPaymentMethod}>
