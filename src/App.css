@@ -2,6 +2,18 @@
   background-color: #032d60;
   color: #fff;
 }
+.PaymentPageHeaders {
+  font-size: initial;
+}
+.font-weight-bold {
+  font-weight: 700!important;
+}
+.listDetails li:hover{
+  border-left:2px solid #007bff;
+}
+.listDetails .activeList{
+  border-left:4px solid #007bff;
+}
 /* .App {
   text-align: center;
 }
