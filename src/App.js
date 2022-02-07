@@ -1,229 +1,288 @@
 import logo from "./logo.svg";
 import "./App.css";
-
+import { render } from "@testing-library/react";
+// window.isNewCard = false;
+// var newcard = window.isNewCard;
 function App() {
   console.log("I was triggered during render");
-  //   const queryParams = new URLSearchParams(window.location.search);
-  // const id = queryParams.get('accountId');
-  // const name = queryParams.get('name');
-  // const type = queryParams.get('type');
-  // console.log("get url params==>"+id);
   onloadeddata();
-  //var payList = window.namesList;
-  //console.log("get url params==>"+y);
-  return (
-    <div className="App">
-      <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
-        <div class="container">
-          <a class="navbar-brand" href="#">
-            {/* <div> */}
-            <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i>
-            {/* <i class="material-icons"></i> */}
-            <span class="ml-2 font-weight-bold">InterACT Pay</span>
-            {/* </div> */}
-            <p class="Interactheader ml-sm-4">Your payment solution</p>
-          </a>
-        </div>
-      </nav>
-      <div class="container">
-        <div class="row my-5">
-          <div class="col-lg-6 col-md-6 col-sm-1">
-            <div class="card p-3 mb-3">
-              <h5 class="border-bottom pb-3">OrderSummary</h5>
-              <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-1">
-                  <p>Order Number</p>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-1">
-                  <p>00000250</p>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-1">
-                  <p>Product Name</p>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-1">
-                  <p>Sample Product Name</p>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-1">
-                  <p>Order Total</p>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-1">
-                  <p>$ 168</p>
+    return (
+      <div className="App">
+        <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
+          <div class="container">
+            <a class="navbar-brand" href="#">
+              {/* <div> */}
+              {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
+              {/* <i class="material-icons"></i> */}
+              <span class="ml-2 font-weight-bold">InterACT Pay</span>
+              {/* </div> */}
+              <p class="Interactheader ml-sm-4">Your payment solution</p>
+            </a>
+          </div>
+        </nav>
+        {window.isDelete ? (
+          <div className="popup-box">
+            <div className="box ">
+              <span className="close-icon">x</span>
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Delete PaymentMethod</h5>
+                  <p class="card-text">
+                    Are you sure you want to delete this card?
+                  </p>
+                  <button
+                    class="btn btn-outline-primary float-right mt-4"
+                    onClick={createTransaction}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    class="btn btn-primary float-right mt-4 mr-3"
+                    onClick={createTransaction}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-            </div>
-            <div class="card p-3">
-              <h5 class="border-bottom pb-3">Billing Address</h5>
-              <p>Kyle Hide</p>
-              <p>Cape West Street</p>
-              <p>Red Crown - New York US</p>
-              <p>ZipCode: 341946</p>
             </div>
           </div>
-          <div class="col-lg-6 col-md-6 col-sm-1">
-            <div class="card p-3">
-              <div>
+        ) : (
+          ""
+        )}
+        <div class="container">
+          <div class="row my-5">
+            <div class="col-lg-4 col-md-4 col-sm-1">
+              <div class="card p-3 mb-3">
+                <h5 class="border-bottom pb-3">OrderSummary</h5>
                 <div class="row">
-                  <div class="col-md-10">
-                    <h5 class=" p-3">Please submit your payment details.</h5>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Order Number</p>
                   </div>
-                  <div class="col-md-2 float-right mt-2">
-                    <div
-                      class="btn-group btn-group-toggle float-right"
-                      data-toggle="buttons"
-                    >
-                      <label class="btn btn-outline-primary active">
-                        <input
-                          type="radio"
-                          name="options"
-                          id="option1"
-                          autocomplete="off"
-                          checked
-                        />{" "}
-                        Card
-                      </label>
-                      <label class="btn btn-outline-primary">
-                        <input
-                          type="radio"
-                          name="options"
-                          id="option2"
-                          autocomplete="off"
-                        />{" "}
-                        ACH
-                      </label>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>00000250</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Product Name</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Sample Product Name</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Order Total</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>$ 799</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card p-3">
+                <h5 class="border-bottom pb-3">Billing Address</h5>
+                <p>Kyle Hide</p>
+                <p>Cape West Street</p>
+                <p>Red Crown - New York US</p>
+                <p>ZipCode: 341946</p>
+              </div>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-1">
+              <div class="card p-3">
+                <div>
+                  <div class="row">
+                    <div class="col-md-10">
+                      <h5 class=" p-3">Please submit your payment details....</h5>
+                    </div>
+                    <div class="col-md-2 float-right mt-2">
+                      <div
+                        class="btn-group btn-group-toggle float-right"
+                        data-toggle="buttons"
+                      >
+                        <label class="btn btn-outline-primary ">
+                          <input
+                            type="radio"
+                            name="options"
+                            id="option1"
+                            autocomplete="off"
+                            checked
+                          />{" "}
+                          Card
+                        </label>
+                        <label class="btn btn-outline-primary">
+                          <input
+                            type="radio"
+                            name="options"
+                            id="option2"
+                            autocomplete="off"
+                          />{" "}
+                          ACH
+                        </label>
+                        <div class="btn-group">
+                          <button
+                            class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
+                            type="button"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                          >
+                            {/* <i class="fa fa-plus-square"></i> */}
+                          </button>
+                          <div class="dropdown-menu">
+                            <a
+                              class="dropdown-item"
+                              href="#"
+                              onClick={handleAddCard}
+                            >
+                              Add new card
+                            </a>
+                            <a
+                              class="dropdown-item"
+                              href="#"
+                              onClick={handleAddACH}
+                            >
+                              Add new ACH
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      {/* <button type="button" class="btn btn-outline-info waves-effect px-3"><i class="fas fa-thumbtack"
+          aria-hidden="true"></i></button> */}
                     </div>
                   </div>
                 </div>
+                <ul class="list-group list-group-flush listDetails">
+                  {window.namesList}
+                </ul>
               </div>
-              <ul class="list-group list-group-flush listDetails">
-                {window.namesList}
-              </ul>
-            </div>
-            <button
-              class="btn btn-primary float-right mt-4"
-              onClick={createTransaction}
-            >
-              Pay
-            </button>
-          </div>
-        </div>
-      </div>
-      {window.newContact ? (
-        <div className="popup-box">
-          <div className="box">
-            <span className="close-icon">x</span>
-            <form>
-              <h5 class="border-bottom">
-                Please enter the below details to proceed!
-              </h5>
-              <div class="form-row">
-                <h5>Name</h5>
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-4">
-                  <label>Salutaion</label>
-                  <input type="email" class="form-control" id="inputEmail4" />
-                </div>
-                <div class="form-group col-md-4">
-                  <label>FirstName</label>
-                  <input class="form-control" id="inputPassword4" />
-                </div>
-                <div class="form-group col-md-4">
-                  <label>LastName</label>
-                  <input type=" " class="form-control" id="inputEmail4" />
-                </div>
-              </div>
-              <div class="form-row">
-                <h5>Address</h5>
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-4">
-                  <label>Mailing Street</label>
-                  <input type="email" class="form-control" id="inputEmail4" />
-                </div>
-                <div class="form-group col-md-4">
-                  <label>Mailing City</label>
-                  <input class="form-control" id="inputPassword4" />
-                </div>
-                <div class="form-group col-md-4">
-                  <label>Mailing State</label>
-                  <input type=" " class="form-control" id="inputEmail4" />
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-4">
-                  <label>Mailing Zip</label>
-                  <input type="email" class="form-control" id="inputEmail4" />
-                </div>
-                <div class="form-group col-md-4">
-                  <label>Mailing Country</label>
-                  <input class="form-control" id="inputPassword4" />
-                </div>
-              </div>
-              <button class="btn btn-outline-primary float-right">
-                Cancel
+              <button
+                class="btn btn-primary float-right mt-4"
+                onClick={createTransaction}
+              >
+                Pay
               </button>
-              <button class="btn btn-primary float-right mr-3">Save</button>
-            </form>
+            </div>
           </div>
         </div>
-      ) : (
-        ""
-      )}
-      {window.isDelete ? (
-        <div className="popup-box">
-          <div className="box ">
-            <span className="close-icon">x</span>
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Delete PaymentMethod</h5>
-                <p class="card-text">
-                  Are you sure you want to delete this card?
-                </p>
-                <button
-                  class="btn btn-outline-primary float-right mt-4"
-                  onClick={createTransaction}
-                >
+       {window.isNewCard ? (
+          <div className="popup-box">
+            <div className="box">
+              <span className="close-icon">x</span>
+              <form>
+                <h5 class="border-bottom">Please enter your card detailsss.</h5>
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>Card Number</label>
+                    <input type="email" class="form-control" id="inputEmail4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Name on the card</label>
+                    <input class="form-control" id="inputPassword4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Expiry</label>
+                    <input type=" " class="form-control" id="inputEmail4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>CVV</label>
+                    <input type="email" class="form-control" id="inputEmail4" />
+                  </div>
+                  <button class="btn btn-outline-primary float-right">
+                    Cancel
+                  </button>
+                  <button class="btn btn-primary float-right mr-3">Save</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        ) : ("")}
+        {window.newContact ? (
+          <div className="popup-box">
+            <div className="box">
+              <span className="close-icon">x</span>
+              <form>
+                <h5 class="border-bottom mb-4 text-center">
+                  Please enter the below details to proceed!
+                </h5>
+                <div class="form-row">
+                  <h5>Name</h5>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>Salutaion</label>
+                    <input type="email" class="form-control" id="inputEmail4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>FirstName</label>
+                    <input class="form-control" id="inputPassword4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>LastName</label>
+                    <input type=" " class="form-control" id="inputEmail4" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <h5>Address</h5>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>Mailing Street</label>
+                    <input type="email" class="form-control" id="inputEmail4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Mailing City</label>
+                    <input class="form-control" id="inputPassword4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Mailing State</label>
+                    <input type=" " class="form-control" id="inputEmail4" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>Mailing Zip</label>
+                    <input type="email" class="form-control" id="inputEmail4" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Mailing Country</label>
+                    <input class="form-control" id="inputPassword4" />
+                  </div>
+                </div>
+                <button class="btn btn-outline-primary float-right">
                   Cancel
                 </button>
-                <button
-                  class="btn btn-primary float-right mt-4 mr-3"
-                  onClick={createTransaction}
-                >
-                  Delete
-                </button>
-              </div>
+                <button class="btn btn-primary float-right mr-3">Save</button>
+              </form>
             </div>
           </div>
-        </div>
-      ) : (
-        ""
-      )}
-    </div>
-  );
+        ) : (
+          ""
+        )}
+      </div>
+    );
 }
 
 function onloadeddata() {
+  if(window.cardFlag == "true"){
+  window.isNewCard = true;
+  }
+  // else{
+  //   window.isNewCard = false;
+  // }
+  //window.isNewCard = true;
   const queryParams = new URLSearchParams(window.location.search);
   window.isContactExist = queryParams.get("isContactExist");
   console.log(" window.isConatctExist==>" + window.isContactExist);
-  if(window.isContactExist=true){
+  if ((window.isContactExist == "true")) {
     console.log(" inside if ==>" + window.isContactExist);
     window.newContact = false;
     console.log(" window.newContact in if==>" + window.newContact);
-  }
-  else{
+  } else {
     console.log(" inside else ==>" + window.isContactExist);
-  window.newContact = true;
-  console.log(" window.newContact in else ==>" + window.newContact);
+    window.newContact = true;
+    console.log(" window.newContact in else ==>" + window.newContact);
   }
-  // const name = queryParams.get('name');
-  // const type = queryParams.get('type');
   console.log("get url params==>" + window.isConatctExist);
-  //window.ispopuptrue = false;
   console.log("I was loaded");
   fetch(
     "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
@@ -293,14 +352,14 @@ function onloadeddata() {
                 )}
               </p>
             </div>
-            {/* <span>
-              <i class="fas fa-pencil-alt mr-3 text-dark"></i>
+            <span>
+              {/* <i class="fas fa-pencil-alt mr-3 text-dark"></i>
               <i
                 class="fas fa-trash-alt text-dark"
                 data-id={listValues.id}
                 onClick={handleDelete}
-              ></i>
-            </span> */}
+              ></i> */}
+            </span>
           </li>
         );
       });
@@ -311,6 +370,26 @@ function onloadeddata() {
       console.log(err);
     });
 }
+function handleAddCard() {
+  window.cardFlag = "true";
+  console.log("handleAddCard  ------>");
+  //window.isNewCard = true;
+  //window.addNewCard = "true";
+  // if ((window.addNewCard == "true")) {
+  //   console.log(" inside if ==>" + window.addNewCard);
+  //   window.isNewCard = true;
+  //   console.log(" window.isNewCard in if==>" + window.isNewCard);
+  // } else {
+  //   console.log(" inside else ==>" + window.isNewCard);
+  //   window.isNewCard = false;
+  //   console.log(" window.isNewCard in else ==>" + window.isNewCard);
+  // }
+  //var newcard = window.isNewCard;
+  //refreshPage();
+  App();
+}
+function handleAddACH() {}
+
 function handleDelete(event) {
   window.isDelete = true;
   console.log("handleDelete isDelete ------>" + window.isDelete);
@@ -368,34 +447,42 @@ function refreshPage() {
 
 function createTransaction() {
   console.log("createTransaction");
-  //   fetch("https://api.stripe.com/v1/payment_intents?amount=16548&currency=usd&payment_method=pm_1KHTFdJZdmpiz6ZwytG2Z37S&confirm=true&customer=cus_Ku19ymdRtCdzMs&receipt_email=akshaya.sreekumarmail@gmail.com", {
-  //     "method": "POST",
-  //     "headers": {
-  //       "x-rapidapi-host": "https://api.stripe.com",
-  //       //"x-rapidapi-key": "apikey",
-  //       "content-type": "application/json",
-  //       "accept": "application/json",
-  //       Authorization:
-  //           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-  //     },
-  //     // "body": JSON.stringify({
-  //     //   name: this.state.name,
-  //     //   notes: this.state.notes
-  //     // })
-  //   })
-  //   .then(response => response.json())
-  //   .then(response => {
-  //     console.log(response)
-  //   })
-  //   .catch(err => {
-  //     console.log(err);
-  //   });
+  const queryParams = new URLSearchParams(window.location.search);
+  var amount = queryParams.get("amount");
+  var customerId = queryParams.get("customerId");
+  var conAmount = amount + '00';
+  var paymentMethodId = window.paymentMethodId;
+  var transactionUrl = "https://api.stripe.com/v1/payment_intents" + "?amount=" + conAmount + "&currency=usd&customer=" + customerId + "&payment_method=" + paymentMethodId + "&confirm=true";
+  console.log("transactionUrl-->"+transactionUrl);
+  fetch(transactionUrl, {
+      "method": "POST",
+      "headers": {
+        "x-rapidapi-host": "https://api.stripe.com",
+        //"x-rapidapi-key": "apikey",
+        "content-type": "application/json",
+        "accept": "application/json",
+        Authorization:
+            "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+      },
+      // "body": JSON.stringify({
+      //   name: this.state.name,
+      //   notes: this.state.notes
+      // })
+    })
+    .then(response => response.json())
+    .then(response => {
+      console.log("transactionresponse"+response);
+    })
+    .catch(err => {
+      console.log(err);
+    });
 
   //return "I am Okay";
 }
 
 function selectedPaymentMethod(event) {
   console.log("Invooked Method" + event.target.getAttribute("data-id"));
+  window.paymentMethodId = event.target.getAttribute("data-id");
   let _listItem = event.currentTarget;
   let _listItems = _listItem.parentNode.childNodes;
   for (let i = 0; i < _listItems.length; i++) {
