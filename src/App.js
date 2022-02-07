@@ -6,6 +6,7 @@ import { render } from "@testing-library/react";
 function App() {
   console.log("I was triggered during render");
   onloadeddata();
+  if(window.namesList){
     return (
       <div className="App">
         <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
@@ -92,7 +93,7 @@ function App() {
                 <div>
                   <div class="row">
                     <div class="col-md-10">
-                      <h5 class=" p-3">Please submit your payment details....</h5>
+                      <h5 class=" p-3">Please submit your payment detailsxxx</h5>
                     </div>
                     <div class="col-md-2 float-right mt-2">
                       <div
@@ -260,6 +261,7 @@ function App() {
         )}
       </div>
     );
+        }
 }
 
 function onloadeddata() {
