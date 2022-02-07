@@ -17,11 +17,11 @@ function App() {
         <div class="container">
           <a class="navbar-brand" href="#">
             {/* <div> */}
-            <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> 
+            <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i>
             {/* <i class="material-icons"></i> */}
             <span class="ml-2 font-weight-bold">InterACT Pay</span>
-           {/* </div> */}
-          <p class ="Interactheader ml-sm-4">Your payment solution</p> 
+            {/* </div> */}
+            <p class="Interactheader ml-sm-4">Your payment solution</p>
           </a>
         </div>
       </nav>
@@ -68,7 +68,7 @@ function App() {
               <div>
                 <div class="row">
                   <div class="col-md-10">
-                    <h5 class=" p-3">Please submit your payment details...</h5>
+                    <h5 class=" p-3">Please submit your payment details.</h5>
                   </div>
                   <div class="col-md-2 float-right mt-2">
                     <div
@@ -90,7 +90,7 @@ function App() {
                           type="radio"
                           name="options"
                           id="option2"
-                          autocomplete="off" 
+                          autocomplete="off"
                         />{" "}
                         ACH
                       </label>
@@ -111,92 +111,119 @@ function App() {
           </div>
         </div>
       </div>
-      {window.isConatctExist ? (
+      {window.newContact ? (
         <div className="popup-box">
-        <div className="box">
-          <span className="close-icon">x</span>
-      <form>
-        <h5 class="border-bottom">Please enter the below details to proceed!</h5>
-        <div class="form-row">
-          <h5>Name</h5>
+          <div className="box">
+            <span className="close-icon">x</span>
+            <form>
+              <h5 class="border-bottom">
+                Please enter the below details to proceed!
+              </h5>
+              <div class="form-row">
+                <h5>Name</h5>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label>Salutaion</label>
+                  <input type="email" class="form-control" id="inputEmail4" />
+                </div>
+                <div class="form-group col-md-4">
+                  <label>FirstName</label>
+                  <input class="form-control" id="inputPassword4" />
+                </div>
+                <div class="form-group col-md-4">
+                  <label>LastName</label>
+                  <input type=" " class="form-control" id="inputEmail4" />
+                </div>
+              </div>
+              <div class="form-row">
+                <h5>Address</h5>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label>Mailing Street</label>
+                  <input type="email" class="form-control" id="inputEmail4" />
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Mailing City</label>
+                  <input class="form-control" id="inputPassword4" />
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Mailing State</label>
+                  <input type=" " class="form-control" id="inputEmail4" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label>Mailing Zip</label>
+                  <input type="email" class="form-control" id="inputEmail4" />
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Mailing Country</label>
+                  <input class="form-control" id="inputPassword4" />
+                </div>
+              </div>
+              <button class="btn btn-outline-primary float-right">
+                Cancel
+              </button>
+              <button class="btn btn-primary float-right mr-3">Save</button>
+            </form>
+          </div>
         </div>
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>Salutaion</label>
-            <input type="email" class="form-control" id="inputEmail4" />
-          </div>
-          <div class="form-group col-md-4">
-            <label>FirstName</label>
-            <input class="form-control" id="inputPassword4" />
-          </div>
-          <div class="form-group col-md-4">
-            <label>LastName</label>
-            <input type=" " class="form-control" id="inputEmail4" />
-          </div>
-        </div>
-        <div class="form-row">
-          <h5>Address</h5>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>Mailing Street</label>
-            <input type="email" class="form-control" id="inputEmail4" />
-          </div>
-          <div class="form-group col-md-4">
-            <label>Mailing City</label>
-            <input class="form-control" id="inputPassword4" />
-          </div>
-          <div class="form-group col-md-4">
-            <label>Mailing State</label>
-            <input type=" " class="form-control" id="inputEmail4" />
+      ) : (
+        ""
+      )}
+      {window.isDelete ? (
+        <div className="popup-box">
+          <div className="box ">
+            <span className="close-icon">x</span>
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Delete PaymentMethod</h5>
+                <p class="card-text">
+                  Are you sure you want to delete this card?
+                </p>
+                <button
+                  class="btn btn-outline-primary float-right mt-4"
+                  onClick={createTransaction}
+                >
+                  Cancel
+                </button>
+                <button
+                  class="btn btn-primary float-right mt-4 mr-3"
+                  onClick={createTransaction}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>Mailing Zip</label>
-            <input type="email" class="form-control" id="inputEmail4" />
-          </div>
-          <div class="form-group col-md-4">
-            <label>Mailing Country</label>
-            <input class="form-control" id="inputPassword4" />
-          </div>
-        </div>
-        <button class="btn btn-outline-primary float-right">
-              Cancel
-            </button>
-            <button class="btn btn-primary float-right mr-3">
-              Save
-            </button>
-      </form>
-      </div>
-      </div>
-     ):("")}
-     {window.isDelete ? (
-       <div className="popup-box">
-       <div className="box ">
-         <span className="close-icon">x</span>
-     <div class="card">
-  <div class="card-body">
-    <h5 class="card-title">Delete PaymentMethod</h5>
-    <p class="card-text">Are you sure you want to delete this card?</p>
-    <button class="btn btn-outline-primary float-right mt-4" onClick={createTransaction}>Cancel</button>
-    <button class="btn btn-primary float-right mt-4 mr-3" onClick={createTransaction}>Delete</button>
-  </div>
-  </div>
-  </div>
-  </div>
-   ):("")}
+      ) : (
+        ""
+      )}
     </div>
   );
 }
 
 function onloadeddata() {
-     const queryParams = new URLSearchParams(window.location.search);
-    window.isConatctExist = queryParams.get('isContactExist');
+  const queryParams = new URLSearchParams(window.location.search);
+  window.isContactExist = queryParams.get("isContactExist");
+  console.log(" window.isConatctExist==>" + window.isContactExist);
+  if(window.isContactExist=true){
+    console.log(" inside if ==>" + window.isContactExist);
+    window.newContact = false;
+    console.log(" window.newContact in if==>" + window.newContact);
+  }
+  else{
+    console.log(" inside else ==>" + window.isContactExist);
+  window.newContact = true;
+  console.log(" window.newContact in else ==>" + window.newContact);
+  }
   // const name = queryParams.get('name');
   // const type = queryParams.get('type');
-  console.log("get url params==>"+window.isConatctExist);
- //window.ispopuptrue = false;
+  console.log("get url params==>" + window.isConatctExist);
+  //window.ispopuptrue = false;
   console.log("I was loaded");
   fetch(
     "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
@@ -239,19 +266,23 @@ function onloadeddata() {
         //console.log("------>namesList" +namesList);
         return (
           <li
-            class="list-group-item d-flex justify-content-between align-items-center" data-id={listValues.id}
-            onClick={selectedPaymentMethod}>
+            class="list-group-item d-flex justify-content-between align-items-center"
+            data-id={listValues.id}
+            onClick={selectedPaymentMethod}
+          >
             <div data-id={listValues.id} onClick={selectedPaymentMethod}>
               <p
                 class="text-uppercase mb-1"
                 data-id={listValues.id}
-                onClick={selectedPaymentMethod}>
+                onClick={selectedPaymentMethod}
+              >
                 {listValues.brand} ****{listValues.last4}
               </p>
               <p
                 class="text-black-50 mb-0"
                 data-id={listValues.id}
-                onClick={selectedPaymentMethod}>
+                onClick={selectedPaymentMethod}
+              >
                 Expires on: {listValues.exp_month}/{listValues.exp_year}
                 {listValues.isDefault ? (
                   <span class="badge badge-pill badge-primary ml-4">
@@ -262,11 +293,14 @@ function onloadeddata() {
                 )}
               </p>
             </div>
-            <span>
+            {/* <span>
               <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-              <i class="fas fa-trash-alt text-dark" data-id={listValues.id}
-                onClick={handleDelete}></i>
-            </span>
+              <i
+                class="fas fa-trash-alt text-dark"
+                data-id={listValues.id}
+                onClick={handleDelete}
+              ></i>
+            </span> */}
           </li>
         );
       });
@@ -277,7 +311,7 @@ function onloadeddata() {
       console.log(err);
     });
 }
-function handleDelete(event){
+function handleDelete(event) {
   window.isDelete = true;
   console.log("handleDelete isDelete ------>" + window.isDelete);
   window.paymentMethodId = event.target.getAttribute("data-id");
@@ -306,7 +340,9 @@ function deletePaymentMethod(event) {
       console.log(response);
       if (response.id) {
         console.log("after delete and before listing");
-        onloadeddata();
+        console.log("1111");
+        refreshPage();
+        //onloadeddata();
       }
     })
     .catch((err) => {
@@ -314,8 +350,24 @@ function deletePaymentMethod(event) {
     });
 }
 
+function refreshPage() {
+  console.log("invoked refresh fn--->");
+  //const refreshPage = ()=>{
+  window.location.reload();
+  console.log("After refresh--->");
+  //onloadeddata();
+}
+//console.log("2222--->");
+// return (
+//  <div>
+//    <h1>{Math.random()}</h1>
+//    <button onClick={refreshPage}>Refresh</button>
+//  </div>
+// );
+//}
+
 function createTransaction() {
-  //   console.log("createTransaction");
+  console.log("createTransaction");
   //   fetch("https://api.stripe.com/v1/payment_intents?amount=16548&currency=usd&payment_method=pm_1KHTFdJZdmpiz6ZwytG2Z37S&confirm=true&customer=cus_Ku19ymdRtCdzMs&receipt_email=akshaya.sreekumarmail@gmail.com", {
   //     "method": "POST",
   //     "headers": {
@@ -339,7 +391,7 @@ function createTransaction() {
   //     console.log(err);
   //   });
 
-  return "I am Okay";
+  //return "I am Okay";
 }
 
 function selectedPaymentMethod(event) {
@@ -351,11 +403,11 @@ function selectedPaymentMethod(event) {
   }
   _listItem.classList.add("activeList");
 }
-function showpopup(){
+function showpopup() {
   console.log("Invoked Popup function");
   window.ispopuptrue = true;
 }
-function refreshPage() {
-  window.location.reload(false);
-}
+// function refreshPage() {
+//   window.location.reload(false);
+// }
 export default App;
