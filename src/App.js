@@ -7,112 +7,114 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 toast.configure()
 // class App extends Component{
-  
+//     onloadeddata() {
+//     const queryParams = new URLSearchParams(window.location.search);
+//     window.isContactExist = queryParams.get("isContactExist");
+//     console.log(" window.isConatctExist==>" + window.isContactExist);
+//     if ((window.isContactExist == "true")) {
+//       window.newContact = false;
+//     } else {
+//       window.newContact = true;
+//     }
+//     console.log("window.isNewCard in onLOad  "+window.isNewCard);
+//     if ((window.isNewCard == true)) {
+//       console.log("window.isNewCard in if.  "+window.isNewCard);
+//       window.shownewCard = true;
+//     } else {
+//       console.log("window.isNewCard in else.  "+window.isNewCard);
+//       window.shownewCard = false;
+//     }
+//     fetch(
+//       "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
+//       {
+//         method: "GET",
+//         headers: {
+//           "x-rapidapi-host": "https://api.stripe.com",
+//           // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
+//           Authorization:
+//             "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+//         },
+//       }
+//     )
+//       .then((response) => response.json())
+//       .then((response) => {
+//         //console.log("ListPaymentMethods--->" +JSON.stringify(response));
+//         var cardList = response.data;
+//         var paymentMethodList = [];
+//         var jsonValues = JSON.parse(JSON.stringify(cardList));
+//         var crd = new Object();
+//         for (var i = 0; i < jsonValues.length; i++) {
+//           crd = jsonValues[i].card;
+//           crd.id = jsonValues[i].id;
+//           crd.name = jsonValues[i].billing_details.name;
+//           paymentMethodList.push(crd);
+//         }
+//         var defaultMethod = "pm_1KQWkxJZdmpiz6ZwRILWgYbS";
+//         window.paymentMethodId = defaultMethod;
+//         for (var i = 0; i < paymentMethodList.length; i++) {
+//           if (paymentMethodList[i].id == defaultMethod) {
+//             paymentMethodList[i].isDefault = true;
+//           } else {
+//             paymentMethodList[i].isDefault = false;
+//           }
+//         }
+//         console.log("default ===> " + JSON.stringify(paymentMethodList));
+//         window.namesList = paymentMethodList.map(function (listValues, index) {
+//           //console.log("window.namesList11-->" +namesList);
+//           //console.log("------>namesList" +namesList);
+//           return (
+//             <li
+//               class="list-group-item d-flex justify-content-between align-items-center"
+//               data-id={listValues.id}
+//               onClick={selectedPaymentMethod}
+//             >
+//               <div data-id={listValues.id}>
+//                 <p
+//                   class="text-uppercase mb-1"
+//                   data-id={listValues.id}
+//                 >
+//                   {listValues.brand} ****{listValues.last4}
+//                 </p>
+//                 <p
+//                   class="text-black-50 mb-0"
+//                   data-id={listValues.id}
+//                 >
+//                   Expires on: {listValues.exp_month}/{listValues.exp_year}
+//                   {listValues.isDefault ? (
+//                     <span class="badge badge-pill badge-primary ml-4">
+//                       Default
+//                     </span>
+//                   ) : (
+//                     ""
+//                   )}
+//                 </p>
+//               </div>
+//               <span>
+//                 {/* <i class="fas fa-pencil-alt mr-3 text-dark"></i>
+//                 <i
+//                   class="fas fa-trash-alt text-dark"
+//                   data-id={listValues.id}
+//                   onClick={handleDelete}
+//                 ></i> */}
+//               </span>
+//             </li>
+//           );
+//         });
+//         console.log("----!-->namesList-->" + window.namesList);
+//         window.out = window.namesList;
+//         return window.namesList;
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//       });
+//       console.log("window.out-->" + window.out);
+//       var newlist = window.out;
+//       return newlist;
+//   }
+
 //   render(){
 //     //onloadeddata();
-//     function onloadeddata() {
-//       const queryParams = new URLSearchParams(window.location.search);
-//       window.isContactExist = queryParams.get("isContactExist");
-//       console.log(" window.isConatctExist==>" + window.isContactExist);
-//       if ((window.isContactExist == "true")) {
-//         window.newContact = false;
-//       } else {
-//         window.newContact = true;
-//       }
-//       console.log("window.isNewCard in onLOad  "+window.isNewCard);
-//       if ((window.isNewCard == true)) {
-//         console.log("window.isNewCard in if.  "+window.isNewCard);
-//         window.shownewCard = true;
-//       } else {
-//         console.log("window.isNewCard in else.  "+window.isNewCard);
-//         window.shownewCard = false;
-//       }
-//       var out = [];
-//       out = fetch(
-//         "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
-//         {
-//           method: "GET",
-//           headers: {
-//             "x-rapidapi-host": "https://api.stripe.com",
-//             // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
-//             Authorization:
-//               "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-//           },
-//         }
-//       )
-//         .then((response) => response.json())
-//         .then((response) => {
-//           //console.log("ListPaymentMethods--->" +JSON.stringify(response));
-//           var cardList = response.data;
-//           var paymentMethodList = [];
-//           var jsonValues = JSON.parse(JSON.stringify(cardList));
-//           var crd = new Object();
-//           for (var i = 0; i < jsonValues.length; i++) {
-//             crd = jsonValues[i].card;
-//             crd.id = jsonValues[i].id;
-//             crd.name = jsonValues[i].billing_details.name;
-//             paymentMethodList.push(crd);
-//           }
-//           var defaultMethod = "pm_1KQWkxJZdmpiz6ZwRILWgYbS";
-//           window.paymentMethodId = defaultMethod;
-//           for (var i = 0; i < paymentMethodList.length; i++) {
-//             if (paymentMethodList[i].id == defaultMethod) {
-//               paymentMethodList[i].isDefault = true;
-//             } else {
-//               paymentMethodList[i].isDefault = false;
-//             }
-//           }
-//           console.log("default ===> " + JSON.stringify(paymentMethodList));
-//           window.namesList = paymentMethodList.map(function (listValues, index) {
-//             //console.log("window.namesList11-->" +namesList);
-//             //console.log("------>namesList" +namesList);
-//             return (
-//               <li
-//                 class="list-group-item d-flex justify-content-between align-items-center"
-//                 data-id={listValues.id}
-//                 onClick={selectedPaymentMethod}
-//               >
-//                 <div data-id={listValues.id}>
-//                   <p
-//                     class="text-uppercase mb-1"
-//                     data-id={listValues.id}
-//                   >
-//                     {listValues.brand} ****{listValues.last4}
-//                   </p>
-//                   <p
-//                     class="text-black-50 mb-0"
-//                     data-id={listValues.id}
-//                   >
-//                     Expires on: {listValues.exp_month}/{listValues.exp_year}
-//                     {listValues.isDefault ? (
-//                       <span class="badge badge-pill badge-primary ml-4">
-//                         Default
-//                       </span>
-//                     ) : (
-//                       ""
-//                     )}
-//                   </p>
-//                 </div>
-//                 <span>
-//                   {/* <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-//                   <i
-//                     class="fas fa-trash-alt text-dark"
-//                     data-id={listValues.id}
-//                     onClick={handleDelete}
-//                   ></i> */}
-//                 </span>
-//               </li>
-//             );
-//           });
-//           console.log("----!-->namesList-->" + window.namesList);
-//           return window.namesList;
-//         })
-//         .catch((err) => {
-//           console.log(err);
-//         });
-//         console.log("out ===> " + JSON.stringify(out));
-//         return out;
-//     }
+   
 //     return(
 //       <div className="App">
 //                <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
@@ -170,7 +172,7 @@ toast.configure()
 //                  <div>
 //                    <div class="row">
 //                      <div class="col-md-10">
-//                        <h5 class=" p-3">Please submit your payment details</h5>
+//                        <h5 class=" p-3">Please submit your payment details;</h5>
 //                      </div>
 //                      <div class="col-md-2 float-right mt-2">
 //                        <div
@@ -370,7 +372,7 @@ function App() {
                 <div>
                   <div class="row">
                     <div class="col-md-10">
-                      <h5 class=" p-3">Please submit your payment detailsyyyyyy.</h5>
+                      <h5 class=" p-3">Please submit your payment details.</h5>
                     </div>
                     <div class="col-md-2 float-right mt-2">
                       <div
