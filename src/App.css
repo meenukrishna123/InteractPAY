@@ -12,7 +12,8 @@
   border-left:2px solid #007bff;
 }
 .listDetails .activeList{
-  border-left:4px solid #007bff;
+  /* border-left:4px solid #007bff; */
+  background-color: lightsteelblue;
 }
 /* Popup style */
 .popup-box {
@@ -62,6 +63,11 @@
     margin-top: calc(100vh - 85vh - 20px);
     padding: 19px;
     border: 1px solid #999;
+}
+.segmentsList.selected {
+  background: black;
+  color: white;
+  cursor: pointer;
 }
 /* .App {
   text-align: center;
