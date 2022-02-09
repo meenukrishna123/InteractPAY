@@ -282,7 +282,8 @@ toast.configure()
 function App() {
   console.log("I was triggered during render");
   console.log("window.isNewCard   "+window.isNewCard);
-  onloadeddata();
+  var ask = onloadeddata();
+  console.log('ask---->'+ask);
     return (
       <div className="App">
         <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
@@ -369,7 +370,7 @@ function App() {
                 <div>
                   <div class="row">
                     <div class="col-md-10">
-                      <h5 class=" p-3">Please submit your payment details.</h5>
+                      <h5 class=" p-3">Please submit your payment detailsyyyyyy.</h5>
                     </div>
                     <div class="col-md-2 float-right mt-2">
                       <div
@@ -429,7 +430,7 @@ function App() {
                   </div>
                 </div>
                 <ul class="list-group list-group-flush listDetails">
-                  {window.namesList}
+                  {ask}
                 </ul>
               </div>
               <button
@@ -636,11 +637,15 @@ function onloadeddata() {
         );
       });
       console.log("----!-->namesList-->" + window.namesList);
+      window.out = window.namesList;
       return window.namesList;
     })
     .catch((err) => {
       console.log(err);
     });
+    console.log("window.out-->" + window.out);
+    var newlist = window.out;
+    return newlist;
 }
 function handleAddCard() {
   console.log("invoked handleAddCard ------>");
