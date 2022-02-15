@@ -298,7 +298,7 @@ class App extends Component {
                   <div class="row">
                     <div class="col-md-10">
                       <h5 class=" p-3">
-                        Please submit your payment detailsss
+                        Please submit your payment detailsss......
                       </h5>
                     </div>
                     <div class="col-md-2 float-right mt-2">
