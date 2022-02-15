@@ -69,6 +69,14 @@
   color: white;
   cursor: pointer;
 }
+.deletePopup{
+  position:fixed; 
+  top:0px; 
+  left:800px;
+  width:600px;
+   background:none;
+}
+
 /* .App {
   text-align: center;
 }
