@@ -8,13 +8,12 @@
 .font-weight-bold {
   font-weight: 700!important;
 }
-.listDetails li:hover{
+/* .listDetails li:hover{
   border-left:2px solid #007bff;
 }
 .listDetails .activeList{
-  /* border-left:4px solid #007bff; */
   background-color: lightsteelblue;
-}
+} */
 /* Popup style */
 .popup-box {
   position: fixed;
@@ -76,6 +75,8 @@
   width:600px;
    background:none;
 }
+.modal{ display:block; }
+
 
 /* .App {
   text-align: center;

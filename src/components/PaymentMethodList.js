@@ -13,6 +13,10 @@ class PaymentMethodList extends Component {
         this.state = {
             isDelete : false
              }
+        this.state = {
+          cardlist : false
+         }
+         this.count = 0;
     }
     // handleIsDelete() {
     //     console.log("invoked handleAddCard ------>");
@@ -20,6 +24,7 @@ class PaymentMethodList extends Component {
     //         isDelete : true
     //     })
     //   }
+  
     selectedPaymentMethod(event) {
         //this.handleIsDelete();
         console.log('invoked selectedPaymentMethod on delete=====>')
@@ -193,15 +198,34 @@ class PaymentMethodList extends Component {
 // }
 
 
-    render() {
-        //var list = this.onloadeddata();
-      return (
-        <div>
-       < ListPaymentMethods />
-       < ChildComponent />
+render() {
+  console.log("window.methodList --*8--> in 2nd child"+window.methodList);
+  //  var payMethodlist = window.methodList;
+  // if(payMethodlist=='[]'){
+  //   this.count++;
+  //   if(this.count==1){
+  //      this.setState({
+  //     cardlist: true,
+  //   });
+  // }
+    
+  // }
+  // else{
+  //   console.log("Patlist exists else ");
+  // }
+  //var list = this.onloadeddata();
+  return (
+    <div>
+      < ListPaymentMethods />
+      {/* {this.state.cardlist ? (
+      <div>
+      <h7 class = "ml-4"> No Payment Methods are availabe.</h7>
+       </div>) : (
+          ""
+        )} */}
        </div>
      )
-      }
+  }
 }
   
    

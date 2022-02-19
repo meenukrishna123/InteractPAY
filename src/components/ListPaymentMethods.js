@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import "./ListPaymentMethods.css";
 import $ from 'jquery';
 import Popper from 'popper.js';
 class ListPaymentMethods extends Component {
@@ -11,34 +12,34 @@ class ListPaymentMethods extends Component {
           isDelete : false
            }
     }
-    selectedPaymentMethod(event) {
-      console.log('invoked selectedPaymentMethod on delete=====>')
-    const target = event.target;
-    console.log("Invooked Method" + target.getAttribute("data-id"));
-    window.paymentMethodId = target.getAttribute("data-id");
-     //console.log("Invooked Method" + event.target.getAttribute("data-id"));
-    //window.paymentMethodId = event.target.getAttribute("data-id");
-        var acc = document.querySelectorAll(".list-group-item");
-          for (let i = 0; i < acc.length; i++) {
-            if (acc[i].classList.contains("activeList")) {
-              acc[i].classList.remove("activeList");
-            }
-          }
-          let _listItems = event.target;
-          _listItems.classList.add("activeList");
+selectedPaymentMethod(event) {
+    console.log('invoked selectedPaymentMethod =====>');
+    console.log("Invooked Method" + event.target.getAttribute("data-id"));
+    window.paymentMethodId = event.target.getAttribute("data-id");
+    var acc = document.querySelectorAll(".list-group-item");
+     for (let i = 0; i < acc.length; i++) {
+       if (acc[i].classList.contains("activeList")) {
+          acc[i].classList.remove("activeList");
+         }
+       }
+       let _listItems = event.target;
+        _listItems.classList.add("activeList");
        
-    }
-    onloadeddata() {
-        fetch(
-          "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
-          {
-            method: "GET",
-            headers: {
-              "x-rapidapi-host": "https://api.stripe.com",
-              // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
-              Authorization:
-                "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-            },
+}
+ onloadeddata() {
+   const queryParams = new URLSearchParams(window.location.search);
+    this.customerId = queryParams.get("customerId");
+   console.log("this.customerId in onloadxx---> "+this.customerId);
+  //  if(this.customerId){
+    fetch(
+      "https://api.stripe.com/v1/payment_methods?type=card&customer="+this.customerId,
+        {
+          method: "GET",
+          headers: {
+            "x-rapidapi-host": "https://api.stripe.com",
+            // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
+            Authorization: "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+           },
           }
         )
           .then((response) => response.json())
@@ -64,8 +65,8 @@ class ListPaymentMethods extends Component {
               }
             }
             console.log("default ===> " + JSON.stringify(paymentMethodList));
-            console.log("----!-->namesList-->" + window.namesList);
-            //window.out = [];
+            //console.log("----->namesList-->" + window.namesList);
+            window.methodList =  JSON.stringify(paymentMethodList);
             window.out = paymentMethodList;
             return window.out;
           })
@@ -77,27 +78,83 @@ class ListPaymentMethods extends Component {
           var newlist = window.out;
           console.log("return newlist-->" + newlist);
           return newlist;
-      }
+  // }
+  // else{
+  //   window.methodList =  [];
+  // }
+}
    
-      handleIsDelete() {
-        console.log("invoked handleIsDelete is 2nd listPay child ------>");
-        this.setState({
-            isDelete : true
-        })
-      }
+handleIsDelete() {
+   console.log("invoked handleIsDelete ");
+    this.setState({
+       isDelete : true
+     })
+}
      
-      render() {
-      var list = this.onloadeddata();
-        console.log('listnew####--->'+JSON.stringify(list));
-        //var listValues;
+render() {
+  var list = this.onloadeddata();
+  console.log('listnew####--->'+JSON.stringify(list));
+   //var listValues;
       return ( 
+      //   window.namesList = list.map((listValues, index) => (
+      //     <div>
+      //            <ul class="list-group  list-group-flush listDetails border">
+      //                <li
+      //           class="d-flex justify-content-between align-items-center listDetails list-group-item"
+      //           data-id={listValues.id} name= "livalue"
+      //          onClick={event => this.selectedPaymentMethod(event)}
+      //         >
+      //           <div data-id={listValues.id}>
+      //             <p
+      //               class="text-uppercase mb-1"
+      //               data-id={listValues.id}
+      //             >
+      //               {listValues.brand} ****{listValues.last4}
+      //             </p>
+      //             <p
+      //               class="text-black-50 mb-0"
+      //               data-id={listValues.id}
+      //             >
+      //               Expires on: {listValues.exp_month}/{listValues.exp_year}
+      //               {listValues.isDefault ? (
+      //                 <span class="badge badge-pill badge-primary ml-4">
+      //                   Default
+      //                 </span>
+      //               ) : (
+      //                 ""
+      //               )}
+      //             </p>
+      //           </div>
+      //           <span>
+      //             <i class="fas fa-pencil-alt mr-3 text-dark"></i>
+      //             <i
+      //               class="fas fa-trash-alt text-dark"
+      //               data-id={listValues.id}
+      //               onClick={() => this.accessChild()}
+      //               //onClick={() => this.handleIsDelete()}
+      //               //onClick = {this.handleIsDelete()}
+      //               //onClick={() => this.handleIsDelete()}
+      //             ></i>
+      //           </span>
+      //         </li>
+      //         </ul> 
+
+      //         </div> 
+           
+      //     )
+          
+          
+      // )
+
+      <div>
+      {list ? (
         window.namesList = list.map((listValues, index) => (
           <div>
-                 <ul class="list-group list-group-flush listDetails border">
+                 <ul class="list-group  list-group-flush listDetails border">
                      <li
-                class="list-group-item d-flex justify-content-between align-items-center listDetails"
-                data-id={listValues.id}
-               //onClick={() => this.selectedPaymentMethod()}
+                class="d-flex justify-content-between align-items-center listDetails list-group-item"
+                data-id={listValues.id} name= "livalue"
+               onClick={event => this.selectedPaymentMethod(event)}
               >
                 <div data-id={listValues.id}>
                   <p
@@ -125,7 +182,7 @@ class ListPaymentMethods extends Component {
                   <i
                     class="fas fa-trash-alt text-dark"
                     data-id={listValues.id}
-                    onClick={() => this.accessChild()}
+                    onClick={() => this.handleIsDelete()}
                     //onClick={() => this.handleIsDelete()}
                     //onClick = {this.handleIsDelete()}
                     //onClick={() => this.handleIsDelete()}
@@ -139,12 +196,42 @@ class ListPaymentMethods extends Component {
           )
           
           
-      )
-     
-       
-     
-
-     )
+      )) : (
+        <div>
+        <h7 class = "ml-4"> No Payment Methods are availabe.</h7>
+         </div>
+        )}
+        {this.state.isDelete ? (
+                <div className="popup-box">
+                    <div className="box ">
+                      <span className="close-icon">x</span>
+                     <div class="card">
+                        <div class="card-body">
+                          <h5 class="border-bottom card-title pb-3 text-center">Delete PaymentMethod</h5>
+                          <p class="card-text">
+                            Are you sure you want to delete this card?
+                          </p>
+                          <button
+                            class="btn btn-outline-primary float-right mt-4"
+                            //onClick={createTransaction}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            class="btn btn-primary float-right mt-4 mr-3"
+                            //onClick={createTransaction}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                 ""
+                )}
+       </div>
+  )
       }
 }
 export default ListPaymentMethods;
