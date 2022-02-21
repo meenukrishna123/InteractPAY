@@ -5,20 +5,24 @@ import "./App.css";
 import { render } from "@testing-library/react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Dropdown from "react-dropdown";
+import useDropdownMenu from "react-accessible-dropdown-menu-hook";
 import React, { Component, PropTypes } from "react";
 import PaymentMethodList from "./components/PaymentMethodList";
 import ListPaymentMethods from "./components/ListPaymentMethods";
-//import { Modal, Fade, utils } from 'react-bootstrap'
-var Modal = require('react-bootstrap-modal');
+//import { Payment } from "./payment";
+var Modal = require("react-bootstrap-modal");
 
+//const defaultOption = options[0];
 //import AddNewCard from './components/AddNewCard';
 
 toast.configure();
 class App extends Component {
   constructor(props) {
     super(props);
-    //   const queryParams = new URLSearchParams(window.location.search);
-    //   var isContactExist = queryParams.get("isContactExist");
+    const queryParams = new URLSearchParams(window.location.search);
+    this.customerId = queryParams.get("customerId");
+    //const useDropdownMenu =   useDropdownMenu('2');
     //   if(isContactExist == "true"){
     //     console.log("inside if for contact check");
     //   // this.state = {
@@ -39,17 +43,21 @@ class App extends Component {
     this.navigateTo = this.navigateTo.bind(this);
     this.createTransactionRecord = this.createTransactionRecord.bind(this);
     this.closeModal = this.closeModal.bind(this);
-    
+    this.handleCardInput = this.handleCardInput.bind(this);
+    this.createPaymentMethod = this.createPaymentMethod.bind(this);
+    this.opendropdown = this.opendropdown.bind(this);
     //this.onloadeddata = this.onloadeddata.bind(this);
     console.log("constructor");
     const current = new Date();
-    this.todaysDate = `${current.getFullYear()}-${current.getMonth() + 1}-${current.getDate()}`;
+    this.todaysDate = `${current.getFullYear()}-${
+      current.getMonth() + 1
+    }-${current.getDate()}`;
     console.log("todaysDate--> " + this.todaysDate);
-    this.state = {
-      isnewcard: false,
-    };
-    this.state={newcontact:false};
-		this.handleClick = this.handleClick.bind(this);
+    this.state = {isnewcard: false};
+    this.state = { dropdown: false };
+    this.state = { newcontact: false };
+    this.state = { isClick: false };
+    this.handleClick = this.handleClick.bind(this);
     // this.state = {
     //   isnewContact: false,
     // };
@@ -57,10 +65,20 @@ class App extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.contactFlag = 0;
   }
-  handleClick()
- 	{
- 		this.setState({open:true});
- 	}
+  opendropdown() {
+    console.log("invoke dropdown");
+    if(this.state.dropdown== false){
+      console.log("invoke dropdown if false");
+     this.setState({ dropdown: true });
+    }else{
+      this.setState({ dropdown: false });
+      console.log("invoke dropdown if true");
+
+    }
+  }
+  handleClick() {
+    this.setState({ open: true });
+  }
   handleInputChange(event) {
     console.log("Invoked create handleInputChange");
     this.inputParams = {};
@@ -108,6 +126,7 @@ class App extends Component {
     console.log("invoked handleAddCard ------>");
     this.setState({
       isnewcard: true,
+      dropdown: false
     });
   }
   handleIsDelete() {
@@ -138,6 +157,7 @@ class App extends Component {
       .then((response) => response.json())
       .then((response) => {
         this.customerId = response.id;
+        window.custId = this.customerId;
         console.log("customer create -->" + response.id);
         if (this.customerId) {
           this.inputParams.customerId = this.customerId;
@@ -155,6 +175,7 @@ class App extends Component {
             .then((response) => response.json())
             .then((response) => {
               this.contactId = response;
+              window.contId = this.contactId;
               console.log(" create  contact-->" + JSON.stringify(response));
               this.closeModal();
             })
@@ -175,7 +196,13 @@ class App extends Component {
     const queryParams = new URLSearchParams(window.location.search);
     this.amount = queryParams.get("amount");
     var conAmount = this.amount + "00";
-    this.customerId = queryParams.get("customerId");
+    this.custId = queryParams.get("customerId");
+    if(this.custId){
+      this.customerId = this.custId;
+    }
+    else{
+      this.customerId = window.custId;
+    }
     this.contactId = queryParams.get("contactId");
     this.paymentMethodId = window.paymentMethodId;
     var transactionUrl =
@@ -265,18 +292,22 @@ class App extends Component {
     console.log("Invoked navigation function-->");
     window.location.href = url;
   }
-  createTransactionRecord(
-    transactionId,
-    transactionstatus,
-    gatewayMessage,
-    gatewayStatus
+  createTransactionRecord(transactionId,transactionstatus,gatewayMessage,gatewayStatus
   ) {
     console.log("Invoked Create Transaction Record");
+    const queryParams = new URLSearchParams(window.location.search);
+    this.contId = queryParams.get("contactId");
+    if(this.contId){
+      this.contactId = this.contId;
+    }
+    else{
+      this.contactId = window.contId;
+    }
     var transactionParams = {};
     transactionParams.paymentGatewayIdentifier = transactionId;
     transactionParams.Amount = this.amount;
-    transactionParams.transactionEmail = "sample@gmail.com";
-    transactionParams.transactionCurrencyCode = "usd";
+    transactionParams.transactionEmail = "akshayasreekumar@gmail.com";
+    transactionParams.transactionCurrencyCode = "USD";
     transactionParams.transactionOrder = "8015f000001ZzCDAA0";
     transactionParams.transactionContact = this.contactId;
     transactionParams.processedDateTime = this.todaysDate;
@@ -303,12 +334,128 @@ class App extends Component {
         console.log("err" + err);
       });
   }
-  closeModal(){
-    console.log("Invoked close popup")
-    this.setState({
-      newcontact: false,
-  });
+  closeModal() {
+    console.log("Invoked close popup");
+      this.setState({
+        newcontact: false,
+      });
   }
+  closeCardModal() {
+    console.log("Invoked close popup");
+      this.setState({
+        isnewcard: false,
+        //isClick: true
+      });
+  }
+  handleCardInput(event) {
+    console.log("Invoked create handleCardInput");
+    const target = event.target;
+    if (target.name == "cardName") {
+      this.cardName = target.value;
+    }
+    if (target.name == "cardNumber") {
+      this.cardNumber = target.value;
+    }
+    if (target.name == "expMonth") {
+      this.expMonth = target.value;
+    }
+    if (target.name == "expYear") {
+      this.expYear = target.value;
+    }
+    if (target.name == "cardCVV") {
+      this.cardCVV = target.value;
+    }
+  }
+  createPaymentMethod() {
+    this.paymenttype = "card";
+    var createMethodUrl =
+      "https://api.stripe.com/v1/payment_methods" +
+      "?type=" +
+      this.paymenttype +
+      "&card[number]=" +
+      this.cardNumber +
+      "&card[exp_month]=" +
+      this.expMonth +
+      "&card[exp_year]=" +
+      this.expYear +
+      "&card[cvc]=" +
+      this.cardCVV;
+    fetch(createMethodUrl, {
+      method: "POST",
+      headers: {
+        "x-rapidapi-host": "https://api.stripe.com",
+        Authorization:
+          "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.id) {
+          this.paymentMethodId = response.id;
+          console.log("paymentId ===> " + this.paymentMethodId);
+          this.attachPaymentmethod(this.paymentMethodId, this.customerId);
+        } else {
+          var message = response.error.message;
+          var type = "error";
+          this.notification(message, type);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        var message = " Error Occurred";
+        var type = "error";
+        this.notification(message, type);
+      });
+  }
+  attachPaymentmethod(paymentMethodId, customerId) {
+    console.log("this.customerId in attachPaymentmethod---->" + customerId);
+    var attachUrl =
+      "https://api.stripe.com/v1/payment_methods/" +
+      paymentMethodId +
+      "/attach?customer=" +
+      customerId;
+    fetch(attachUrl, {
+      method: "POST",
+      headers: {
+        "x-rapidapi-host": "https://api.stripe.com",
+        Authorization:
+          "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.id) {
+          // if(this.isdefault){
+          //   console.log("isdefault---true--->" );
+          // this.makeDefaultPaymentMethod(paymentId,customerId);
+          // }
+          //  //this.listPaymentMethods();
+          // //this.iscard = false;
+          this.closeCardModal();
+          var message = "Your card is added successfully";
+          var type = "success";
+          this.notification(message, type);
+        } else {
+          var message = response.error.message;
+          var type = "error";
+          this.notification(message, type);
+        }
+
+        //this.handleTransaction(paymentId);
+        // this.paymentId = jsonResponse.id;
+        // console.log('paymentId ===> '+this.paymentId);
+        // if(this.paymentId){
+        //   this.attachPaymentmethod(this.paymentId,this.customerId);
+        // }
+      })
+      .catch((err) => {
+        console.log(err);
+        var message = " Error Occurred";
+        var type = "error";
+        this.notification(message, type);
+      });
+  }
+
   //
   // onloadeddata() {
   //   const queryParams = new URLSearchParams(window.location.search);
@@ -424,37 +571,30 @@ class App extends Component {
     console.log(" window.isConatctExist==>" + window.isContactExist);
     if (window.isContactExist == "true") {
       window.newContact = false;
-      console.log("contact exxists--->")
+      console.log("contact exxists--->");
     } else {
       if (window.isContactExist == "false") {
-        console.log("contact createpopup--->")
-      window.newContact = true;
+        console.log("contact createpopup--->");
+        window.newContact = true;
         this.contactFlag++;
-        if(this.contactFlag==1){
-           this.setState({
+        if (this.contactFlag == 1) {
+          this.setState({
             newcontact: true,
-        });
+          });
+        }
       }
     }
-  }
     console.log("window.isNewCard in onLOad  " + window.isNewCard);
-    // //var ask = this.onloadeddata();
-    // let closeModal = () => this.setState({ open: false })
- 
-    // let saveAndClose = () => {
-    //   api.saveData()
-    //     .then(() => this.setState({ open: false }))
-    // }
     return (
       <div className="App">
         <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
           <div class="container">
             <a class="navbar-brand" href="#">
-              {/* <div> */}
-              {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
-              {/* <i class="material-icons"></i> */}
+              <div>
+              <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i>
+              <i class="material-icons"></i>
               <span class="ml-2 font-weight-bold">InterACT Pay</span>
-              {/* </div> */}
+              </div>
               <p class="Interactheader ml-sm-4">Your payment solution</p>
             </a>
           </div>
@@ -469,7 +609,7 @@ class App extends Component {
                     <p>Order Number</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>00000250</p>
+                    <p>000157</p>
                   </div>
                 </div>
                 <div class="row">
@@ -485,7 +625,7 @@ class App extends Component {
                     <p>Order Total</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>$ 799</p>
+                    <p>$ 999</p>
                   </div>
                 </div>
               </div>
@@ -502,8 +642,16 @@ class App extends Component {
                 <div>
                   <div class="row">
                     <div class="col-md-10">
-                      <h5 class=" p-3">Please submit your payment detailmm..</h5>
-                    </div>
+                      <h5 class=" p-3">
+                        Please submit your payment details.
+                      </h5>
+                    </div>  
+                      {this.state.isClick ? (
+                        <button type="button" onClick={this.myFunction.bind(this)}> myButton </button>
+              // <div className="drt_clearfix drt_CartableItem" onClick={() => props.callDetails()}></div>
+              ) : (
+                ""
+              )}
                     <div class="col-md-2 float-right mt-2">
                       <div
                         class="btn-group btn-group-toggle float-right"
@@ -532,28 +680,30 @@ class App extends Component {
                           <button
                             class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
                             type="button"
-                            data-toggle="dropdown"
+                            //id="dropdownMenuButton"
+                            //data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
+                            onClick={this.opendropdown}
                           >
-                            {/* <i class="fa fa-plus-square"></i> */}
+                            <i class="fa fa-plus-square"></i>
                           </button>
-                          <div class="dropdown-menu">
-                            <a
-                              class="dropdown-item"
-                              href="#"
-                              onClick={() => this.handleAddCard()}
-                            >
-                              Add new card
-                            </a>
-                            <a
-                              class="dropdown-item"
-                              href="#"
-                              //onClick={handleAddACH}
-                            >
-                              Add new ACH
-                            </a>
-                          </div>
+                          {this.state.dropdown ? (
+                            <div role="menu">
+                              <div className="dropdownMenu">
+                              <div>
+                              <span onClick={() => this.handleAddCard()}>Add new card</span>
+                              </div>
+                              <div>
+                              <span  
+                              // onClick={() => handleAddACH()}
+                              >Add new ACH</span>
+                              </div>
+                              </div>
+                            </div>
+                          ) : (
+                            ""
+                          )}
                         </div>
                       </div>
                     </div>
@@ -571,13 +721,10 @@ class App extends Component {
               >
                 Pay
               </button>
-              {/* ................................... */}
-              
-              {/* ................................ */}
             </div>
           </div>
         </div>
-        {this.state.isnewcard ? (
+       {this.state.isnewcard ? (
           <div className="popup-box">
             <div className="box">
               <span className="close-icon">x</span>
@@ -587,30 +734,75 @@ class App extends Component {
                 </h5>
                 <div class="form-row">
                   <div class="form-group col-md-4">
-                    <label>Card Number</label>
-                    <input type="email" class="form-control" id="inputEmail4" />
-                  </div>
-                  <div class="form-group col-md-4">
                     <label>Name on the card</label>
-                    <input class="form-control" id="inputPassword4" />
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="inputPassword4"
+                      name="cardName" autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
                   </div>
                   <div class="form-group col-md-4">
-                    <label>Expiry</label>
-                    <input type=" " class="form-control" id="inputEmail4" />
+                    <label>Card Number</label>
+                    <input
+                      type=" "
+                      class="form-control"
+                      id="inputEmail4"
+                      name="cardNumber" autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Expiry Month</label>
+                    <input
+                      placeholder="MM"
+                      type="tel"
+                      class="form-control"
+                      id="inputEmail4"
+                      name="expMonth"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Expiry Year</label>
+                    <input
+                      placeholder="YY"
+                      type="tel"
+                      class="form-control"
+                      id="inputEmail4"
+                      name="expYear"
+                      onChange={this.handleCardInput}
+                    />
                   </div>
                   <div class="form-group col-md-4">
                     <label>CVV</label>
-                    <input type="email" class="form-control" id="inputEmail4" />
+                    <input
+                      placeholder="CVV"
+                      type="tel"
+                      class="form-control"
+                      id="inputEmail4"
+                      name="cardCVV"
+                      onChange={this.handleCardInput}
+                    />
                   </div>
                 </div>
-                <div>
-                  <button class="btn btn-outline-primary float-right">
-                    {" "}
-                    Cancel
-                  </button>
-                  <button class="btn btn-primary float-right mr-3">Save</button>
-                </div>
               </form>
+              <div>
+                <button
+                  class="btn btn-outline-primary float-right"
+                  onClick={() => this.closeCardModal()}
+                >
+                  {" "}
+                  Cancel
+                </button>
+                <button
+                  class="btn btn-primary float-right mr-3"
+                  onClick={() => this.createPaymentMethod()}
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -633,7 +825,7 @@ class App extends Component {
                     <input
                       type="text"
                       class="form-control"
-                      name="fname"
+                      name="fname"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -643,7 +835,7 @@ class App extends Component {
                       type="text"
                       class="form-control"
                       id=""
-                      name="lname"
+                      name="lname"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -653,7 +845,7 @@ class App extends Component {
                       type="email "
                       class="form-control"
                       id=""
-                      name="email"
+                      name="email"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -663,7 +855,7 @@ class App extends Component {
                       type="number "
                       class="form-control"
                       id=""
-                      name="phone"
+                      name="phone"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -678,7 +870,7 @@ class App extends Component {
                       type="text"
                       class="form-control"
                       id="inputEmail4"
-                      name="street"
+                      name="street"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -687,7 +879,7 @@ class App extends Component {
                     <input
                       class="form-control"
                       id="inputPassword4"
-                      name="city"
+                      name="city"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -697,7 +889,7 @@ class App extends Component {
                       type="text "
                       class="form-control"
                       id="inputEmail4"
-                      name="state"
+                      name="state"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -709,7 +901,7 @@ class App extends Component {
                       type="email"
                       class="form-control"
                       id="inputEmail4"
-                      name="zip"
+                      name="zip"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -718,18 +910,16 @@ class App extends Component {
                     <input
                       class="form-control"
                       id="inputPassword4"
-                      name="country"
+                      name="country"  autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
                 </div>
-                {/* <button class="btn btn-outline-primary float-right">
-                  Cancel
-                </button>
-                <button class="btn btn-primary float-right mr-3" onClick={() => this.createContact()} >Save</button> */}
               </form>
-              <button class="btn btn-outline-primary float-right"
-              onClick={() => this.closeModal()}>
+              <button
+                class="btn btn-outline-primary float-right"
+                onClick={() => this.closeModal()}
+              >
                 Cancel
               </button>
               <button
@@ -743,26 +933,7 @@ class App extends Component {
         ) : (
           ""
         )}
-        {/* <div class="modal" tabindex="-1" role="dialog">
-           <div class="modal-dialog" role="document">
-             <div class="modal-content">
-           <div class="modal-header">
-           <h5 class="modal-title">Modal title</h5>
-           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-           </div>
-       <div class="modal-body">
-        <p>Modal body text goes here...</p>
        </div>
-       <div class="modal-footer">
-        <button type="button" class="btn btn-primary">Save changes</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div> */}
-      </div>
     );
   }
 }

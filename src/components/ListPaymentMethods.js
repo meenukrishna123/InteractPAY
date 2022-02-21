@@ -2,12 +2,17 @@ import React, { Component } from 'react';
 import "./ListPaymentMethods.css";
 import $ from 'jquery';
 import Popper from 'popper.js';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 class ListPaymentMethods extends Component {
     constructor(props) {
         super(props);
         this.onloadeddata = this.onloadeddata.bind(this);
         this.handleIsDelete = this.handleIsDelete.bind(this);
         this.selectedPaymentMethod = this.selectedPaymentMethod.bind(this);
+        this.closeDeleteModal = this.closeDeleteModal.bind(this);
+        this.deletePaymentMethod = this.deletePaymentMethod.bind(this);
+        this.notification = this.notification.bind(this);
         this.state = {
           isDelete : false
            }
@@ -16,6 +21,7 @@ selectedPaymentMethod(event) {
     console.log('invoked selectedPaymentMethod =====>');
     console.log("Invooked Method" + event.target.getAttribute("data-id"));
     window.paymentMethodId = event.target.getAttribute("data-id");
+    this.x = window.paymentMethodId;
     var acc = document.querySelectorAll(".list-group-item");
      for (let i = 0; i < acc.length; i++) {
        if (acc[i].classList.contains("activeList")) {
@@ -28,7 +34,13 @@ selectedPaymentMethod(event) {
 }
  onloadeddata() {
    const queryParams = new URLSearchParams(window.location.search);
-    this.customerId = queryParams.get("customerId");
+    this.custId = queryParams.get("customerId");
+    if(this.custId){
+      this.customerId = this.custId;
+    }
+    else{
+      this.customerId = window.custId;
+    }
    console.log("this.customerId in onloadxx---> "+this.customerId);
   //  if(this.customerId){
     fetch(
@@ -83,15 +95,66 @@ selectedPaymentMethod(event) {
   //   window.methodList =  [];
   // }
 }
-   
 handleIsDelete() {
    console.log("invoked handleIsDelete ");
     this.setState({
        isDelete : true
      })
 }
+closeDeleteModal(){
+  console.log("Invoked close popup")
+  this.setState({
+    isDelete: false,
+});
+}
+deletePaymentMethod(event){
+  console.log("invoked deletePaymentMethod")
+  //this.x = event.target.getAttribute("data-id");
+  this.payMethodId = this.x;
+  console.log(" delete id *******===>"+this.payMethodId)
+  var deleteUrl = "https://api.stripe.com/v1/payment_methods/" + this.payMethodId + "/detach";
+  console.log("deleteUrl==>"+deleteUrl)
+    fetch(deleteUrl,
+      {
+        method: "POST",
+        headers: {
+          "x-rapidapi-host": "https://api.stripe.com",
+          Authorization:
+            "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(" delete response -->" + JSON.stringify(response));
+        var message = " Card Deleted";
+        var type = "success";
+          this.notification(message,type);
+      })
+      .catch((err) => {
+        console.log(err);
+        var message = " Error Occurred";
+        var type = "error";
+          this.notification(message,type);
+      });
+  this.closeDeleteModal();
+   //this.render();
+}
+notification(message, type) {
+  console.log("Invoked toast function");
+  if (type == "success") {
+    toast.success(message, { position: toast.POSITION.TOP_CENTER });
+  }
+  if (type == "warning") {
+    toast.warning(message, { position: toast.POSITION.TOP_CENTER });
+  }
+  if (type == "error") {
+    toast.error(message, { position: toast.POSITION.TOP_CENTER });
+  }
+}
      
 render() {
+  console.log("Invokde twice after delete")
   var list = this.onloadeddata();
   console.log('listnew####--->'+JSON.stringify(list));
    //var listValues;
@@ -202,29 +265,25 @@ render() {
          </div>
         )}
         {this.state.isDelete ? (
-                <div className="popup-box">
-                    <div className="box ">
+                    <div className="popup-box">
+                    <div className="deletePopup">
                       <span className="close-icon">x</span>
-                     <div class="card">
-                        <div class="card-body">
-                          <h5 class="border-bottom card-title pb-3 text-center">Delete PaymentMethod</h5>
-                          <p class="card-text">
-                            Are you sure you want to delete this card?
-                          </p>
-                          <button
-                            class="btn btn-outline-primary float-right mt-4"
-                            //onClick={createTransaction}
+                        <h5 class="border-bottom mb-4 text-center">
+                        Delete PaymentMethod.
+                        </h5>
+                        <p  class="border-bottom pb-4 text-center">Are you sure you want to delete this card?</p>
+                        <div>
+                          <button class="btn btn-outline-primary float-right"
+                          onClick={() => this.closeDeleteModal()}
                           >
+                            {" "}
                             Cancel
                           </button>
-                          <button
-                            class="btn btn-primary float-right mt-4 mr-3"
-                            //onClick={createTransaction}
-                          >
-                            Delete
-                          </button>
+                          <button class="btn btn-primary float-right mr-3"
+                          //onClick={() => this.deletePaymentMethod()}
+                          onClick={event => this.deletePaymentMethod(event)}
+                          >Delete</button>
                         </div>
-                      </div>
                     </div>
                   </div>
                 ) : (
