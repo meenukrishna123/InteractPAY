@@ -292,8 +292,7 @@ class App extends Component {
     console.log("Invoked navigation function-->");
     window.location.href = url;
   }
-  createTransactionRecord(transactionId,transactionstatus,gatewayMessage,gatewayStatus
-  ) {
+  createTransactionRecord(transactionId,transactionstatus,gatewayMessage,gatewayStatus) {
     console.log("Invoked Create Transaction Record");
     const queryParams = new URLSearchParams(window.location.search);
     this.contId = queryParams.get("contactId");
@@ -643,7 +642,7 @@ class App extends Component {
                   <div class="row">
                     <div class="col-md-10">
                       <h5 class=" p-3">
-                        Please submit your payment details...
+                        Please submit your payment details.
                       </h5>
                     </div>  
                       {this.state.isClick ? (

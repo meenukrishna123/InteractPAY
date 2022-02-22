@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component,useState,useEffect } from 'react';
 import "./ListPaymentMethods.css";
 import $ from 'jquery';
 import Popper from 'popper.js';
@@ -13,10 +13,15 @@ class ListPaymentMethods extends Component {
         this.closeDeleteModal = this.closeDeleteModal.bind(this);
         this.deletePaymentMethod = this.deletePaymentMethod.bind(this);
         this.notification = this.notification.bind(this);
+        this.state = {isDelete : false}
         this.state = {
-          isDelete : false
-           }
+          items: []
+      };
     }
+componentDidMount() {
+console.log("Hiiiiii")
+this.onloadeddata();
+} 
 selectedPaymentMethod(event) {
     console.log('invoked selectedPaymentMethod =====>');
     console.log("Invooked Method" + event.target.getAttribute("data-id"));
@@ -32,7 +37,8 @@ selectedPaymentMethod(event) {
         _listItems.classList.add("activeList");
        
 }
- onloadeddata() {
+ onloadeddata () {
+   console.log("invoke onload");
    const queryParams = new URLSearchParams(window.location.search);
     this.custId = queryParams.get("customerId");
     if(this.custId){
@@ -43,7 +49,7 @@ selectedPaymentMethod(event) {
     }
    console.log("this.customerId in onloadxx---> "+this.customerId);
   //  if(this.customerId){
-    fetch(
+     fetch(
       "https://api.stripe.com/v1/payment_methods?type=card&customer="+this.customerId,
         {
           method: "GET",
@@ -77,28 +83,38 @@ selectedPaymentMethod(event) {
               }
             }
             console.log("default ===> " + JSON.stringify(paymentMethodList));
-            //console.log("----->namesList-->" + window.namesList);
+           // console.log("----->namesList-->" + window.namesList);
           //   window.methodList =  JSON.stringify(paymentMethodList);
           //   window.out = paymentMethodList;
           //  return window.out;
-          this.methodList =  JSON.stringify(paymentMethodList);
-          console.log("before changes--------------------------------------------")
+          // this.methodList =  JSON.stringify(paymentMethodList);
+        //   console.log("before changes--------------------------------------------")
            this.out = paymentMethodList;
-           console.log("this.out-->"+this.out)
-            return this.out;
+           console.log("this.outMount-->"+this.out)
+             this.setState({
+              items: this.out
+          });
+           //setUser(this.out);
+        //    let data = this.out;
+        // resolve(data);
+           //this.setState({data: this.out});
+          //  console.log("dtaa----->"+this.state.data)
+           // return this.out;
           })
+        //}
+        // useEffect(()=>{
+        //   fetchData();
+        // },[])
           .catch((err) => {
             console.log(err);
           });
-          var newlist = [];
-          //var newlist = window.out;
-          var newlist = this.out;
-          console.log("return newlist-->" + newlist);
-          return newlist;
-  // }
-  // else{
-  //   window.methodList =  [];
-  // }
+       // })
+      
+          //  var newlist = [];
+          // var newlist = window.out;
+          // // var newlist = this.out;
+          // // console.log("return newlist-->" + newlist);
+          // return newlist;
 }
 handleIsDelete() {
    console.log("invoked handleIsDelete ");
@@ -135,6 +151,7 @@ deletePaymentMethod(event){
         var message = " Card Deleted";
         var type = "success";
           this.notification(message,type);
+          this.onloadeddata();
       })
       .catch((err) => {
         console.log(err);
@@ -159,9 +176,7 @@ notification(message, type) {
 }
      
 render() {
-  console.log("Invokde twice after delete")
-  //var list = this.onloadeddata();
-  var list = [{"brand":"amex","checks":{"address_line1_check":null,"address_postal_code_check":null,"cvc_check":"pass"},"country":"US","exp_month":12,"exp_year":2022,"fingerprint":"iyAQZcrnrTl75svq","funding":"credit","generated_from":null,"last4":"0005","networks":{"available":["amex"],"preferred":null},"three_d_secure_usage":{"supported":false},"wallet":null,"id":"pm_1KVTZBJZdmpiz6ZwklrZnMBj","name":null,"isDefault":false},{"brand":"discover","checks":{"address_line1_check":null,"address_postal_code_check":null,"cvc_check":"pass"},"country":"US","exp_month":12,"exp_year":2023,"fingerprint":"qAqUKiSACnk7MumX","funding":"credit","generated_from":null,"last4":"9424","networks":{"available":["discover"],"preferred":null},"three_d_secure_usage":{"supported":true},"wallet":null,"id":"pm_1KVHGmJZdmpiz6ZwBvSoscvZ","name":null,"isDefault":false},{"brand":"amex","checks":{"address_line1_check":null,"address_postal_code_check":null,"cvc_check":"pass"},"country":"US","exp_month":1,"exp_year":2023,"fingerprint":"0BRN5btZvnZDrCvo","funding":"credit","generated_from":null,"last4":"8431","networks":{"available":["amex"],"preferred":null},"three_d_secure_usage":{"supported":true},"wallet":null,"id":"pm_1KQWmWJZdmpiz6ZwvpTeRYMi","name":null,"isDefault":false},{"brand":"mastercard","checks":{"address_line1_check":null,"address_postal_code_check":null,"cvc_check":"pass"},"country":"US","exp_month":1,"exp_year":2023,"fingerprint":"SiIkgWx8AoK49PtJ","funding":"credit","generated_from":null,"last4":"4444","networks":{"available":["mastercard"],"preferred":null},"three_d_secure_usage":{"supported":true},"wallet":null,"id":"pm_1KQWkxJZdmpiz6ZwRILWgYbS","name":null,"isDefault":true},{"brand":"visa","checks":{"address_line1_check":null,"address_postal_code_check":null,"cvc_check":"pass"},"country":"US","exp_month":2,"exp_year":2022,"fingerprint":"809jcwZFJV9rXXoa","funding":"credit","generated_from":null,"last4":"0341","networks":{"available":["visa"],"preferred":null},"three_d_secure_usage":{"supported":true},"wallet":null,"id":"pm_1KKL1EJZdmpiz6ZwdzafCfZc","name":null,"isDefault":false}];
+  var list = this.state.items;
   console.log('listnew####--->'+JSON.stringify(list));
    //var listValues;
       return ( 
