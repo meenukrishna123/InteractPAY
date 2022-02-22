@@ -78,16 +78,22 @@ selectedPaymentMethod(event) {
             }
             console.log("default ===> " + JSON.stringify(paymentMethodList));
             //console.log("----->namesList-->" + window.namesList);
-            window.methodList =  JSON.stringify(paymentMethodList);
-            window.out = paymentMethodList;
-            return window.out;
+          //   window.methodList =  JSON.stringify(paymentMethodList);
+          //   window.out = paymentMethodList;
+          //  return window.out;
+          this.methodList =  JSON.stringify(paymentMethodList);
+          console.log("before changes--------------------------------------------")
+           this.out = paymentMethodList;
+           console.log("this.out-->"+this.out)
+            return this.out;
           })
           .catch((err) => {
             console.log(err);
           });
-          console.log("window.out-->" + window.out);
+          //console.log("window.out-->" + window.out);
           var newlist = [];
           var newlist = window.out;
+          //var newlist = this.out;
           console.log("return newlist-->" + newlist);
           return newlist;
   // }
@@ -211,7 +217,7 @@ render() {
 
       <div>
       {list ? (
-        window.namesList = list.map((listValues, index) => (
+        this.namesList = list.map((listValues, index) => (
           <div>
                  <ul class="list-group  list-group-flush listDetails border">
                      <li
