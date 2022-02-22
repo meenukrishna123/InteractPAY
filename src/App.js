@@ -643,7 +643,7 @@ class App extends Component {
                   <div class="row">
                     <div class="col-md-10">
                       <h5 class=" p-3">
-                        Please submit your payment details.
+                        Please submit your payment details...
                       </h5>
                     </div>  
                       {this.state.isClick ? (
