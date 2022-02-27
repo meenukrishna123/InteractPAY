@@ -10,7 +10,8 @@ import useDropdownMenu from "react-accessible-dropdown-menu-hook";
 import React, { Component, PropTypes } from "react";
 import PaymentMethodList from "./components/PaymentMethodList";
 import ListPaymentMethods from "./components/ListPaymentMethods";
-//import { Payment } from "./payment";
+import { IoMdAddCircle,IoMdInformationCircle } from "react-icons/io";
+//import { Payment } from "./payment";IoIosAddCircle
 var Modal = require("react-bootstrap-modal");
 
 //const defaultOption = options[0];
@@ -590,7 +591,8 @@ class App extends Component {
           <div class="container">
             <a class="navbar-brand" href="#">
               <div>
-              <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i>
+                <IoMdInformationCircle />
+              {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
               <i class="material-icons"></i>
               <span class="ml-2 font-weight-bold">InterACT Pay</span>
               </div>
@@ -642,7 +644,7 @@ class App extends Component {
                   <div class="row">
                     <div class="col-md-10">
                       <h5 class=" p-3">
-                        Please submit your payment details...
+                        Please submit your payment detailsdsd
                       </h5>
                     </div>  
                       {this.state.isClick ? (
@@ -685,7 +687,8 @@ class App extends Component {
                             aria-expanded="false"
                             onClick={this.opendropdown}
                           >
-                            <i class="fa fa-plus-square"></i>
+                            {/* <i class="fa fa-plus-square"></i> */}
+                            <IoMdAddCircle />
                           </button>
                           {this.state.dropdown ? (
                             <div role="menu">

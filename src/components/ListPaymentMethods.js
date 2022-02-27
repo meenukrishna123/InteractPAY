@@ -4,6 +4,7 @@ import $ from 'jquery';
 import Popper from 'popper.js';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { IoMdTrash,IoMdCreate } from "react-icons/io";
 class ListPaymentMethods extends Component {
     constructor(props) {
         super(props);
@@ -262,15 +263,20 @@ render() {
                   </p>
                 </div>
                 <span>
-                  <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-                  <i
+                  {/* <i class="fas fa-pencil-alt mr-3 text-dark"></i> */}
+                  <span pr-3>
+                  <IoMdCreate />
+                  </span>
+                  <IoMdTrash  data-id={listValues.id}
+                    onClick={() => this.handleIsDelete()}/>
+                  {/* <i
                     class="fas fa-trash-alt text-dark"
                     data-id={listValues.id}
                     onClick={() => this.handleIsDelete()}
                     //onClick={() => this.handleIsDelete()}
                     //onClick = {this.handleIsDelete()}
                     //onClick={() => this.handleIsDelete()}
-                  ></i>
+                  ></i> */}
                 </span>
               </li>
               </ul> 
