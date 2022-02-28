@@ -4,11 +4,11 @@ import $ from 'jquery';
 import Popper from 'popper.js';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { IoMdTrash,IoMdCreate } from "react-icons/io";
 class ListPaymentMethods extends Component {
     constructor(props) {
         super(props);
         this.onloadeddata = this.onloadeddata.bind(this);
+        this.onloadAchFetch = this.onloadAchFetch.bind(this);
         this.handleIsDelete = this.handleIsDelete.bind(this);
         this.selectedPaymentMethod = this.selectedPaymentMethod.bind(this);
         this.closeDeleteModal = this.closeDeleteModal.bind(this);
@@ -22,6 +22,7 @@ class ListPaymentMethods extends Component {
 componentDidMount() {
 console.log("Hiiiiii")
 this.onloadeddata();
+this.onloadAchFetch();
 } 
 selectedPaymentMethod(event) {
     console.log('invoked selectedPaymentMethod =====>');
@@ -116,6 +117,39 @@ selectedPaymentMethod(event) {
           // // var newlist = this.out;
           // // console.log("return newlist-->" + newlist);
           // return newlist;
+}
+onloadAchFetch(){
+   //---------------------------------------------------------------------------------------------------------------------------
+// //ach payments
+
+  //list ach payment in UI
+  console.log('invoked onloadfetchAch()!!!!')
+ fetch(
+  "https://api.stripe.com/v1/customers/cus_LCimCtUYQ8o7iW/sources" ,
+  {
+    method: "GET",
+    headers: {
+      "x-rapidapi-host": "https://api.stripe.com",
+      Authorization:
+        "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+    },
+  }
+) 
+.then((response) => response.json())
+          .then((response) => {
+            //console.log("ListPaymentMethods--->" +JSON.stringify(response));
+            var achList = response.data;
+            console.log('ach list--------------'+JSON.stringify(achList))
+          })
+        
+          .catch((err) => {
+            console.log(err);
+          });
+
+  
+
+//-------------------------------------------------------------------------------------------------------------------------
+
 }
 handleIsDelete() {
    console.log("invoked handleIsDelete ");
@@ -263,20 +297,15 @@ render() {
                   </p>
                 </div>
                 <span>
-                  {/* <i class="fas fa-pencil-alt mr-3 text-dark"></i> */}
-                  <span pr-3>
-                  <IoMdCreate />
-                  </span>
-                  <IoMdTrash  data-id={listValues.id}
-                    onClick={() => this.handleIsDelete()}/>
-                  {/* <i
+                  <i class="fas fa-pencil-alt mr-3 text-dark"></i>
+                  <i
                     class="fas fa-trash-alt text-dark"
                     data-id={listValues.id}
                     onClick={() => this.handleIsDelete()}
                     //onClick={() => this.handleIsDelete()}
                     //onClick = {this.handleIsDelete()}
                     //onClick={() => this.handleIsDelete()}
-                  ></i> */}
+                  ></i>
                 </span>
               </li>
               </ul> 

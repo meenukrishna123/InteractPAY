@@ -10,9 +10,12 @@ import useDropdownMenu from "react-accessible-dropdown-menu-hook";
 import React, { Component, PropTypes } from "react";
 import PaymentMethodList from "./components/PaymentMethodList";
 import ListPaymentMethods from "./components/ListPaymentMethods";
-import { IoMdAddCircle,IoMdInformationCircle } from "react-icons/io";
-//import { Payment } from "./payment";IoIosAddCircle
+import Link from './components/Link';
+import axios from 'axios';
+
+
 var Modal = require("react-bootstrap-modal");
+var achpaymentMethodId;
 
 //const defaultOption = options[0];
 //import AddNewCard from './components/AddNewCard';
@@ -37,8 +40,12 @@ class App extends Component {
     //   };
     //   console.log("inside else for contact check"+this.state.isnewContact);
     //}
+    this.testPrint = this.testPrint.bind(this);
+    this.handleIsAch = this.handleIsAch.bind(this);
+    this.handleIsAchFalse = this.handleIsAchFalse.bind(this);
     this.createContact = this.createContact.bind(this);
     this.handleAddCard = this.handleAddCard.bind(this);
+    this.onloadAchFetch = this.onloadAchFetch.bind(this);
     this.createStripeTransaction = this.createStripeTransaction.bind(this);
     this.notification = this.notification.bind(this);
     this.navigateTo = this.navigateTo.bind(this);
@@ -47,6 +54,9 @@ class App extends Component {
     this.handleCardInput = this.handleCardInput.bind(this);
     this.createPaymentMethod = this.createPaymentMethod.bind(this);
     this.opendropdown = this.opendropdown.bind(this);
+    this.selectedAchPaymentMethod=this.selectedAchPaymentMethod.bind(this);
+    
+    
     //this.onloadeddata = this.onloadeddata.bind(this);
     console.log("constructor");
     const current = new Date();
@@ -58,6 +68,8 @@ class App extends Component {
     this.state = { dropdown: false };
     this.state = { newcontact: false };
     this.state = { isClick: false };
+    this.state = {isAch : false}
+    this.state = {isSave : false}
     this.handleClick = this.handleClick.bind(this);
     // this.state = {
     //   isnewContact: false,
@@ -65,8 +77,70 @@ class App extends Component {
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.contactFlag = 0;
+    this.state = {
+      achItems: []
+  };
+    
   }
-  opendropdown() {
+  componentDidMount() {
+    console.log("Hiiiiii")
+    this.onloadAchFetch();
+    
+    } 
+
+ //---------------------------------------------------------------------------------------------------------------------------
+
+    onloadAchFetch(){
+   // //ach payments
+   
+     //list ach payment in UI
+     console.log('invoked onloadfetchAch()!!!!')
+    fetch(
+     "https://api.stripe.com/v1/customers/cus_LCimCtUYQ8o7iW/sources" ,
+     {
+       method: "GET",
+       headers: {
+         "x-rapidapi-host": "https://api.stripe.com",
+         Authorization:
+           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+       },
+     }
+   ) 
+   .then((response) => response.json())
+             .then((response) => {
+               //console.log("ListPaymentMethods--->" +JSON.stringify(response));
+               var achList = response.data;
+               this.outAch = achList;
+               console.log('ach list--------------'+JSON.stringify(achList))
+               this.setState({
+                achItems: this.outAch
+            });
+             })
+           
+             .catch((err) => {
+               console.log(err);
+             });
+   
+     
+            }
+   //-------------------------------------------------------------------------------------------------------------------------
+   //achpaymentId 
+   selectedAchPaymentMethod(event) {
+    console.log('invoked selectedAchPaymentMethod =====>');
+    console.log("Invoked Method" + event.target.getAttribute("data-id"));
+     achpaymentMethodId = event.target.getAttribute("data-id");
+    this.x = achpaymentMethodId;
+    var acc = document.querySelectorAll(".list-group-item");
+     for (let i = 0; i < acc.length; i++) {
+       if (acc[i].classList.contains("activeList")) {
+          acc[i].classList.remove("activeList");
+         }
+       }
+       let _listItems = event.target;
+        _listItems.classList.add("activeList");
+       
+}
+   opendropdown() {
     console.log("invoke dropdown");
     if(this.state.dropdown== false){
       console.log("invoke dropdown if false");
@@ -110,6 +184,17 @@ class App extends Component {
     }
     if (target.name == "country") {
       this.country = target.value;
+    }
+    if(this.lname){
+      this.setState({
+        isSave : true
+      })
+    }
+    else{
+      this.setState({
+        isSave : false
+      })
+
     }
     this.inputParams.salutation = "Mr";
     this.inputParams.firstName = this.fname;
@@ -192,12 +277,32 @@ class App extends Component {
         console.log(err);
       });
   }
+  testPrint(){
+    console.log('tested!!!!!!!!!!')
+  }
+   //handle ach flag =true here.....................
+   handleIsAch() {
+    console.log("invoked handleIsDelete ");
+     this.setState({
+        isAch : true
+      })
+ }
+ //handle ach flag =False here.....................
+ handleIsAchFalse() {
+  console.log("invoked handleIsDelete ");
+   this.setState({
+      isAch : false
+    })
+}
+
+// '----------------This is Create Payment Intent-------------------------------------------
   createStripeTransaction() {
     console.log("Invoked createTransaction");
     const queryParams = new URLSearchParams(window.location.search);
     this.amount = queryParams.get("amount");
     var conAmount = this.amount + "00";
     this.custId = queryParams.get("customerId");
+    var transactionUrl;
     if(this.custId){
       this.customerId = this.custId;
     }
@@ -206,7 +311,15 @@ class App extends Component {
     }
     this.contactId = queryParams.get("contactId");
     this.paymentMethodId = window.paymentMethodId;
-    var transactionUrl =
+    //if ach payment id exists, then call the stripe api for ach payment
+    if(achpaymentMethodId){
+       transactionUrl =
+      "https://api.stripe.com/v1/charges?amount=999&currency=usd&customer=cus_LCimCtUYQ8o7iW&source="
+      +achpaymentMethodId;
+    console.log("transactionUrl-->" + transactionUrl);
+    
+  }if( this.paymentMethodId){
+    transactionUrl =
       "https://api.stripe.com/v1/payment_intents" +
       "?amount=" +
       conAmount +
@@ -216,6 +329,8 @@ class App extends Component {
       this.paymentMethodId +
       "&confirm=true";
     console.log("transactionUrl-->" + transactionUrl);
+
+  }  
     fetch(transactionUrl, {
       method: "POST",
       headers: {
@@ -273,7 +388,8 @@ class App extends Component {
       .catch((err) => {
         console.log(err);
       });
-  }
+  
+}
   notification(message, type) {
     console.log("Invoked toast function");
     if (type == "success") {
@@ -456,115 +572,10 @@ class App extends Component {
       });
   }
 
-  //
-  // onloadeddata() {
-  //   const queryParams = new URLSearchParams(window.location.search);
-  //   window.isContactExist = queryParams.get("isContactExist");
-  //   console.log(" window.isConatctExist==>" + window.isContactExist);
-  //   if ((window.isContactExist == "true")) {
-  //     window.newContact = false;
-  //   } else {
-  //     window.newContact = true;
-  //   }
-  //   console.log("window.isNewCard in onLOad  "+window.isNewCard);
-  //   if ((window.isNewCard == true)) {
-  //     console.log("window.isNewCard in if.  "+window.isNewCard);
-  //     window.shownewCard = true;
-  //   } else {
-  //     console.log("window.isNewCard in else.  "+window.isNewCard);
-  //     window.shownewCard = false;
-  //   }
-  //   fetch(
-  //     "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         "x-rapidapi-host": "https://api.stripe.com",
-  //         // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
-  //         Authorization:
-  //           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-  //       },
-  //     }
-  //   )
-  //     .then((response) => response.json())
-  //     .then((response) => {
-  //       //console.log("ListPaymentMethods--->" +JSON.stringify(response));
-  //       var cardList = response.data;
-  //       var paymentMethodList = [];
-  //       var jsonValues = JSON.parse(JSON.stringify(cardList));
-  //       var crd = new Object();
-  //       for (var i = 0; i < jsonValues.length; i++) {
-  //         crd = jsonValues[i].card;
-  //         crd.id = jsonValues[i].id;
-  //         crd.name = jsonValues[i].billing_details.name;
-  //         paymentMethodList.push(crd);
-  //       }
-  //       var defaultMethod = "pm_1KQWkxJZdmpiz6ZwRILWgYbS";
-  //       window.paymentMethodId = defaultMethod;
-  //       for (var i = 0; i < paymentMethodList.length; i++) {
-  //         if (paymentMethodList[i].id == defaultMethod) {
-  //           paymentMethodList[i].isDefault = true;
-  //         } else {
-  //           paymentMethodList[i].isDefault = false;
-  //         }
-  //       }
-  //       console.log("default ===> " + JSON.stringify(paymentMethodList));
-  //       window.namesList = paymentMethodList.map(function (listValues, index) {
-  //         //console.log("window.namesList11-->" +namesList);
-  //         //console.log("------>namesList" +namesList);
-  //         return (
-  //           <li
-  //             class="list-group-item d-flex justify-content-between align-items-center"
-  //             data-id={listValues.id}
-  //              onClick={selectedPaymentMethod}
-  //           >
-  //             <div data-id={listValues.id}>
-  //               <p
-  //                 class="text-uppercase mb-1"
-  //                 data-id={listValues.id}
-  //               >
-  //                 {listValues.brand} ****{listValues.last4}
-  //               </p>
-  //               <p
-  //                 class="text-black-50 mb-0"
-  //                 data-id={listValues.id}
-  //               >
-  //                 Expires on: {listValues.exp_month}/{listValues.exp_year}
-  //                 {listValues.isDefault ? (
-  //                   <span class="badge badge-pill badge-primary ml-4">
-  //                     Default
-  //                   </span>
-  //                 ) : (
-  //                   ""
-  //                 )}
-  //               </p>
-  //             </div>
-  //             <span>
-  //               <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-  //               <i
-  //                 class="fas fa-trash-alt text-dark"
-  //                 data-id={listValues.id}
-  //                 //onClick={() => this.handleIsDelete()}
-  //                 //onClick = {this.handleIsDelete()}
-  //                 //onClick={() => this.handleIsDelete()}
-  //               ></i>
-  //             </span>
-  //           </li>
-  //         );
-  //       });
-  //       console.log("----!-->namesList-->" + window.namesList);
-  //       window.out = window.namesList;
-  //       return window.namesList;
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  //     console.log("window.out-->" + window.out);
-  //     var newlist = window.out;
-  //     return newlist;
-  // }
+  
 
   render() {
+    var achResponseList = this.state.achItems;
     console.log("Invoked render");
     const queryParams = new URLSearchParams(window.location.search);
     window.isContactExist = queryParams.get("isContactExist");
@@ -591,8 +602,7 @@ class App extends Component {
           <div class="container">
             <a class="navbar-brand" href="#">
               <div>
-                <IoMdInformationCircle />
-              {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
+              <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i>
               <i class="material-icons"></i>
               <span class="ml-2 font-weight-bold">InterACT Pay</span>
               </div>
@@ -644,7 +654,7 @@ class App extends Component {
                   <div class="row">
                     <div class="col-md-10">
                       <h5 class=" p-3">
-                        Please submit your payment details.
+                        Please submit your payment details!!!!!!!!!!!
                       </h5>
                     </div>  
                       {this.state.isClick ? (
@@ -658,7 +668,7 @@ class App extends Component {
                         class="btn-group btn-group-toggle float-right"
                         data-toggle="buttons"
                       >
-                        <label class="btn btn-outline-primary ">
+                        <label class="btn btn-outline-primary " onClick={() => this.handleIsAchFalse()} >
                           <input
                             type="radio"
                             name="options"
@@ -668,15 +678,17 @@ class App extends Component {
                           />{" "}
                           Card
                         </label>
-                        <label class="btn btn-outline-primary">
+                        <label class="btn btn-outline-primary" onClick={() => this.handleIsAch()}>
                           <input
                             type="radio"
                             name="options"
                             id="option2"
                             autocomplete="off"
+                            
                           />{" "}
                           ACH
                         </label>
+                
                         <div class="btn-group">
                           <button
                             class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
@@ -687,8 +699,7 @@ class App extends Component {
                             aria-expanded="false"
                             onClick={this.opendropdown}
                           >
-                            {/* <i class="fa fa-plus-square"></i> */}
-                            <IoMdAddCircle />
+                            <i class="fa fa-plus-square"></i>
                           </button>
                           {this.state.dropdown ? (
                             <div role="menu">
@@ -696,12 +707,17 @@ class App extends Component {
                               <div>
                               <span onClick={() => this.handleAddCard()}>Add new card</span>
                               </div>
-                              <div>
+                              {/* <div>
                               <span  
                               // onClick={() => handleAddACH()}
                               >Add new ACH</span>
+                              </div> */}
+                              <div>
+                                <Link />
+                          
                               </div>
-                              </div>
+                              
+                            </div>
                             </div>
                           ) : (
                             ""
@@ -711,7 +727,56 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-                <PaymentMethodList />
+                {this.state.isAch? (
+                    <div>
+                    {achResponseList ? (
+                      this.namesList = achResponseList.map((listValues, index) => (
+                        <div>
+                               <ul class="list-group  list-group-flush listDetails border">
+                                   <li
+                              class="d-flex justify-content-between align-items-center listDetails list-group-item"
+                              data-id={listValues.id} name= "livalue"
+                             onClick={event => this.selectedAchPaymentMethod(event)}
+                            >
+                              <div data-id={listValues.id}>
+                                <p
+                                  class="text-uppercase mb-1"
+                                  data-id={listValues.id}
+                                >
+                                  {listValues.bank_name} ****{listValues.last4}
+                                </p>
+                                
+                              </div>
+                              <span>
+                                <i class="fas fa-pencil-alt mr-3 text-dark"></i>
+                                <i
+                                  class="fas fa-trash-alt text-dark"
+                                  data-id={listValues.id}
+                                  onClick={() => this.handleIsDelete()}
+                                  //onClick={() => this.handleIsDelete()}
+                                  //onClick = {this.handleIsDelete()}
+                                  //onClick={() => this.handleIsDelete()}
+                                ></i>
+                              </span>
+                            </li>
+                            </ul> 
+              
+                            </div> 
+                         
+                        )
+                        
+                        
+                    )) : (
+                      <div>
+                      <h7 class = "ml-4"> No Payment Methods are availabe.</h7>
+                       </div>
+                      )}
+                      </div>
+
+          ) : (
+           <PaymentMethodList />
+          )}
+                
                 {/* {ask} */}
                 {/* <ul class="list-group list-group-flush listDetails">
                    {ask}
@@ -924,12 +989,21 @@ class App extends Component {
               >
                 Cancel
               </button>
+              {this.state.isSave ? (
               <button
                 class="btn btn-primary float-right mr-3"
-                onClick={() => this.createContact()}
+                onClick={() => this.createContact() }
               >
                 Save
               </button>
+              ) : (
+                <button
+                class="btn btn-primary float-right mr-3" disabled
+                //onClick={() => this.createContact() }
+              >
+                Save
+              </button>
+        )}
             </div>
           </div>
         ) : (
@@ -940,437 +1014,7 @@ class App extends Component {
   }
 }
 
-// function deletePaymentmethod() {
-//   //window.isDelete = true;
-//   console.log("handleDelete isInvoked ------>" );
-//   this.setState({
-//     isDelete : true
-//   })
-//   //window.paymentMethodId = event.target.getAttribute("data-id");
-//   console.log("handleDelete paymentid ------>" + window.paymentMethodId);
-// }
-// function App() {
-//   const [openModal, setOpenModal] = useState(false);
-//   console.log("I was triggered during render");
-//   // var ask = onloadeddata();
-//   // console.log('ask---->'+ask);
-//     return (
-//       <div className="App">
-//         <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
-//           <div class="container">
-//             <a class="navbar-brand" href="#">
-//               {/* <div> */}
-//               {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
-//               {/* <i class="material-icons"></i> */}
-//               <span class="ml-2 font-weight-bold">InterACT Pay</span>
-//               {/* </div> */}
-//               <p class="Interactheader ml-sm-4">Your payment solution</p>
-//             </a>
-//           </div>
-//         </nav>
-//         {window.isDelete ? (
-//           <div className="popup-box">
-//             <div className="box ">
-//               <span className="close-icon">x</span>
-//               <div class="card">
-//                 <div class="card-body">
-//                   <h5 class="card-title">Delete PaymentMethod</h5>
-//                   <p class="card-text">
-//                     Are you sure you want to delete this card?
-//                   </p>
-//                   <button
-//                     class="btn btn-outline-primary float-right mt-4"
-//                     onClick={createTransaction}
-//                   >
-//                     Cancel
-//                   </button>
-//                   <button
-//                     class="btn btn-primary float-right mt-4 mr-3"
-//                     onClick={createTransaction}
-//                   >
-//                     Delete
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         ) : (
-//           ""
-//         )}
-//         <div class="container">
-//           <div class="row my-5">
-//             <div class="col-lg-4 col-md-4 col-sm-1">
-//               <div class="card p-3 mb-3">
-//                 <h5 class="border-bottom pb-3">OrderSummary</h5>
-//                 <div class="row">
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Order Number</p>
-//                   </div>
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>00000250</p>
-//                   </div>
-//                 </div>
-//                 <div class="row">
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Product Name</p>
-//                   </div>
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Sample Product Name</p>
-//                   </div>
-//                 </div>
-//                 <div class="row">
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Order Total</p>
-//                   </div>
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>$ 799</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div class="card p-3">
-//                 <h5 class="border-bottom pb-3">Billing Address</h5>
-//                 <p>Kyle Hide</p>
-//                 <p>Cape West Street</p>
-//                 <p>Red Crown - New York US</p>
-//                 <p>ZipCode: 341946</p>
-//               </div>
-//             </div>
-//             <div class="col-lg-8 col-md-8 col-sm-1">
-//               <div class="card p-3">
-//                 <div>
-//                   <div class="row">
-//                     <div class="col-md-10">
-//                       <h5 class=" p-3">Please submit your payment detailss.</h5>
-//                     </div>
-//                     <div class="col-md-2 float-right mt-2">
-//                       <div
-//                         class="btn-group btn-group-toggle float-right"
-//                         data-toggle="buttons"
-//                       >
-//                         <label class="btn btn-outline-primary ">
-//                           <input
-//                             type="radio"
-//                             name="options"
-//                             id="option1"
-//                             autocomplete="off"
-//                             checked
-//                           />{" "}
-//                           Card
-//                         </label>
-//                         <label class="btn btn-outline-primary">
-//                           <input
-//                             type="radio"
-//                             name="options"
-//                             id="option2"
-//                             autocomplete="off"
-//                           />{" "}
-//                           ACH
-//                         </label>
-//                         <div class="btn-group">
-//                           <button
-//                             class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
-//                             type="button"
-//                             data-toggle="dropdown"
-//                             aria-haspopup="true"
-//                             aria-expanded="false"
-//                           >
-//                             {/* <i class="fa fa-plus-square"></i> */}
-//                           </button>
-//                           <div class="dropdown-menu">
-//                             <a
-//                               class="dropdown-item"
-//                               href="#"
-//                               onClick={() => {setOpenModal(true);
-//                               }}
-//                             >
-//                               Add new card
-//                             </a>
-//                             {openModal && <AddNewCard closeModal={setOpenModal} />}
-//                             <a
-//                               class="dropdown-item"
-//                               href="#"
-//                               //onClick={handleAddACH}
-//                             >
-//                               Add new ACH
-//                             </a>
-//                           </div>
-//                         </div>
-//                       </div>
-//                       {/* <button type="button" class="btn btn-outline-info waves-effect px-3"><i class="fas fa-thumbtack"
-//           aria-hidden="true"></i></button> */}
-//                     </div>
-//                   </div>
-//                 </div>
-//                 {/* <ul class="list-group list-group-flush listDetails">
-//                   {ask}
-//                 </ul> */}
-//                 <PaymentMethodList />
-//               </div>
-//               <button
-//                 class="btn btn-primary float-right mt-4"
-//                 onClick={createTransaction}
-//               >
-//                 Pay
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//        {window.shownewCard ? (
-//           <div className="popup-box">
-//             <div className="box">
-//               <span className="close-icon">x</span>
-//               <form>
-//                 <h5 class="border-bottom mb-4 text-center">Please enter your card details.</h5>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Card Number</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Name on the card</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Expiry</label>
-//                     <input type=" " class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>CVV</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                 </div>
-//                   <div>
-//                   <button class="btn btn-outline-primary float-right">
-//                     Cancel
-//                   </button>
-//                   <button class="btn btn-primary float-right mr-3">Save</button>
-//                   </div>
-//               </form>
-//             </div>
-//           </div>
-//         ) : ("")}
-//         {window.newContact ? (
-//           <div className="popup-box">
-//             <div className="box">
-//               <span className="close-icon">x</span>
-//               <form>
-//                 <h5 class="border-bottom mb-4 text-center">
-//                   Please enter the below details to proceed!
-//                 </h5>
-//                 <div class="form-row">
-//                   <h5>Name</h5>
-//                 </div>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Salutaion</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>FirstName</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>LastName</label>
-//                     <input type=" " class="form-control" id="inputEmail4" />
-//                   </div>
-//                 </div>
-//                 <div class="form-row">
-//                   <h5>Address</h5>
-//                 </div>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing Street</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing City</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing State</label>
-//                     <input type=" " class="form-control" id="inputEmail4" />
-//                   </div>
-//                 </div>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing Zip</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing Country</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                 </div>
-//                 <button class="btn btn-outline-primary float-right">
-//                   Cancel
-//                 </button>
-//                 <button class="btn btn-primary float-right mr-3">Save</button>
-//               </form>
-//             </div>
-//           </div>
-//         ) : (
-//           ""
-//         )}
-//       </div>
-//     );
 
-// }
-
-// function onloadeddata() {
-//   const queryParams = new URLSearchParams(window.location.search);
-//   window.isContactExist = queryParams.get("isContactExist");
-//   console.log(" window.isConatctExist==>" + window.isContactExist);
-//   if ((window.isContactExist == "true")) {
-//     window.newContact = false;
-//   } else {
-//     window.newContact = true;
-//   }
-//   console.log("window.isNewCard in onLOad  "+window.isNewCard);
-//   if ((window.isNewCard == true)) {
-//     console.log("window.isNewCard in if.  "+window.isNewCard);
-//     window.shownewCard = true;
-//   } else {
-//     console.log("window.isNewCard in else.  "+window.isNewCard);
-//     window.shownewCard = false;
-//   }
-//   fetch(
-//     "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
-//     {
-//       method: "GET",
-//       headers: {
-//         "x-rapidapi-host": "https://api.stripe.com",
-//         // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
-//         Authorization:
-//           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-//       },
-//     }
-//   )
-//     .then((response) => response.json())
-//     .then((response) => {
-//       //console.log("ListPaymentMethods--->" +JSON.stringify(response));
-//       var cardList = response.data;
-//       var paymentMethodList = [];
-//       var jsonValues = JSON.parse(JSON.stringify(cardList));
-//       var crd = new Object();
-//       for (var i = 0; i < jsonValues.length; i++) {
-//         crd = jsonValues[i].card;
-//         crd.id = jsonValues[i].id;
-//         crd.name = jsonValues[i].billing_details.name;
-//         paymentMethodList.push(crd);
-//       }
-//       var defaultMethod = "pm_1KQWkxJZdmpiz6ZwRILWgYbS";
-//       window.paymentMethodId = defaultMethod;
-//       for (var i = 0; i < paymentMethodList.length; i++) {
-//         if (paymentMethodList[i].id == defaultMethod) {
-//           paymentMethodList[i].isDefault = true;
-//         } else {
-//           paymentMethodList[i].isDefault = false;
-//         }
-//       }
-//       console.log("default ===> " + JSON.stringify(paymentMethodList));
-//       window.namesList = paymentMethodList.map(function (listValues, index) {
-//         //console.log("window.namesList11-->" +namesList);
-//         //console.log("------>namesList" +namesList);
-//         return (
-//           <li
-//             class="list-group-item d-flex justify-content-between align-items-center"
-//             data-id={listValues.id}
-//             onClick={selectedPaymentMethod}
-//           >
-//             <div data-id={listValues.id}>
-//               <p
-//                 class="text-uppercase mb-1"
-//                 data-id={listValues.id}
-//               >
-//                 {listValues.brand} ****{listValues.last4}
-//               </p>
-//               <p
-//                 class="text-black-50 mb-0"
-//                 data-id={listValues.id}
-//               >
-//                 Expires on: {listValues.exp_month}/{listValues.exp_year}
-//                 {listValues.isDefault ? (
-//                   <span class="badge badge-pill badge-primary ml-4">
-//                     Default
-//                   </span>
-//                 ) : (
-//                   ""
-//                 )}
-//               </p>
-//             </div>
-//             <span>
-//               <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-//               <i
-//                 class="fas fa-trash-alt text-dark"
-//                 data-id={listValues.id}
-//                 onClick={handleDelete}
-//               ></i>
-//             </span>
-//           </li>
-//         );
-//       });
-//       console.log("----!-->namesList-->" + window.namesList);
-//       window.out = window.namesList;
-//       return window.namesList;
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-//     console.log("window.out-->" + window.out);
-//     var newlist = window.out;
-//     return newlist;
-// }
-// function handleAddCard() {
-//   console.log("invoked handleAddCard ------>");
-//   window.isNewCard = true;
-//   //refreshPage();
-//   //console.log("after refresh ------>");
-//   //Obj = new App();
-//   console.log("after newObj ------>");
-//   //onloadeddata();
-//  //App();
-//  //Obj.render();
-// }
-//function handleAddACH() {}
-
-// function handleDelete(event) {
-//   window.isDelete = true;
-//   console.log("handleDelete isDelete ------>" + window.isDelete);
-//   window.paymentMethodId = event.target.getAttribute("data-id");
-//   console.log("handleDelete paymentid ------>" + window.paymentMethodId);
-// }
-// function deletePaymentMethod(event) {
-//   console.log("Invooked delete" + event.target.getAttribute("data-id"));
-//   var paymentMethodId = event.target.getAttribute("data-id");
-//   console.log("Deleted paymentid ------>" + paymentMethodId);
-//   fetch(
-//     "https://api.stripe.com/v1/payment_methods/" + paymentMethodId + "/detach",
-//     {
-//       method: "POST",
-//       headers: {
-//         "x-rapidapi-host": "https://api.stripe.com",
-//         //"x-rapidapi-key": "apikey",
-//         "content-type": "application/json",
-//         accept: "application/json",
-//         Authorization:
-//           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-//       },
-//     }
-//   )
-//     .then((response) => response.json())
-//     .then((response) => {
-//       console.log(response);
-//       if (response.id) {
-//         console.log("after delete and before listing");
-//         console.log("1111");
-//         refreshPage();
-//         //onloadeddata();
-//       }
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// }
 
 function refreshPage() {
   console.log("invoked refresh fn--->");
