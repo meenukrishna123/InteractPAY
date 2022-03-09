@@ -7,79 +7,438 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Dropdown from "react-dropdown";
 import useDropdownMenu from "react-accessible-dropdown-menu-hook";
-import React, { Component, PropTypes } from "react";
-import PaymentMethodList from "./components/PaymentMethodList";
-import ListPaymentMethods from "./components/ListPaymentMethods";
-import { IoMdAddCircle,IoMdInformationCircle } from "react-icons/io";
-//import { Payment } from "./payment";IoIosAddCircle
-var Modal = require("react-bootstrap-modal");
+import React, { Component, PropTypes, useState } from "react";
+//import PaymentMethodList from "./components/PaymentMethodList";
+//import ListPaymentMethods from "./components/ListPaymentMethods";
+import {
+  IoMdAddCircle,
+  IoMdInformationCircle,
+  IoMdTrash,
+  IoMdCreate,
+} from "react-icons/io";
+//import Link from "./components/Link";
+//import axios from "axios";
 
-//const defaultOption = options[0];
-//import AddNewCard from './components/AddNewCard';
+var Modal = require("react-bootstrap-modal");
+var achpaymentMethodId;
 
 toast.configure();
 class App extends Component {
   constructor(props) {
     super(props);
     const queryParams = new URLSearchParams(window.location.search);
-    this.customerId = queryParams.get("customerId");
-    //const useDropdownMenu =   useDropdownMenu('2');
-    //   if(isContactExist == "true"){
-    //     console.log("inside if for contact check");
-    //   // this.state = {
-    //   //   isnewContact: false,
-    //   // };
-    // }
-    // else{
-    //   console.log("inside else for contact check");
-    //   this.state = {
-    //     isnewContact: true,
-    //   };
-    //   console.log("inside else for contact check"+this.state.isnewContact);
-    //}
-    this.createContact = this.createContact.bind(this);
-    this.handleAddCard = this.handleAddCard.bind(this);
-    this.createStripeTransaction = this.createStripeTransaction.bind(this);
-    this.notification = this.notification.bind(this);
-    this.navigateTo = this.navigateTo.bind(this);
-    this.createTransactionRecord = this.createTransactionRecord.bind(this);
-    this.closeModal = this.closeModal.bind(this);
-    this.handleCardInput = this.handleCardInput.bind(this);
-    this.createPaymentMethod = this.createPaymentMethod.bind(this);
-    this.opendropdown = this.opendropdown.bind(this);
-    //this.onloadeddata = this.onloadeddata.bind(this);
-    console.log("constructor");
+    this.urlCustomerId = queryParams.get("customerId");
+    this.urlContactId = queryParams.get("contactId");
+    this.urlOrderId = queryParams.get("orderId");
+    this.urlAmount = queryParams.get("amount");
+    this.urlmail = queryParams.get("mail");
     const current = new Date();
     this.todaysDate = `${current.getFullYear()}-${
       current.getMonth() + 1
     }-${current.getDate()}`;
-    console.log("todaysDate--> " + this.todaysDate);
-    this.state = {isnewcard: false};
+
+    this.handleIsAch = this.handleIsAch.bind(this);
+    this.handleIsAchFalse = this.handleIsAchFalse.bind(this);
+    this.createContact = this.createContact.bind(this);
+    this.handleAddCard = this.handleAddCard.bind(this);
+    this.onloadAchFetch = this.onloadAchFetch.bind(this);
+    this.createStripeTransaction = this.createStripeTransaction.bind(this);
+    this.notification = this.notification.bind(this);
+    this.navigateTo = this.navigateTo.bind(this);
+    //this.createTransactionRecord = this.createTransactionRecord.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+    this.handleCardInput = this.handleCardInput.bind(this);
+    //this.createPaymentMethod = this.createPaymentMethod.bind(this);
+    this.opendropdown = this.opendropdown.bind(this);
+    this.selectedAchPaymentMethod = this.selectedAchPaymentMethod.bind(this);
+    this.handleChechBox = this.handleChechBox.bind(this);
+    this.defaultCardPayment = this.defaultCardPayment.bind(this);
+    this.updateContact = this.updateContact.bind(this);
+    this.refreshPage = this.refreshPage.bind(this);
+    this.getContactDetails = this.getContactDetails.bind(this);
+    //this.onloadeddata = this.onloadeddata.bind(this);
+    this.onloadAchFetch = this.onloadAchFetch.bind(this);
+    this.handleIsDelete = this.handleIsDelete.bind(this);
+    //this.selectedPaymentMethod = this.selectedPaymentMethod.bind(this);
+    this.closeDeleteModal = this.closeDeleteModal.bind(this);
+    //this.deletePaymentMethod = this.deletePaymentMethod.bind(this);
+    this.notification = this.notification.bind(this);
+    //this.getContactDetails = this.getContactDetails.bind(this);
+    this.updatePaymentMethod = this.updatePaymentMethod.bind(this);
+    this.handledDefaultChechBox = this.handledDefaultChechBox.bind(this);
+    this.defaultCardPayment = this.defaultCardPayment.bind(this);
+    this.state = { isDelete: false };
+    this.state = { isEdit: false };
+    this.state = { defaultId: [] };
+    this.state = {
+      items: [],
+    };
+
+    //this.onloadeddata = this.onloadeddata.bind(this);
+    //console.log("constructor");
+    // const current = new Date();
+    // this.todaysDate = `${current.getFullYear()}-${current.getMonth() + 1}-${current.getDate()}`;
+    //console.log("todaysDate--> " + this.todaysDate);
+    this.state = { isnewcard: false };
     this.state = { dropdown: false };
     this.state = { newcontact: false };
     this.state = { isClick: false };
-    this.handleClick = this.handleClick.bind(this);
+    this.state = { isAch: false };
+    this.state = { isSave: false };
+    this.state = { isSaveCard: false };
+    this.state = { OrderNumber: "" };
+    this.state = { OrderTotal: "" };
+    //this.state = {isCheckValue: false}
+    // this.handleClick = this.handleClick.bind(this);
     // this.state = {
     //   isnewContact: false,
     // };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.contactFlag = 0;
+    this.state = {
+      achItems: [],
+    };
+    this.state = {
+      carditems: [],
+    };
+  }
+  componentDidMount() {
+    this.getOrderDetails();
+    this.getStripeKey();
+    //console.log("xxxxxxxxx"+x)
+    this.getContactDetails();
+    this.onloadAchFetch();
+    this.onloadeddata();
+    this.isCheckValue = false;
+    this.isDefaultValue = false;
+  }
+  getStripeKey() {
+    console.log("Invoked stripe key");
+    var url =
+      "https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=GET&inputParams={}";
+    console.log("this.final url --->" + url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        mode: "cors",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(" Stripe key  -->" + JSON.stringify(response));
+        this.stripeKey = response;
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      })
+      .finally(() => {
+        // this.x = this.stripeKey;
+        // console.log(
+        //   "from here defaultpayment function callsss---------" + this.x
+        // );
+        this.getContactDetails();
+      });
+    console.log(" return this.stripeKey;  -->" + this.x);
+    //return this.stripeKey;
+  }
+  selectedPaymentMethod(event) {
+    console.log("invoked selectedPaymentMethod");
+    console.log("Invooked Method" + event.target.getAttribute("data-id"));
+    // console.log("Invooked expMonth" + event.target.getAttribute("data-expmonth"));
+    this.initExpMonth = event.target.getAttribute("data-expmonth");
+    //window.paymentMethodId = event.target.getAttribute("data-id");
+    this.paymentMethodId = event.target.getAttribute("data-id");
+    //this.x = window.paymentMethodId;
+    var acc = document.querySelectorAll(".list-group-item");
+    for (let i = 0; i < acc.length; i++) {
+      if (acc[i].classList.contains("activeList")) {
+        acc[i].classList.remove("activeList");
+      }
+    }
+    let _listItems = event.target;
+    _listItems.classList.add("activeList");
+  }
+  getContactDetails() {
+    // const queryParams = new URLSearchParams(window.location.search);
+    //   this.contId = queryParams.get("contactId");
+    console.log("new contact id inonload()" + this.newcontId);
+    if (this.urlContactId) {
+      this.contactId = this.urlContactId;
+    } else {
+      this.contactId = this.newContactId;
+    }
+    //this.default2Id = [];
+    //console.log("Invoked OrderDetails");
+    var contactParams = {};
+    contactParams.contactId = this.contactId;
+    //contactParams.contactId = "0035f00000KTfGYAA1";
+    var url =
+      "https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=GET&inputParams=" +
+      JSON.stringify(contactParams);
+    console.log("this.order url ---->" + url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        mode: "cors",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((response) => response.text())
+      .then((response) => {
+        response = response.slice(1, response.length - 1);
+        //console.log("RESponse    ------>", response);
+        var contactReponse = JSON.parse(response);
+        console.log("contactReponse    --QQQqQqQQQQQQQq---->" + contactReponse);
+        console.log(
+          "crma_pay__Default_Payment_Method__c#########",
+          contactReponse.crma_pay__Default_Payment_Method__c
+        );
+        this.defaultId = contactReponse.crma_pay__Default_Payment_Method__c;
+        this.onloadeddata(this.defaultId);
+        // var x = contactReponse.crma_pay__Default_Payment_Method__c;
+        // this.default2Id.push(x);
+        // this.setState({
+        //   defaultId: this.default2Id,
+        // });
+        // console.log(" order detailsccc  --xxx--->" + this.default2Id);
+        // this.onloadeddata(this.default2Id);
+        // this.orderresponse = JSON.parse(JSON.stringify(response));
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      })
+      .finally(
+        () =>
+          //{
+          console.log(
+            "******08888888***+++++++++++//00/////////=*******$$$$$$$$$$" +
+              this.state.defaultId
+          )
+        // this.setState({
+        //   x: this.state.defaultId,
+        //});
+        //this.x = this.state.defaultId;
+        //this.onloadeddata();
+        //}
+      );
+    // console.log("Deafault---->" + this.state.defaultId);
+    // console.log("this.x---->" + this.state.x);
+  }
+  getOrderDetails() {
+    var orderParams = {};
+    orderParams.orderId = this.urlOrderId;
+    //contactParams.contactId = "0035f00000KTfGYAA1";
+    var url =
+      "https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=GET&inputParams=" +
+      JSON.stringify(orderParams);
+    console.log("this.order url ---->" + url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        mode: "cors",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((response) => response.text())
+      .then((response) => {
+        response = response.slice(1, response.length - 1);
+        //console.log("RESponse    ------>", response);
+        var contactReponse = JSON.parse(response);
+        var orderReponse = JSON.stringify(JSON.parse(response));
+        console.log("OrderReponse    --QQQqQqQQQQQQQq---->" + orderReponse);
+        var orderNum = contactReponse.orderdetails[0].OrderNumber;
+        var total = contactReponse.orderdetails[0].TotalAmount;
+        var city = contactReponse.orderdetails[0].BillingAddress.city;
+        var country = contactReponse.orderdetails[0].BillingAddress.country;
+        var postalCode =
+          contactReponse.orderdetails[0].BillingAddress.postalCode;
+        var state = contactReponse.orderdetails[0].BillingAddress.state;
+        var street = contactReponse.orderdetails[0].BillingAddress.street;
+        console.log("street -1--->" + street);
+        this.setState({
+          OrderNumber: orderNum,
+        });
+        this.setState({
+          OrderTotal: total,
+        });
+        console.log("this.state.OrderNumber -1--->" + this.state.OrderNumber);
+        // console.log("crma_pay__Default_Payment_Method__c#########",contactReponse.crma_pay__Default_Payment_Method__c);
+        // this.defaultId = contactReponse.crma_pay__Default_Payment_Method__c;
+        // this.onloadeddata(this.defaultId);
+        // var x = contactReponse.crma_pay__Default_Payment_Method__c;
+        // this.default2Id.push(x);
+        // this.setState({
+        //   defaultId: this.default2Id,
+        // });
+        // console.log(" order detailsccc  --xxx--->" + this.default2Id);
+        // this.onloadeddata(this.default2Id);
+        // this.orderresponse = JSON.parse(JSON.stringify(response));
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      })
+      .finally(
+        () =>
+          //{
+          console.log(
+            "******08888888***+++++++++++//00/////////=*******$$$$$$$$$$" +
+              this.state.defaultId
+          )
+        // this.setState({
+        //   x: this.state.defaultId,
+        //});
+        //this.x = this.state.defaultId;
+        //this.onloadeddata();
+        //}
+      );
+    // console.log("Deafault---->" + this.state.defaultId);
+    // console.log("this.x---->" + this.state.x);
+  }
+  //---------------------------------------------------------------------------------------------------------------------------
+  onloadeddata(defaultPaymentId) {
+    // onloadeddata() {
+    console.log("invoke onload---->");
+    // const queryParams = new URLSearchParams(window.location.search);
+    // this.custId = queryParams.get("customerId");
+    if (this.urlCustomerId) {
+      this.customerId = this.urlCustomerId;
+    } else {
+      this.customerId = this.newcustomerId;
+    }
+    console.log("this.customerId in onloadxx---> " + this.customerId);
+    //  if(this.customerId){
+    fetch(
+      "https://api.stripe.com/v1/payment_methods?type=card&customer=" +
+        this.customerId,
+      {
+        method: "GET",
+        headers: {
+          "x-rapidapi-host": "https://api.stripe.com",
+          // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
+          Authorization: " Bearer " + this.stripeKey,
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((response) => {
+        //console.log("ListPaymentMethods--->" +JSON.stringify(response));
+        var cardList = response.data;
+        var paymentMethodList = [];
+        var jsonValues = JSON.parse(JSON.stringify(cardList));
+        var crd = new Object();
+        for (var i = 0; i < jsonValues.length; i++) {
+          crd = jsonValues[i].card;
+          crd.id = jsonValues[i].id;
+          crd.name = jsonValues[i].billing_details.name;
+          paymentMethodList.push(crd);
+        }
+        //console.log("*********************$$$$$$$$$$" + defaultPaymentId);
+        //console.log("*********************"+this.state.defaultId)
+
+        var defaultMethod = defaultPaymentId;
+        //var defaultMethod = "pm_1KQWkxJZdmpiz6ZwRILWgYbS";
+        //window.paymentMethodId = defaultMethod;
+        this.paymentMethodId = defaultMethod;
+        for (var i = 0; i < paymentMethodList.length; i++) {
+          if (paymentMethodList[i].id == defaultMethod) {
+            paymentMethodList[i].isDefault = true;
+          } else {
+            paymentMethodList[i].isDefault = false;
+          }
+        }
+        console.log("default ====> " + JSON.stringify(paymentMethodList));
+        // console.log("----->namesList-->" + window.namesList);
+        //   window.methodList =  JSON.stringify(paymentMethodList);
+        //   window.out = paymentMethodList;
+        //  return window.out;
+        // this.methodList =  JSON.stringify(paymentMethodList);
+        //   console.log("before changes--------------------------------------------")
+        this.outlist = paymentMethodList;
+        //console.log("this.outMount-->" + this.outlist);
+        this.setState({
+          carditems: this.outlist,
+        });
+        //setUser(this.out);
+        //    let data = this.out;
+        // resolve(data);
+        //this.setState({data: this.out});
+        //  console.log("dtaa----->"+this.state.data)
+        // return this.out;
+      })
+      //}
+      // useEffect(()=>{
+      //   fetchData();
+      // },[])
+      .catch((err) => {
+        console.log(err);
+      });
+    // })
+
+    //  var newlist = [];
+    // var newlist = window.out;
+    // // var newlist = this.out;
+    // // console.log("return newlist-->" + newlist);
+    // return newlist;
+  }
+  onloadAchFetch() {
+    // //ach payments
+
+    //list ach payment in UI
+    console.log("invoked onloadfetchAch()!!!!");
+    fetch("https://api.stripe.com/v1/customers/cus_LCimCtUYQ8o7iW/sources", {
+      method: "GET",
+      headers: {
+        "x-rapidapi-host": "https://api.stripe.com",
+        Authorization: " Bearer " + this.stripeKey,
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        //console.log("ListPaymentMethods--->" +JSON.stringify(response));
+        var achList = response.data;
+        this.outAch = achList;
+        console.log("ach list--------------" + JSON.stringify(achList));
+        this.setState({
+          achItems: this.outAch,
+        });
+      })
+
+      .catch((err) => {
+        console.log(err);
+      });
+    this.forceUpdate();
+  }
+  //-------------------------------------------------------------------------------------------------------------------------
+  //achpaymentId
+  selectedAchPaymentMethod(event) {
+    console.log("invoked selectedAchPaymentMethod =====>");
+    console.log("Invoked Method" + event.target.getAttribute("data-id"));
+    achpaymentMethodId = event.target.getAttribute("data-id");
+    this.x = achpaymentMethodId;
+    var acc = document.querySelectorAll(".list-group-item");
+    for (let i = 0; i < acc.length; i++) {
+      if (acc[i].classList.contains("activeList")) {
+        acc[i].classList.remove("activeList");
+      }
+    }
+    let _listItems = event.target;
+    _listItems.classList.add("activeList");
   }
   opendropdown() {
     console.log("invoke dropdown");
-    if(this.state.dropdown== false){
+    if (this.state.dropdown == false) {
       console.log("invoke dropdown if false");
-     this.setState({ dropdown: true });
-    }else{
+      this.setState({ dropdown: true });
+    } else {
       this.setState({ dropdown: false });
       console.log("invoke dropdown if true");
-
     }
   }
-  handleClick() {
-    this.setState({ open: true });
-  }
+  // handleClick() {
+  //   this.setState({ open: true });
+  // }
   handleInputChange(event) {
     console.log("Invoked create handleInputChange");
     this.inputParams = {};
@@ -111,6 +470,15 @@ class App extends Component {
     if (target.name == "country") {
       this.country = target.value;
     }
+    if (this.lname && this.email && this.phone) {
+      this.setState({
+        isSave: true,
+      });
+    } else {
+      this.setState({
+        isSave: false,
+      });
+    }
     this.inputParams.salutation = "Mr";
     this.inputParams.firstName = this.fname;
     this.inputParams.lastName = this.lname;
@@ -127,11 +495,12 @@ class App extends Component {
     console.log("invoked handleAddCard ------>");
     this.setState({
       isnewcard: true,
-      dropdown: false
+      dropdown: false,
     });
   }
-  handleIsDelete() {
-    console.log("handleDelete isInvoked ------>");
+  handleIsDelete(event) {
+    console.log("Invooked delete1" + event.target.getAttribute("data-id"));
+    console.log("handleDelete isInvoked ----->");
     this.setState({
       isDelete: true,
     });
@@ -150,15 +519,14 @@ class App extends Component {
         method: "POST",
         headers: {
           "x-rapidapi-host": "https://api.stripe.com",
-          Authorization:
-            "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+          Authorization: " Bearer " + this.stripeKey,
         },
       }
     )
       .then((response) => response.json())
       .then((response) => {
-        this.customerId = response.id;
-        window.custId = this.customerId;
+        this.newcustomerId = response.id;
+        // window.custId = this.newcustomerId;
         console.log("customer create -->" + response.id);
         if (this.customerId) {
           this.inputParams.customerId = this.customerId;
@@ -177,6 +545,7 @@ class App extends Component {
             .then((response) => {
               this.contactId = response;
               window.contId = this.contactId;
+              this.newContactId = this.contactId;
               console.log(" create  contact-->" + JSON.stringify(response));
               this.closeModal();
             })
@@ -192,38 +561,81 @@ class App extends Component {
         console.log(err);
       });
   }
+  //handle ach flag =true here.....................
+  handleIsAch() {
+    console.log("invoked handleIsDelete ");
+    this.setState({
+      isAch: true,
+    });
+  }
+  //handle checkbox of default card
+  handleChechBox() {
+    if (this.isCheckValue == false) {
+      // this.setState({
+      this.isCheckValue = true;
+      // })
+    } else {
+      // this.setState({
+      this.isCheckValue = false;
+      // })
+    }
+
+    // console.log("isCheckValue----------",this.state.isCheckValue)
+    console.log("isCheckValue----------", this.isCheckValue);
+  }
+
+  //handle ach flag =False here.....................
+  handleIsAchFalse() {
+    console.log("invoked handleIsDelete ");
+    this.setState({
+      isAch: false,
+    });
+  }
+
+  // '----------------This is Create Payment Intent-------------------------------------------
   createStripeTransaction() {
     console.log("Invoked createTransaction");
-    const queryParams = new URLSearchParams(window.location.search);
-    this.amount = queryParams.get("amount");
-    var conAmount = this.amount + "00";
-    this.custId = queryParams.get("customerId");
-    if(this.custId){
-      this.customerId = this.custId;
+    // const queryParams = new URLSearchParams(window.location.search);
+    // this.amount = queryParams.get("amount");
+    console.log("this.urlAmount --->" + this.urlAmount);
+    var conAmount = this.urlAmount + "00";
+    //console.log("concatedamount --->"+conAmount);
+    //this.custId = queryParams.get("customerId");
+    // var transactionUrl;
+    if (this.urlCustomerId) {
+      this.customerId = this.urlCustomerId;
+    } else {
+      this.customerId = this.newcustomerId;
     }
-    else{
-      this.customerId = window.custId;
+    //this.contactId = queryParams.get("contactId");
+    console.log("this,payementmethodId---->" + this.paymentMethodId);
+    // this.paymentMethodId = window.paymentMethodId;
+    //if ach payment id exists, then call the stripe api for ach payment
+    if (achpaymentMethodId) {
+      var transactionUrl =
+        "https://api.stripe.com/v1/charges?amount=999&currency=usd&customer=cus_LCimCtUYQ8o7iW&source=" +
+        achpaymentMethodId;
+      console.log("transactionUrl-->" + transactionUrl);
     }
-    this.contactId = queryParams.get("contactId");
-    this.paymentMethodId = window.paymentMethodId;
-    var transactionUrl =
-      "https://api.stripe.com/v1/payment_intents" +
-      "?amount=" +
-      conAmount +
-      "&currency=usd&customer=" +
-      this.customerId +
-      "&payment_method=" +
-      this.paymentMethodId +
-      "&confirm=true";
-    console.log("transactionUrl-->" + transactionUrl);
+    if (this.paymentMethodId) {
+      var transactionUrl =
+        "https://api.stripe.com/v1/payment_intents" +
+        "?amount=" +
+        conAmount +
+        "&currency=usd&customer=" +
+        this.customerId +
+        "&payment_method=" +
+        this.paymentMethodId +
+        "&confirm=true";
+      console.log("transactionUrl-->" + transactionUrl);
+    }
     fetch(transactionUrl, {
       method: "POST",
       headers: {
         "x-rapidapi-host": "https://api.stripe.com",
         "content-type": "application/json",
         accept: "application/json",
-        Authorization:
-          "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+        Authorization: " Bearer " + this.stripeKey,
       },
     })
       .then((response) => response.json())
@@ -238,6 +650,11 @@ class App extends Component {
           this.gatewayStatus = JSON.parse(
             JSON.stringify(response.charges.data[0].outcome.network_status)
           );
+          var currency = JSON.parse(
+            JSON.stringify(response.charges.data[0].currency)
+          );
+          this.currencyCode = currency.toUpperCase();
+          //console.log("this.currencyCode-->"+this.currencyCode);
           var message = "Your payment is successfully completed";
           var type = "success";
           this.notification(message, type);
@@ -259,6 +676,12 @@ class App extends Component {
           );
           this.transactionstatus =
             response.error.payment_intent.charges.data[0].status;
+          var currency = JSON.parse(
+            JSON.stringify(
+              response.error.payment_intent.charges.data[0].currency
+            )
+          );
+          this.currencyCode = currency.toUpperCase();
           var message = response.error.message;
           var type = "error";
           this.notification(message, type);
@@ -267,7 +690,8 @@ class App extends Component {
           this.transactionId,
           this.transactionstatus,
           this.gatewayMessage,
-          this.gatewayStatus
+          this.gatewayStatus,
+          this.currencyCode
         );
       })
       .catch((err) => {
@@ -293,22 +717,37 @@ class App extends Component {
     console.log("Invoked navigation function-->");
     window.location.href = url;
   }
-  createTransactionRecord(transactionId,transactionstatus,gatewayMessage,gatewayStatus) {
+  createTransactionRecord(
+    transactionId,
+    transactionstatus,
+    gatewayMessage,
+    gatewayStatus,
+    currencyCode
+  ) {
     console.log("Invoked Create Transaction Record");
-    const queryParams = new URLSearchParams(window.location.search);
-    this.contId = queryParams.get("contactId");
-    if(this.contId){
-      this.contactId = this.contId;
+    // const queryParams = new URLSearchParams(window.location.search);
+    // this.contId = queryParams.get("contactId");
+    // if (this.contId) {
+    //   this.contactId = this.contId;
+    // } else {
+    //   this.contactId = window.contId;
+    // }
+    if (this.urlContactId) {
+      this.contactId = this.urlContactId;
+    } else {
+      this.contactId = this.newContactId;
     }
-    else{
-      this.contactId = window.contId;
+    if (this.urlmail) {
+      this.mail = this.urlmail;
+    } else {
+      this.mail = this.email;
     }
     var transactionParams = {};
     transactionParams.paymentGatewayIdentifier = transactionId;
-    transactionParams.Amount = this.amount;
-    transactionParams.transactionEmail = "akshayasreekumar@gmail.com";
-    transactionParams.transactionCurrencyCode = "USD";
-    transactionParams.transactionOrder = "8015f000001ZzCDAA0";
+    transactionParams.Amount = this.urlAmount;
+    transactionParams.transactionEmail = this.mail;
+    transactionParams.transactionCurrencyCode = currencyCode;
+    transactionParams.transactionOrder = this.urlOrderId;
     transactionParams.transactionContact = this.contactId;
     transactionParams.processedDateTime = this.todaysDate;
     transactionParams.transactionStatus = transactionstatus;
@@ -336,16 +775,16 @@ class App extends Component {
   }
   closeModal() {
     console.log("Invoked close popup");
-      this.setState({
-        newcontact: false,
-      });
+    this.setState({
+      newcontact: false,
+    });
   }
   closeCardModal() {
     console.log("Invoked close popup");
-      this.setState({
-        isnewcard: false,
-        //isClick: true
-      });
+    this.setState({
+      isnewcard: false,
+      //isClick: true
+    });
   }
   handleCardInput(event) {
     console.log("Invoked create handleCardInput");
@@ -365,8 +804,31 @@ class App extends Component {
     if (target.name == "cardCVV") {
       this.cardCVV = target.value;
     }
+    // card validation
+    if (
+      this.cardName != null &&
+      this.cardNumber != null &&
+      this.expMonth != null &&
+      this.expYear != null &&
+      this.cardCVV != null
+    ) {
+      this.setState({
+        isSaveCard: true,
+      });
+    } else {
+      this.setState({
+        isSaveCard: false,
+      });
+    }
   }
+
   createPaymentMethod() {
+    console.log("Invoked createPaymentMethod");
+    if (this.urlCustomerId) {
+      this.customerId = this.urlCustomerId;
+    } else {
+      this.customerId = this.newcustomerId;
+    }
     this.paymenttype = "card";
     var createMethodUrl =
       "https://api.stripe.com/v1/payment_methods" +
@@ -384,8 +846,7 @@ class App extends Component {
       method: "POST",
       headers: {
         "x-rapidapi-host": "https://api.stripe.com",
-        Authorization:
-          "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+        Authorization: " Bearer " + this.stripeKey,
       },
     })
       .then((response) => response.json())
@@ -407,6 +868,82 @@ class App extends Component {
         this.notification(message, type);
       });
   }
+  //defining the method defaultCardPayment for calling the API for making card as default
+  defaultCardPayment(paymentId, customerId) {
+    console.log("-------------------defaultCardPayment-------------------");
+    console.log("makeDefaultPaymentMethod.customerId---->" + customerId);
+    var defaultpaymentUrl =
+      "https://api.stripe.com/v1/customers/" +
+      customerId +
+      "?invoice_settings[default_payment_method]=" +
+      paymentId;
+    console.log("defaultpaymentUrl---->" + defaultpaymentUrl);
+    fetch(
+      defaultpaymentUrl, // End point URL
+      {
+        method: "POST",
+        headers: {
+          "x-rapidapi-host": "https://api.stripe.com",
+          Authorization: " Bearer " + this.stripeKey,
+        },
+      }
+    )
+      .then((response) => {
+        console.log("response ===> " + JSON.stringify(response));
+        return response.json(); // returning the response in the form of JSON
+      })
+      .then((jsonResponse) => {
+        console.log("jsonResponse ===> " + JSON.stringify(jsonResponse));
+        if (jsonResponse.id) {
+          console.log("update contact ===> ");
+          this.updateContact(paymentId);
+        }
+      })
+      .catch((error) => {
+        console.log("callout error ===> " + JSON.stringify(error));
+      });
+  }
+  //update contact with paymentMethod Id
+  updateContact(paymentId) {
+    console.log(
+      "<<<<--------------------this is for updating contact with default payment Id------------>>>>"
+    );
+    var updateContactParams = {};
+    console.log("Invoked update Contact");
+    const queryParams = new URLSearchParams(window.location.search);
+    this.contId = queryParams.get("contactId");
+    if (this.contId) {
+      this.contactId = this.contId;
+    } else {
+      this.contactId = window.contId;
+    }
+    updateContactParams.defaultPaymentMethodId = paymentId;
+    updateContactParams.contactId = this.contactId;
+
+    var url =
+      "https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=POST&inputParams=" +
+      JSON.stringify(updateContactParams);
+    console.log("this.final transaction url --->" + url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        mode: "cors",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        this.contactId = response;
+        console.log(" create  transaction-->" + JSON.stringify(response));
+        this.getContactDetails();
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      });
+
+    //this.refreshPage();
+  }
+
   attachPaymentmethod(paymentMethodId, customerId) {
     console.log("this.customerId in attachPaymentmethod---->" + customerId);
     var attachUrl =
@@ -418,13 +955,17 @@ class App extends Component {
       method: "POST",
       headers: {
         "x-rapidapi-host": "https://api.stripe.com",
-        Authorization:
-          "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+        Authorization: " Bearer " + this.stripeKey,
       },
     })
       .then((response) => response.json())
       .then((response) => {
+        console.log("attach payment medthod----->", response);
         if (response.id) {
+          if (this.isCheckValue) {
+            this.defaultCardPayment(paymentMethodId, customerId);
+            console.log("from here defaultpayment function callsss---------");
+          }
           // if(this.isdefault){
           //   console.log("isdefault---true--->" );
           // this.makeDefaultPaymentMethod(paymentId,customerId);
@@ -432,9 +973,12 @@ class App extends Component {
           //  //this.listPaymentMethods();
           // //this.iscard = false;
           this.closeCardModal();
+
           var message = "Your card is added successfully";
           var type = "success";
           this.notification(message, type);
+          //this.onloadeddata();
+          this.getContactDetails();
         } else {
           var message = response.error.message;
           var type = "error";
@@ -453,118 +997,195 @@ class App extends Component {
         var message = " Error Occurred";
         var type = "error";
         this.notification(message, type);
+        //this.onloadeddata();
+      });
+    // .finally(() => {
+    //   if (this.isCheckValue && this.paymentMethodId) {
+    //     this.defaultCardPayment(this.paymentMethodId, this.customerId);
+    //     console.log("from here defaultpayment function callsss---------");
+    //   }
+    // });
+    //this.onloadeddata();
+  }
+  handleIsDelete() {
+    console.log("invoked handleIsDelete ");
+    this.setState({
+      isDelete: true,
+    });
+  }
+  handledDefaultChechBox() {
+    if (this.isDefaultValue == false) {
+      // this.setState({
+      this.isDefaultValue = true;
+      // })
+    } else {
+      // this.setState({
+      this.isDefaultValue = false;
+      // })
+    }
+
+    // console.log("isCheckValue----------",this.state.isCheckValue)
+    console.log("isCheckValue----------", this.isDefaultValue);
+  }
+  handleIsEdit() {
+    console.log("invoked handleIsDelete ");
+    this.setState({
+      isEdit: true,
+    });
+  }
+  closeDeleteModal() {
+    console.log("Invoked close popup");
+    this.setState({
+      isDelete: false,
+    });
+  }
+  closeEditModal() {
+    console.log("Invoked close popup");
+    this.setState({
+      isEdit: false,
+    });
+  }
+  updatePaymentMethod() {
+    const queryParams = new URLSearchParams(window.location.search);
+    this.custId = queryParams.get("customerId");
+    if (this.custId) {
+      this.customerId = this.custId;
+    } else {
+      this.customerId = window.custId;
+    }
+    if (this.isDefaultValue) {
+      this.defaultCardPayment(this.x, this.customerId);
+    }
+  }
+  defaultCardPayment(paymentId, customerId) {
+    console.log("-------------------defaultCardPayment-------------------");
+    console.log("makeDefaultPaymentMethod.customerId---->" + customerId);
+    var defaultpaymentUrl =
+      "https://api.stripe.com/v1/customers/" +
+      customerId +
+      "?invoice_settings[default_payment_method]=" +
+      paymentId;
+    console.log("defaultpaymentUrl---->" + defaultpaymentUrl);
+    fetch(
+      defaultpaymentUrl, // End point URL
+      {
+        method: "POST",
+        headers: {
+          "x-rapidapi-host": "https://api.stripe.com",
+          Authorization: " Bearer " + this.stripeKey,
+        },
+      }
+    )
+      .then((response) => {
+        console.log("response ===> " + JSON.stringify(response));
+        return response.json(); // returning the response in the form of JSON
+      })
+      .then((jsonResponse) => {
+        console.log("jsonResponse ===> " + JSON.stringify(jsonResponse));
+        if (jsonResponse.id) {
+          console.log("update contact ===> ");
+          this.updateContact(paymentId);
+        }
+      })
+      .catch((error) => {
+        console.log("callout error ===> " + JSON.stringify(error));
       });
   }
+  updateContact(paymentId) {
+    console.log(
+      "<<<<--------------------this is for updating contact with default payment Id----------->>>>"
+    );
+    var updateContactParams = {};
+    console.log("Invoked update Contact");
+    const queryParams = new URLSearchParams(window.location.search);
+    this.contId = queryParams.get("contactId");
+    if (this.contId) {
+      this.contactId = this.contId;
+    } else {
+      this.contactId = window.contId;
+    }
+    updateContactParams.defaultPaymentMethodId = paymentId;
+    updateContactParams.contactId = this.contactId;
 
-  //
-  // onloadeddata() {
-  //   const queryParams = new URLSearchParams(window.location.search);
-  //   window.isContactExist = queryParams.get("isContactExist");
-  //   console.log(" window.isConatctExist==>" + window.isContactExist);
-  //   if ((window.isContactExist == "true")) {
-  //     window.newContact = false;
-  //   } else {
-  //     window.newContact = true;
-  //   }
-  //   console.log("window.isNewCard in onLOad  "+window.isNewCard);
-  //   if ((window.isNewCard == true)) {
-  //     console.log("window.isNewCard in if.  "+window.isNewCard);
-  //     window.shownewCard = true;
-  //   } else {
-  //     console.log("window.isNewCard in else.  "+window.isNewCard);
-  //     window.shownewCard = false;
-  //   }
-  //   fetch(
-  //     "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         "x-rapidapi-host": "https://api.stripe.com",
-  //         // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
-  //         Authorization:
-  //           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-  //       },
-  //     }
-  //   )
-  //     .then((response) => response.json())
-  //     .then((response) => {
-  //       //console.log("ListPaymentMethods--->" +JSON.stringify(response));
-  //       var cardList = response.data;
-  //       var paymentMethodList = [];
-  //       var jsonValues = JSON.parse(JSON.stringify(cardList));
-  //       var crd = new Object();
-  //       for (var i = 0; i < jsonValues.length; i++) {
-  //         crd = jsonValues[i].card;
-  //         crd.id = jsonValues[i].id;
-  //         crd.name = jsonValues[i].billing_details.name;
-  //         paymentMethodList.push(crd);
-  //       }
-  //       var defaultMethod = "pm_1KQWkxJZdmpiz6ZwRILWgYbS";
-  //       window.paymentMethodId = defaultMethod;
-  //       for (var i = 0; i < paymentMethodList.length; i++) {
-  //         if (paymentMethodList[i].id == defaultMethod) {
-  //           paymentMethodList[i].isDefault = true;
-  //         } else {
-  //           paymentMethodList[i].isDefault = false;
-  //         }
-  //       }
-  //       console.log("default ===> " + JSON.stringify(paymentMethodList));
-  //       window.namesList = paymentMethodList.map(function (listValues, index) {
-  //         //console.log("window.namesList11-->" +namesList);
-  //         //console.log("------>namesList" +namesList);
-  //         return (
-  //           <li
-  //             class="list-group-item d-flex justify-content-between align-items-center"
-  //             data-id={listValues.id}
-  //              onClick={selectedPaymentMethod}
-  //           >
-  //             <div data-id={listValues.id}>
-  //               <p
-  //                 class="text-uppercase mb-1"
-  //                 data-id={listValues.id}
-  //               >
-  //                 {listValues.brand} ****{listValues.last4}
-  //               </p>
-  //               <p
-  //                 class="text-black-50 mb-0"
-  //                 data-id={listValues.id}
-  //               >
-  //                 Expires on: {listValues.exp_month}/{listValues.exp_year}
-  //                 {listValues.isDefault ? (
-  //                   <span class="badge badge-pill badge-primary ml-4">
-  //                     Default
-  //                   </span>
-  //                 ) : (
-  //                   ""
-  //                 )}
-  //               </p>
-  //             </div>
-  //             <span>
-  //               <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-  //               <i
-  //                 class="fas fa-trash-alt text-dark"
-  //                 data-id={listValues.id}
-  //                 //onClick={() => this.handleIsDelete()}
-  //                 //onClick = {this.handleIsDelete()}
-  //                 //onClick={() => this.handleIsDelete()}
-  //               ></i>
-  //             </span>
-  //           </li>
-  //         );
-  //       });
-  //       console.log("----!-->namesList-->" + window.namesList);
-  //       window.out = window.namesList;
-  //       return window.namesList;
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  //     console.log("window.out-->" + window.out);
-  //     var newlist = window.out;
-  //     return newlist;
-  // }
+    var url =
+      "https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=POST&inputParams=" +
+      JSON.stringify(updateContactParams);
+    console.log("this.final transaction url --->" + url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        mode: "cors",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        this.contactId = response;
+        console.log(" create  transaction-->" + JSON.stringify(response));
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      });
+
+    this.onloadeddata();
+  }
+  deletePaymentMethod(event) {
+    console.log("invoked deletePaymentMethod");
+    //this.payMethodId = event.target.getAttribute("data-id");
+    //this.payMethodId = this.x;
+    console.log(" delete id *******===>" + this.paymentMethodId);
+    var deleteUrl =
+      "https://api.stripe.com/v1/payment_methods/" +
+      this.paymentMethodId +
+      "/detach";
+    console.log("deleteUrl==>" + deleteUrl);
+    fetch(deleteUrl, {
+      method: "POST",
+      headers: {
+        "x-rapidapi-host": "https://api.stripe.com",
+        Authorization: " Bearer " + this.stripeKey,
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(" delete response -->" + JSON.stringify(response));
+        var message = " Card Deleted";
+        var type = "success";
+        this.notification(message, type);
+        this.onloadeddata();
+      })
+      .catch((err) => {
+        console.log(err);
+        var message = " Error Occurred";
+        var type = "error";
+        this.notification(message, type);
+      });
+    this.closeDeleteModal();
+    //this.render();
+  }
+  notification(message, type) {
+    console.log("Invoked toast function");
+    if (type == "success") {
+      toast.success(message, { position: toast.POSITION.TOP_CENTER });
+    }
+    if (type == "warning") {
+      toast.warning(message, { position: toast.POSITION.TOP_CENTER });
+    }
+    if (type == "error") {
+      toast.error(message, { position: toast.POSITION.TOP_CENTER });
+    }
+  }
+  refreshPage() {
+    console.log("invoked refresh fn--->");
+    //const refreshPage = ()=>{
+    window.location.reload();
+    console.log("After refresh--->");
+    //onloadeddata();
+  }
 
   render() {
+    var achResponseList = this.state.achItems;
+    var cardlist = this.state.carditems;
     console.log("Invoked render");
     const queryParams = new URLSearchParams(window.location.search);
     window.isContactExist = queryParams.get("isContactExist");
@@ -591,10 +1212,10 @@ class App extends Component {
           <div class="container">
             <a class="navbar-brand" href="#">
               <div>
-                <IoMdInformationCircle />
-              {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
-              <i class="material-icons"></i>
-              <span class="ml-2 font-weight-bold">InterACT Pay</span>
+              <IoMdInformationCircle />
+                {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
+                <i class="material-icons"></i>
+                <span class="ml-2 font-weight-bold">InterACT Pay</span>
               </div>
               <p class="Interactheader ml-sm-4">Your payment solution</p>
             </a>
@@ -610,23 +1231,23 @@ class App extends Component {
                     <p>Order Number</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>000157</p>
+                    <p>{this.state.OrderNumber}</p>
                   </div>
                 </div>
-                <div class="row">
+                {/* <div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>Product Name</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>Sample Product Name</p>
                   </div>
-                </div>
+                </div> */}
                 <div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>Order Total</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>$ 999</p>
+                    <p>$ {this.state.OrderTotal}</p>
                   </div>
                 </div>
               </div>
@@ -643,22 +1264,29 @@ class App extends Component {
                 <div>
                   <div class="row">
                     <div class="col-md-10">
-                      <h5 class=" p-3">
-                        Please submit your payment details.
-                      </h5>
-                    </div>  
-                      {this.state.isClick ? (
-                        <button type="button" onClick={this.myFunction.bind(this)}> myButton </button>
-              // <div className="drt_clearfix drt_CartableItem" onClick={() => props.callDetails()}></div>
-              ) : (
-                ""
-              )}
+                      <h5 class=" p-3">Please submit your payment details..</h5>
+                    </div>
+                    {this.state.isClick ? (
+                      <button
+                        type="button"
+                        onClick={this.myFunction.bind(this)}
+                      >
+                        {" "}
+                        myButton{" "}
+                      </button>
+                    ) : (
+                      // <div className="drt_clearfix drt_CartableItem" onClick={() => props.callDetails()}></div>
+                      ""
+                    )}
                     <div class="col-md-2 float-right mt-2">
                       <div
                         class="btn-group btn-group-toggle float-right"
                         data-toggle="buttons"
                       >
-                        <label class="btn btn-outline-primary ">
+                        <label
+                          class="btn btn-outline-primary "
+                          onClick={() => this.handleIsAchFalse()}
+                        >
                           <input
                             type="radio"
                             name="options"
@@ -668,7 +1296,10 @@ class App extends Component {
                           />{" "}
                           Card
                         </label>
-                        <label class="btn btn-outline-primary">
+                        <label
+                          class="btn btn-outline-primary"
+                          onClick={() => this.handleIsAch()}
+                        >
                           <input
                             type="radio"
                             name="options"
@@ -677,6 +1308,7 @@ class App extends Component {
                           />{" "}
                           ACH
                         </label>
+
                         <div class="btn-group">
                           <button
                             class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
@@ -686,21 +1318,29 @@ class App extends Component {
                             aria-haspopup="true"
                             aria-expanded="false"
                             onClick={this.opendropdown}
-                          >
+                          ><IoMdAddCircle />
                             {/* <i class="fa fa-plus-square"></i> */}
-                            <IoMdAddCircle />
                           </button>
                           {this.state.dropdown ? (
                             <div role="menu">
                               <div className="dropdownMenu">
-                              <div>
-                              <span onClick={() => this.handleAddCard()}>Add new card</span>
-                              </div>
-                              <div>
+                                <div>
+                                  <button
+                                    class="border-0"
+                                    onClick={() => this.handleAddCard()}
+                                  >
+                                    Add new card
+                                  </button>
+                                </div>
+                                {/* <div>
                               <span  
                               // onClick={() => handleAddACH()}
                               >Add new ACH</span>
-                              </div>
+                              </div> */}
+                                <div>
+                                  <h7>ACH Pending</h7>
+                                  {/* <Link onChange={this.onloadAchFetch} /> */}
+                                </div>
                               </div>
                             </div>
                           ) : (
@@ -711,7 +1351,143 @@ class App extends Component {
                     </div>
                   </div>
                 </div>
-                <PaymentMethodList />
+                {this.state.isAch ? (
+                  <div>
+                    {achResponseList ? (
+                      (this.namesList = achResponseList.map(
+                        (listValues, index) => (
+                          <div>
+                            <ul class="list-group  list-group-flush listDetails border">
+                              <li
+                                class="d-flex justify-content-between align-items-center listDetails list-group-item"
+                                data-id={listValues.id}
+                                name="livalue"
+                                onClick={(event) =>
+                                  this.selectedAchPaymentMethod(event)
+                                }
+                              >
+                                <div data-id={listValues.id}>
+                                  <p
+                                    class="text-uppercase mb-1"
+                                    data-id={listValues.id}
+                                  >
+                                    {listValues.bank_name} ****
+                                    {listValues.last4}
+                                  </p>
+                                </div>
+                                <span>
+                                <span pr-3>
+                                  <IoMdCreate data-id={listValues.id}
+                                  onClick={() => this.handleIsEdit()} />
+                                </span> 
+                                <IoMdTrash
+                                  data-id={listValues.id}
+                                  //onClick={(event) =>
+                                    //this.selectedPaymentMethod(event)
+                                 // }
+                                //  onClick={(event) =>
+                                //   this.handleIsDelete(event)
+                               //}
+                                  onClick={() => this.handleIsDelete()}
+                                />
+                                {/* <i
+                                  class="fas fa-pencil-alt mr-3 text-dark"
+                                  data-id={listValues.id}
+                                  onClick={() => this.handleIsEdit()}
+                                ></i>*/}
+                                {/* <i
+                                  class="fas fa-trash-alt text-dark"
+                                  data-id={listValues.id}
+                                  onClick={() => this.handleIsDelete()}
+                                  //onClick={() => this.handleIsDelete()}
+                                  //onClick = {this.handleIsDelete()}
+                                  //onClick={() => this.handleIsDelete()}
+                                ></i>  */}
+                              </span>
+                              </li>
+                            </ul>
+                          </div>
+                        )
+                      ))
+                    ) : (
+                      <div>
+                        <h7 class="ml-4"> No Payment Methods are availabe.</h7>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    {/* <PaymentMethodList /> */}
+                    {cardlist ? (
+                      (this.namesList = cardlist.map((listValues, index) => (
+                        <div>
+                          <ul class="list-group  list-group-flush listDetails border">
+                            <li
+                              class="d-flex justify-content-between align-items-center listDetails list-group-item"
+                              data-id={listValues.id}
+                              name="livalue"
+                              data-expmonth={listValues.exp_month}
+                              onClick={(event) =>
+                                this.selectedPaymentMethod(event)
+                              }
+                            >
+                              <div data-id={listValues.id}>
+                                <p
+                                  class="text-uppercase mb-1"
+                                  data-id={listValues.id}
+                                >
+                                  {listValues.brand} ****{listValues.last4}
+                                </p>
+                                <p
+                                  class="text-black-50 mb-0"
+                                  data-id={listValues.id}
+                                >
+                                  Expires on: {listValues.exp_month}/
+                                  {listValues.exp_year}
+                                  {listValues.isDefault ? (
+                                    <span class="badge badge-pill badge-primary ml-4">
+                                      Default
+                                    </span>
+                                  ) : (
+                                    ""
+                                  )}
+                                </p>
+                              </div>
+                              <span>
+                                <span pr-3>
+                                  <IoMdCreate data-id={listValues.id}
+                                  onClick={() => this.handleIsEdit()} />
+                                </span>
+                                <IoMdTrash
+                                  data-id={listValues.id}
+                                  onClick={() => this.handleIsDelete()}
+                                />
+                                {/* <i
+                                  class="fas fa-pencil-alt mr-3 text-dark"
+                                  data-id={listValues.id}
+                                  onClick={() => this.handleIsEdit()}
+                                ></i>
+                                <i
+                                  class="fas fa-trash-alt text-dark"
+                                  data-id={listValues.id}
+                                  onClick={() => this.handleIsDelete()}
+                                  //onClick={() => this.handleIsDelete()}
+                                  //onClick = {this.handleIsDelete()}
+                                  //onClick={() => this.handleIsDelete()}
+                                ></i> */}
+                              </span>
+                            </li>
+                          </ul>
+                        </div>
+                      )))
+                    ) : (
+                      <div>
+                        <h7 class="ml-4"> No Payment Methods are availabe.</h7>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* {ask} */}
                 {/* <ul class="list-group list-group-flush listDetails">
                    {ask}
@@ -726,7 +1502,7 @@ class App extends Component {
             </div>
           </div>
         </div>
-       {this.state.isnewcard ? (
+        {this.state.isnewcard ? (
           <div className="popup-box">
             <div className="box">
               <span className="close-icon">x</span>
@@ -736,27 +1512,29 @@ class App extends Component {
                 </h5>
                 <div class="form-row">
                   <div class="form-group col-md-4">
-                    <label>Name on the card</label>
+                    <label class="ml-1 required">Name on the card</label>
                     <input
                       type="text"
                       class="form-control"
                       id="inputPassword4"
-                      name="cardName" autocomplete="off"
+                      name="cardName"
+                      autocomplete="off"
                       onChange={this.handleCardInput}
                     />
                   </div>
                   <div class="form-group col-md-4">
-                    <label>Card Number</label>
+                    <label class="ml-1 required">Card Number</label>
                     <input
                       type=" "
                       class="form-control"
                       id="inputEmail4"
-                      name="cardNumber" autocomplete="off"
+                      name="cardNumber"
+                      autocomplete="off"
                       onChange={this.handleCardInput}
                     />
                   </div>
                   <div class="form-group col-md-4">
-                    <label>Expiry Month</label>
+                    <label class="ml-1 required">Expiry Month</label>
                     <input
                       placeholder="MM"
                       type="tel"
@@ -767,7 +1545,7 @@ class App extends Component {
                     />
                   </div>
                   <div class="form-group col-md-4">
-                    <label>Expiry Year</label>
+                    <label class="ml-1 required">Expiry Year</label>
                     <input
                       placeholder="YY"
                       type="tel"
@@ -778,7 +1556,7 @@ class App extends Component {
                     />
                   </div>
                   <div class="form-group col-md-4">
-                    <label>CVV</label>
+                    <label class="ml-1 required">CVV</label>
                     <input
                       placeholder="CVV"
                       type="tel"
@@ -790,7 +1568,18 @@ class App extends Component {
                   </div>
                 </div>
               </form>
-              <div>
+
+              <div class="flex-container">
+                {/* make default card */}
+                {/* -------------------------------------------------------------------------- */}
+                <input
+                  type="checkbox"
+                  id="default"
+                  onChange={this.handleChechBox}
+                />
+                <span>Make this card as default</span>
+                {/* -------------------------------------------------------------------------- */}
+
                 <button
                   class="btn btn-outline-primary float-right"
                   onClick={() => this.closeCardModal()}
@@ -798,12 +1587,22 @@ class App extends Component {
                   {" "}
                   Cancel
                 </button>
-                <button
-                  class="btn btn-primary float-right mr-3"
-                  onClick={() => this.createPaymentMethod()}
-                >
-                  Save
-                </button>
+                {this.state.isSaveCard ? (
+                  <button
+                    class="btn btn-primary float-right mr-3"
+                    onClick={() => this.createPaymentMethod()}
+                  >
+                    Save
+                  </button>
+                ) : (
+                  <button
+                    class="btn btn-primary float-right mr-3"
+                    disabled
+                    //onClick={() => this.createContact() }
+                  >
+                    Save
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -827,37 +1626,43 @@ class App extends Component {
                     <input
                       type="text"
                       class="form-control"
-                      name="fname"  autocomplete="off"
+                      name="fname"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
                   <div class="form-group col-md-3">
-                    <label class="ml-1">LastName</label>
+                    {/* <i class="fa fa-asterisk" style="font-size:24px;color:red"></i> */}
+                    <label class="ml-1 required">LastName</label>
                     <input
                       type="text"
                       class="form-control"
                       id=""
-                      name="lname"  autocomplete="off"
+                      name="lname"
+                      autocomplete="off"
+                      //class="form-control is-invalid"
                       onChange={this.handleInputChange}
                     />
                   </div>
                   <div class="form-group col-md-3">
-                    <label class="ml-1">Email</label>
+                    <label class="ml-1 required">Email</label>
                     <input
                       type="email "
                       class="form-control"
                       id=""
-                      name="email"  autocomplete="off"
+                      name="email"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
                   <div class="form-group col-md-3">
-                    <label class="ml-1">Phone</label>
+                    <label class="ml-1 required">Phone</label>
                     <input
                       type="number "
                       class="form-control"
                       id=""
-                      name="phone"  autocomplete="off"
+                      name="phone"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -872,7 +1677,8 @@ class App extends Component {
                       type="text"
                       class="form-control"
                       id="inputEmail4"
-                      name="street"  autocomplete="off"
+                      name="street"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -881,7 +1687,8 @@ class App extends Component {
                     <input
                       class="form-control"
                       id="inputPassword4"
-                      name="city"  autocomplete="off"
+                      name="city"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -891,7 +1698,8 @@ class App extends Component {
                       type="text "
                       class="form-control"
                       id="inputEmail4"
-                      name="state"  autocomplete="off"
+                      name="state"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -903,7 +1711,8 @@ class App extends Component {
                       type="email"
                       class="form-control"
                       id="inputEmail4"
-                      name="zip"  autocomplete="off"
+                      name="zip"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -912,7 +1721,8 @@ class App extends Component {
                     <input
                       class="form-control"
                       id="inputPassword4"
-                      name="country"  autocomplete="off"
+                      name="country"
+                      autocomplete="off"
                       onChange={this.handleInputChange}
                     />
                   </div>
@@ -924,480 +1734,121 @@ class App extends Component {
               >
                 Cancel
               </button>
-              <button
-                class="btn btn-primary float-right mr-3"
-                onClick={() => this.createContact()}
-              >
-                Save
-              </button>
+              {this.state.isSave ? (
+                <button
+                  class="btn btn-primary float-right mr-3"
+                  onClick={() => this.createContact()}
+                >
+                  Save
+                </button>
+              ) : (
+                <button
+                  class="btn btn-primary float-right mr-3"
+                  disabled
+                  //onClick={() => this.createContact() }
+                >
+                  Save
+                </button>
+              )}
             </div>
           </div>
         ) : (
           ""
         )}
-       </div>
+        {this.state.isDelete ? (
+          <div className="popup-box">
+            <div className="deletePopup">
+              <span className="close-icon">x</span>
+              <h5 class="border-bottom mb-4 text-center">
+                Delete PaymentMethod.
+              </h5>
+              <p class="border-bottom pb-4 text-center">
+                Are you sure you want to delete this card?
+              </p>
+              <div>
+                <button
+                  class="btn btn-outline-primary float-right"
+                  onClick={() => this.closeDeleteModal()}
+                >
+                  {" "}
+                  Cancel
+                </button>
+                <button
+                  class="btn btn-primary float-right mr-3"
+                  //onClick={() => this.deletePaymentMethod()}
+                  onClick={(event) => this.deletePaymentMethod(event)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
+        {this.state.isEdit ? (
+          <div className="popup-box">
+            <div className="deletePopup">
+              <span className="close-icon">x</span>
+              <p class="border-bottom pb-4 text-center">
+                Edit the paymentMethod?
+              </p>
+              <div class="form">
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label class="ml-1 ">Year</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="inputPassword4"
+                      name="cardName"
+                      autocomplete="off"
+                      //onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label class="ml-1 ">Month</label>
+                    <input
+                      type=" "
+                      class="form-control"
+                      id="inputEmail4"
+                      name="cardNumber"
+                      autocomplete="off"
+                      //onChange={this.handleCardInput}
+                    />
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  id="default"
+                  onChange={this.handledDefaultChechBox}
+                />
+                <span>Make this card as default</span>
+              </div>
+              <div>
+                <button
+                  class="btn btn-outline-primary float-right"
+                  onClick={() => this.closeEditModal()}
+                >
+                  {" "}
+                  Cancel
+                </button>
+                <button
+                  class="btn btn-primary float-right mr-3"
+                  //onClick={() => this.deletePaymentMethod()}
+                  onClick={(event) => this.updatePaymentMethod(event)}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
+      </div>
     );
   }
-}
-
-// function deletePaymentmethod() {
-//   //window.isDelete = true;
-//   console.log("handleDelete isInvoked ------>" );
-//   this.setState({
-//     isDelete : true
-//   })
-//   //window.paymentMethodId = event.target.getAttribute("data-id");
-//   console.log("handleDelete paymentid ------>" + window.paymentMethodId);
-// }
-// function App() {
-//   const [openModal, setOpenModal] = useState(false);
-//   console.log("I was triggered during render");
-//   // var ask = onloadeddata();
-//   // console.log('ask---->'+ask);
-//     return (
-//       <div className="App">
-//         <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
-//           <div class="container">
-//             <a class="navbar-brand" href="#">
-//               {/* <div> */}
-//               {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
-//               {/* <i class="material-icons"></i> */}
-//               <span class="ml-2 font-weight-bold">InterACT Pay</span>
-//               {/* </div> */}
-//               <p class="Interactheader ml-sm-4">Your payment solution</p>
-//             </a>
-//           </div>
-//         </nav>
-//         {window.isDelete ? (
-//           <div className="popup-box">
-//             <div className="box ">
-//               <span className="close-icon">x</span>
-//               <div class="card">
-//                 <div class="card-body">
-//                   <h5 class="card-title">Delete PaymentMethod</h5>
-//                   <p class="card-text">
-//                     Are you sure you want to delete this card?
-//                   </p>
-//                   <button
-//                     class="btn btn-outline-primary float-right mt-4"
-//                     onClick={createTransaction}
-//                   >
-//                     Cancel
-//                   </button>
-//                   <button
-//                     class="btn btn-primary float-right mt-4 mr-3"
-//                     onClick={createTransaction}
-//                   >
-//                     Delete
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         ) : (
-//           ""
-//         )}
-//         <div class="container">
-//           <div class="row my-5">
-//             <div class="col-lg-4 col-md-4 col-sm-1">
-//               <div class="card p-3 mb-3">
-//                 <h5 class="border-bottom pb-3">OrderSummary</h5>
-//                 <div class="row">
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Order Number</p>
-//                   </div>
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>00000250</p>
-//                   </div>
-//                 </div>
-//                 <div class="row">
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Product Name</p>
-//                   </div>
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Sample Product Name</p>
-//                   </div>
-//                 </div>
-//                 <div class="row">
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>Order Total</p>
-//                   </div>
-//                   <div class="col-lg-6 col-md-6 col-sm-1">
-//                     <p>$ 799</p>
-//                   </div>
-//                 </div>
-//               </div>
-//               <div class="card p-3">
-//                 <h5 class="border-bottom pb-3">Billing Address</h5>
-//                 <p>Kyle Hide</p>
-//                 <p>Cape West Street</p>
-//                 <p>Red Crown - New York US</p>
-//                 <p>ZipCode: 341946</p>
-//               </div>
-//             </div>
-//             <div class="col-lg-8 col-md-8 col-sm-1">
-//               <div class="card p-3">
-//                 <div>
-//                   <div class="row">
-//                     <div class="col-md-10">
-//                       <h5 class=" p-3">Please submit your payment detailss.</h5>
-//                     </div>
-//                     <div class="col-md-2 float-right mt-2">
-//                       <div
-//                         class="btn-group btn-group-toggle float-right"
-//                         data-toggle="buttons"
-//                       >
-//                         <label class="btn btn-outline-primary ">
-//                           <input
-//                             type="radio"
-//                             name="options"
-//                             id="option1"
-//                             autocomplete="off"
-//                             checked
-//                           />{" "}
-//                           Card
-//                         </label>
-//                         <label class="btn btn-outline-primary">
-//                           <input
-//                             type="radio"
-//                             name="options"
-//                             id="option2"
-//                             autocomplete="off"
-//                           />{" "}
-//                           ACH
-//                         </label>
-//                         <div class="btn-group">
-//                           <button
-//                             class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
-//                             type="button"
-//                             data-toggle="dropdown"
-//                             aria-haspopup="true"
-//                             aria-expanded="false"
-//                           >
-//                             {/* <i class="fa fa-plus-square"></i> */}
-//                           </button>
-//                           <div class="dropdown-menu">
-//                             <a
-//                               class="dropdown-item"
-//                               href="#"
-//                               onClick={() => {setOpenModal(true);
-//                               }}
-//                             >
-//                               Add new card
-//                             </a>
-//                             {openModal && <AddNewCard closeModal={setOpenModal} />}
-//                             <a
-//                               class="dropdown-item"
-//                               href="#"
-//                               //onClick={handleAddACH}
-//                             >
-//                               Add new ACH
-//                             </a>
-//                           </div>
-//                         </div>
-//                       </div>
-//                       {/* <button type="button" class="btn btn-outline-info waves-effect px-3"><i class="fas fa-thumbtack"
-//           aria-hidden="true"></i></button> */}
-//                     </div>
-//                   </div>
-//                 </div>
-//                 {/* <ul class="list-group list-group-flush listDetails">
-//                   {ask}
-//                 </ul> */}
-//                 <PaymentMethodList />
-//               </div>
-//               <button
-//                 class="btn btn-primary float-right mt-4"
-//                 onClick={createTransaction}
-//               >
-//                 Pay
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//        {window.shownewCard ? (
-//           <div className="popup-box">
-//             <div className="box">
-//               <span className="close-icon">x</span>
-//               <form>
-//                 <h5 class="border-bottom mb-4 text-center">Please enter your card details.</h5>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Card Number</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Name on the card</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Expiry</label>
-//                     <input type=" " class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>CVV</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                 </div>
-//                   <div>
-//                   <button class="btn btn-outline-primary float-right">
-//                     Cancel
-//                   </button>
-//                   <button class="btn btn-primary float-right mr-3">Save</button>
-//                   </div>
-//               </form>
-//             </div>
-//           </div>
-//         ) : ("")}
-//         {window.newContact ? (
-//           <div className="popup-box">
-//             <div className="box">
-//               <span className="close-icon">x</span>
-//               <form>
-//                 <h5 class="border-bottom mb-4 text-center">
-//                   Please enter the below details to proceed!
-//                 </h5>
-//                 <div class="form-row">
-//                   <h5>Name</h5>
-//                 </div>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Salutaion</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>FirstName</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>LastName</label>
-//                     <input type=" " class="form-control" id="inputEmail4" />
-//                   </div>
-//                 </div>
-//                 <div class="form-row">
-//                   <h5>Address</h5>
-//                 </div>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing Street</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing City</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing State</label>
-//                     <input type=" " class="form-control" id="inputEmail4" />
-//                   </div>
-//                 </div>
-//                 <div class="form-row">
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing Zip</label>
-//                     <input type="email" class="form-control" id="inputEmail4" />
-//                   </div>
-//                   <div class="form-group col-md-4">
-//                     <label>Mailing Country</label>
-//                     <input class="form-control" id="inputPassword4" />
-//                   </div>
-//                 </div>
-//                 <button class="btn btn-outline-primary float-right">
-//                   Cancel
-//                 </button>
-//                 <button class="btn btn-primary float-right mr-3">Save</button>
-//               </form>
-//             </div>
-//           </div>
-//         ) : (
-//           ""
-//         )}
-//       </div>
-//     );
-
-// }
-
-// function onloadeddata() {
-//   const queryParams = new URLSearchParams(window.location.search);
-//   window.isContactExist = queryParams.get("isContactExist");
-//   console.log(" window.isConatctExist==>" + window.isContactExist);
-//   if ((window.isContactExist == "true")) {
-//     window.newContact = false;
-//   } else {
-//     window.newContact = true;
-//   }
-//   console.log("window.isNewCard in onLOad  "+window.isNewCard);
-//   if ((window.isNewCard == true)) {
-//     console.log("window.isNewCard in if.  "+window.isNewCard);
-//     window.shownewCard = true;
-//   } else {
-//     console.log("window.isNewCard in else.  "+window.isNewCard);
-//     window.shownewCard = false;
-//   }
-//   fetch(
-//     "https://api.stripe.com/v1/payment_methods?type=card&customer=cus_KulGpoFcxMDRQy",
-//     {
-//       method: "GET",
-//       headers: {
-//         "x-rapidapi-host": "https://api.stripe.com",
-//         // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
-//         Authorization:
-//           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-//       },
-//     }
-//   )
-//     .then((response) => response.json())
-//     .then((response) => {
-//       //console.log("ListPaymentMethods--->" +JSON.stringify(response));
-//       var cardList = response.data;
-//       var paymentMethodList = [];
-//       var jsonValues = JSON.parse(JSON.stringify(cardList));
-//       var crd = new Object();
-//       for (var i = 0; i < jsonValues.length; i++) {
-//         crd = jsonValues[i].card;
-//         crd.id = jsonValues[i].id;
-//         crd.name = jsonValues[i].billing_details.name;
-//         paymentMethodList.push(crd);
-//       }
-//       var defaultMethod = "pm_1KQWkxJZdmpiz6ZwRILWgYbS";
-//       window.paymentMethodId = defaultMethod;
-//       for (var i = 0; i < paymentMethodList.length; i++) {
-//         if (paymentMethodList[i].id == defaultMethod) {
-//           paymentMethodList[i].isDefault = true;
-//         } else {
-//           paymentMethodList[i].isDefault = false;
-//         }
-//       }
-//       console.log("default ===> " + JSON.stringify(paymentMethodList));
-//       window.namesList = paymentMethodList.map(function (listValues, index) {
-//         //console.log("window.namesList11-->" +namesList);
-//         //console.log("------>namesList" +namesList);
-//         return (
-//           <li
-//             class="list-group-item d-flex justify-content-between align-items-center"
-//             data-id={listValues.id}
-//             onClick={selectedPaymentMethod}
-//           >
-//             <div data-id={listValues.id}>
-//               <p
-//                 class="text-uppercase mb-1"
-//                 data-id={listValues.id}
-//               >
-//                 {listValues.brand} ****{listValues.last4}
-//               </p>
-//               <p
-//                 class="text-black-50 mb-0"
-//                 data-id={listValues.id}
-//               >
-//                 Expires on: {listValues.exp_month}/{listValues.exp_year}
-//                 {listValues.isDefault ? (
-//                   <span class="badge badge-pill badge-primary ml-4">
-//                     Default
-//                   </span>
-//                 ) : (
-//                   ""
-//                 )}
-//               </p>
-//             </div>
-//             <span>
-//               <i class="fas fa-pencil-alt mr-3 text-dark"></i>
-//               <i
-//                 class="fas fa-trash-alt text-dark"
-//                 data-id={listValues.id}
-//                 onClick={handleDelete}
-//               ></i>
-//             </span>
-//           </li>
-//         );
-//       });
-//       console.log("----!-->namesList-->" + window.namesList);
-//       window.out = window.namesList;
-//       return window.namesList;
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-//     console.log("window.out-->" + window.out);
-//     var newlist = window.out;
-//     return newlist;
-// }
-// function handleAddCard() {
-//   console.log("invoked handleAddCard ------>");
-//   window.isNewCard = true;
-//   //refreshPage();
-//   //console.log("after refresh ------>");
-//   //Obj = new App();
-//   console.log("after newObj ------>");
-//   //onloadeddata();
-//  //App();
-//  //Obj.render();
-// }
-//function handleAddACH() {}
-
-// function handleDelete(event) {
-//   window.isDelete = true;
-//   console.log("handleDelete isDelete ------>" + window.isDelete);
-//   window.paymentMethodId = event.target.getAttribute("data-id");
-//   console.log("handleDelete paymentid ------>" + window.paymentMethodId);
-// }
-// function deletePaymentMethod(event) {
-//   console.log("Invooked delete" + event.target.getAttribute("data-id"));
-//   var paymentMethodId = event.target.getAttribute("data-id");
-//   console.log("Deleted paymentid ------>" + paymentMethodId);
-//   fetch(
-//     "https://api.stripe.com/v1/payment_methods/" + paymentMethodId + "/detach",
-//     {
-//       method: "POST",
-//       headers: {
-//         "x-rapidapi-host": "https://api.stripe.com",
-//         //"x-rapidapi-key": "apikey",
-//         "content-type": "application/json",
-//         accept: "application/json",
-//         Authorization:
-//           "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
-//       },
-//     }
-//   )
-//     .then((response) => response.json())
-//     .then((response) => {
-//       console.log(response);
-//       if (response.id) {
-//         console.log("after delete and before listing");
-//         console.log("1111");
-//         refreshPage();
-//         //onloadeddata();
-//       }
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// }
-
-function refreshPage() {
-  console.log("invoked refresh fn--->");
-  //const refreshPage = ()=>{
-  window.location.reload();
-  console.log("After refresh--->");
-  //onloadeddata();
-}
-
-function selectedPaymentMethod(event) {
-  //this.handleIsDelete();
-  console.log("invoked selectedPaymentMethod on delete=====>");
-  console.log("Invooked Method" + event.target.getAttribute("data-id"));
-  window.paymentMethodId = event.target.getAttribute("data-id");
-  var acc = document.querySelectorAll(".list-group-item");
-  for (let i = 0; i < acc.length; i++) {
-    if (acc[i].classList.contains("activeList")) {
-      acc[i].classList.remove("activeList");
-    }
-  }
-  let _listItems = event.target;
-  _listItems.classList.add("activeList");
-}
-
-function showpopup() {
-  console.log("Invoked Popup function");
-  window.ispopuptrue = true;
 }
 
 export default App;

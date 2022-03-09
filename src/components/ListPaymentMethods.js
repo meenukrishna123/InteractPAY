@@ -21,8 +21,32 @@ class ListPaymentMethods extends Component {
     }
 componentDidMount() {
 console.log("Hiiiiii")
-this.onloadeddata();
+//this.getStripeKey();
+//this.onloadeddata();
 } 
+getStripeKey(){
+  console.log("Invoked stripe key in child11");
+  var url ="https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=GET&inputParams={}";
+      console.log("this.final url --->" + url);
+      fetch(url, {
+        method: "GET",
+        headers: {
+          mode: "cors",
+          "Access-Control-Allow-Origin": "*",
+        },
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          console.log(" Stripe key  -->" + JSON.stringify(response));
+          this.stripeKey = response;
+          if(this.stripeKey){
+            this.onloadeddata();
+          }
+        })
+        .catch((err) => {
+          console.log("err" + err);
+        });
+}
 selectedPaymentMethod(event) {
     console.log('invoked selectedPaymentMethod =====>');
     console.log("Invooked Method" + event.target.getAttribute("data-id"));
@@ -48,7 +72,7 @@ selectedPaymentMethod(event) {
     else{
       this.customerId = window.custId;
     }
-   console.log("this.customerId in onloadxx---> "+this.customerId);
+   console.log("this.customerId in onload---> "+this.customerId);
   //  if(this.customerId){
      fetch(
       "https://api.stripe.com/v1/payment_methods?type=card&customer="+this.customerId,
@@ -57,7 +81,8 @@ selectedPaymentMethod(event) {
           headers: {
             "x-rapidapi-host": "https://api.stripe.com",
             // "x-rapidapi-key": "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c"
-            Authorization: "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+            Authorization: " Bearer "+this.stripeKey,
+            //"Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
            },
           }
         )
@@ -134,6 +159,7 @@ deletePaymentMethod(event){
   //this.x = event.target.getAttribute("data-id");
   this.payMethodId = this.x;
   console.log(" delete id *******===>"+this.payMethodId)
+  console.log("Stripekey@@@@@@@@@@@"+this.stripeKey );
   var deleteUrl = "https://api.stripe.com/v1/payment_methods/" + this.payMethodId + "/detach";
   console.log("deleteUrl==>"+deleteUrl)
     fetch(deleteUrl,
@@ -141,8 +167,8 @@ deletePaymentMethod(event){
         method: "POST",
         headers: {
           "x-rapidapi-host": "https://api.stripe.com",
-          Authorization:
-            "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
+          Authorization: " Bearer "+this.stripeKey ,
+           // "Bearer sk_test_51K9PF1JZdmpiz6ZwomLVnx7eXnu0Buv19EwOe262mK5uj5E4bTpWO1trTF5S1OvVmdnpWtd2fm8s0HHbMlrqY2uZ00lWc3uV7c",
         },
       }
     )
