@@ -747,21 +747,24 @@ class App extends Component {
         if (response.id) {
           this.transactionId = response.id;
           this.transactionstatus = response.status;
+          var currency = response.currency;
+          if(response.charges.data[0]){
           this.gatewayMessage = JSON.parse(
             JSON.stringify(response.charges.data[0].outcome.seller_message)
           );
           this.gatewayStatus = JSON.parse(
             JSON.stringify(response.charges.data[0].outcome.network_status)
           );
-          var currency = JSON.parse(
-            JSON.stringify(response.charges.data[0].currency)
-          );
+          }
+          // var currency = JSON.parse(
+          //   JSON.stringify(response.charges.data[0].currency)
+          // );
           this.currencyCode = currency.toUpperCase();
           //console.log("this.currencyCode-->"+this.currencyCode);
           var message = "Your payment is successfully completed";
           var type = "success";
           this.notification(message, type);
-          var redirectUrl = response.charges.data[0].receipt_url;
+          //var redirectUrl = response.charges.data[0].receipt_url;
           //this.navigateTo(redirectUrl);
         } else {
           this.transactionId = response.error.payment_intent.id;
