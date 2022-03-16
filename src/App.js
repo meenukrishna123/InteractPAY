@@ -90,6 +90,7 @@ class App extends Component {
     this.state = {Billingstate: ""};
     this.state = {Billingzip: "",};
     this.state = {Billingcountry: ""};
+    this.state = { expValue: "" };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleAddressChange = this.handleAddressChange.bind(this);
@@ -205,7 +206,14 @@ class App extends Component {
           contactReponse.crma_pay__Default_Payment_Method__c
         );
         this.defaultId = contactReponse.crma_pay__Default_Payment_Method__c;
-        this.onloadeddata(this.defaultId);
+        this.name = contactReponse.Name;
+        // this.onloadeddata(this.defaultId);
+        if(this.urlContactId && !this.urlCustomerId){
+          console.log("******************************No Customer***********");
+          this.createCustomer(this.name,this.urlmail);
+        }else{
+          this.onloadeddata(this.defaultId);
+        }
         // var x = contactReponse.crma_pay__Default_Payment_Method__c;
         // this.default2Id.push(x);
         // this.setState({
@@ -234,6 +242,63 @@ class App extends Component {
       );
     // console.log("Deafault---->" + this.state.defaultId);
     // console.log("this.x---->" + this.state.x);
+  }
+  createCustomer(name,email){
+    console.log("Invoked create customer");
+    fetch(
+      "https://api.stripe.com/v1/customers?name=" +
+        name +
+        "&email=" +
+        email,
+      {
+        method: "POST",
+        headers: {
+          "x-rapidapi-host": "https://api.stripe.com",
+          Authorization: " Bearer " + this.stripeKey,
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((response) => {
+        this.newcustomerId = response.id;
+        // window.custId = this.newcustomerId;
+        console.log("customer create -->" + response.id);
+        if (this.newcustomerId) {
+          this.onloadeddata();
+          this.updateContParams = {};
+          this.updateContParams.contactId = this.urlContactId;
+          this.updateContParams.customerId = this.newcustomerId;
+         // https://crmapay-developer-edition.na213.force.com/InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams={"contactId":"0038c00002iI5uBAAS","customerId":"suzyscustomId"}
+          console.log("baseUrls--->"+this.baseUrl);
+          var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
+            JSON.stringify(this.updateContParams);
+          console.log("this.final url --->" + url);
+          fetch(url, {
+            method: "GET",
+            headers: {
+              mode: "cors",
+              "Access-Control-Allow-Origin": "*",
+            },
+          })
+            .then((response) => response.json())
+            .then((response) => {
+              this.contactId = response;
+              // window.contId = this.contactId;
+              // this.newContactId = this.contactId;
+              console.log(" update  contact-->" + JSON.stringify(response));
+              //this.closeModal();
+            })
+            .catch((err) => {
+              console.log("err" + err);
+            });
+          //console.log("Invoke create Contact in salesforce");
+        }
+        // window.newContact = false;
+        // console.log("Invoke window.newContact" + window.newContact);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
   getOrderDetails() {
     var orderParams = {};
@@ -909,6 +974,29 @@ class App extends Component {
     }
     if (target.name == "expMonth") {
       this.expMonth = target.value;
+    //   // if(this.expMonth.length==2){
+    //   // console.log("Exp Month length in if"+ this.expMonth.length);
+    //   // this.setState({
+    //   //   expValue: this.expMonth+'/',
+    //   // });
+    //   // console.log("setState expValue in if"+ this.state.expValue);
+    //   // }
+    //   if(typeof this.expMonth == 'number' || this.expMonth ==0 || this.expMonth<13){
+    //     console.log("All conditions are met")
+    //     if(this.expMonth.length==2){
+    //       console.log("Exp Month length in if"+ this.expMonth.length);
+    //       this.setState({
+    //         expValue: this.expMonth+'/',
+    //       });
+    //       console.log("setState expValue in if"+ this.state.expValue);
+    //       }
+    //   }
+    // //   if(this.expMonth.length==3){
+    // //   this.setState({
+    // //     expValue: this.expMonth,
+    // //   });
+    // // }
+    //   console.log("final exp month year"+this.expMonth)
     }
     if (target.name == "expYear") {
       this.expYear = target.value;
@@ -1294,7 +1382,7 @@ class App extends Component {
   render() {
     var achResponseList = this.state.achItems;
     var cardlist = this.state.carditems;
-    console.log("Invoked render---->"+cardlist);
+    console.log("Invoked render---->"+this.state.expValue);
     const queryParams = new URLSearchParams(window.location.search);
     window.isContactExist = queryParams.get("isContactExist");
     console.log(" window.isConatctExist==>" + window.isContactExist);
@@ -1651,6 +1739,7 @@ class App extends Component {
                       class="form-control"
                       id="inputEmail4"
                       name="expMonth"
+                      value={this.state.expValue}
                       onChange={this.handleCardInput}
                     />
                   </div>
@@ -1676,6 +1765,10 @@ class App extends Component {
                       onChange={this.handleCardInput}
                     />
                   </div>
+                  {/* <div class="form-group col-md-4">
+                  <input placeholder="MM/YY" type="tel" name="expiry" 
+                              //oninput={handleExpiryInput} onblur={handleExpiryInput} 
+                              style=" width:250px;"></input></div> */}
                 </div>
               </form>
 
