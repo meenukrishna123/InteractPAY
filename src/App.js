@@ -64,18 +64,18 @@ class App extends Component {
     this.notification = this.notification.bind(this);
     //this.getContactDetails = this.getContactDetails.bind(this);
     this.updatePaymentMethod = this.updatePaymentMethod.bind(this);
-    this.handledDefaultChechBox = this.handledDefaultChechBox.bind(this);
+    //this.handledDefaultChechBox = this.handledDefaultChechBox.bind(this);
     this.defaultCardPayment = this.defaultCardPayment.bind(this);
     this.state = { isDelete: false };
     this.state = { isEdit: false };
     this.state = { isAddressEdit: false };
     this.state = { defaultId: [] };
-    this.state = {brandLogo: ""};
+    this.state = { brandLogo: "" };
     this.state = {
       items: [],
     };
     this.state = { isnewcard: false };
-    this.state = { dropdown: false };
+    this.state = { dropdown: "" };
     this.state = { newcontact: false };
     this.state = { isClick: false };
     this.state = { isAch: false };
@@ -85,12 +85,13 @@ class App extends Component {
     this.state = { editCard: false };
     this.state = { OrderNumber: "" };
     this.state = { OrderTotal: "" };
-    this.state = {Billingcity: ""};
-    this.state = {Billingstreet: ""};
-    this.state = {Billingstate: ""};
-    this.state = {Billingzip: "",};
-    this.state = {Billingcountry: ""};
+    this.state = { Billingcity: "" };
+    this.state = { Billingstreet: "" };
+    this.state = { Billingstate: "" };
+    this.state = { Billingzip: "" };
+    this.state = { Billingcountry: "" };
     this.state = { expValue: "" };
+    //this.state = { setupAddress: "" };
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleAddressChange = this.handleAddressChange.bind(this);
@@ -113,11 +114,15 @@ class App extends Component {
     // this.onloadeddata();
     this.isCheckValue = false;
     this.isDefaultValue = false;
+    //this.isdropdown = false ;
+    //this.setupAddress = false;
   }
   getStripeKey() {
     console.log("Invoked stripe key");
-    console.log("baseUrls--->"+this.baseUrl);
-    var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams={}";
+    console.log("baseUrls--->" + this.baseUrl);
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams={}";
     // console.log("yyyyyyy---->"+y)
     // var url = "https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=GET&inputParams={}";
     //console.log("this.final url --->" + url);
@@ -138,9 +143,9 @@ class App extends Component {
         var orderReponse = JSON.stringify(JSON.parse(response));
         this.stripeKey = mdt_Reponse.StripeKey;
         this.brandLogo = mdt_Reponse.BrandLogo;
-        this.setState({brandLogo: this.brandLogo,});
-        console.log("this.stripeKey--->"+this.stripeKey);
-        console.log("this.brandLogo--->"+this.brandLogo);
+        this.setState({ brandLogo: this.brandLogo });
+        console.log("this.stripeKey--->" + this.stripeKey);
+        console.log("this.brandLogo--->" + this.brandLogo);
       })
       .catch((err) => {
         console.log("err" + err);
@@ -184,8 +189,10 @@ class App extends Component {
     var contactParams = {};
     contactParams.contactId = this.contactId;
     //contactParams.contactId = "0035f00000KTfGYAA1";
-     console.log("baseUrls--->"+this.baseUrl);
-    var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams=" +
+    console.log("baseUrls--->" + this.baseUrl);
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams=" +
       JSON.stringify(contactParams);
     console.log("this.contact url ---->" + url);
     fetch(url, {
@@ -208,10 +215,10 @@ class App extends Component {
         this.defaultId = contactReponse.crma_pay__Default_Payment_Method__c;
         this.name = contactReponse.Name;
         // this.onloadeddata(this.defaultId);
-        if(this.urlContactId && !this.urlCustomerId){
+        if (this.urlContactId && !this.urlCustomerId) {
           console.log("******************************No Customer***********");
-          this.createCustomer(this.name,this.urlmail);
-        }else{
+          this.createCustomer(this.name, this.urlmail);
+        } else {
           this.onloadeddata(this.defaultId);
         }
         // var x = contactReponse.crma_pay__Default_Payment_Method__c;
@@ -243,13 +250,10 @@ class App extends Component {
     // console.log("Deafault---->" + this.state.defaultId);
     // console.log("this.x---->" + this.state.x);
   }
-  createCustomer(name,email){
+  createCustomer(name, email) {
     console.log("Invoked create customer");
     fetch(
-      "https://api.stripe.com/v1/customers?name=" +
-        name +
-        "&email=" +
-        email,
+      "https://api.stripe.com/v1/customers?name=" + name + "&email=" + email,
       {
         method: "POST",
         headers: {
@@ -261,16 +265,16 @@ class App extends Component {
       .then((response) => response.json())
       .then((response) => {
         this.newcustomerId = response.id;
-        // window.custId = this.newcustomerId;
         console.log("customer create -->" + response.id);
         if (this.newcustomerId) {
           this.onloadeddata();
           this.updateContParams = {};
           this.updateContParams.contactId = this.urlContactId;
           this.updateContParams.customerId = this.newcustomerId;
-         // https://crmapay-developer-edition.na213.force.com/InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams={"contactId":"0038c00002iI5uBAAS","customerId":"suzyscustomId"}
-          console.log("baseUrls--->"+this.baseUrl);
-          var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
+          console.log("baseUrls--->" + this.baseUrl);
+          var url =
+            this.baseUrl +
+            "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
             JSON.stringify(this.updateContParams);
           console.log("this.final url --->" + url);
           fetch(url, {
@@ -291,10 +295,7 @@ class App extends Component {
             .catch((err) => {
               console.log("err" + err);
             });
-          //console.log("Invoke create Contact in salesforce");
         }
-        // window.newContact = false;
-        // console.log("Invoke window.newContact" + window.newContact);
       })
       .catch((err) => {
         console.log(err);
@@ -304,8 +305,10 @@ class App extends Component {
     var orderParams = {};
     orderParams.orderId = this.urlOrderId;
     //contactParams.contactId = "0035f00000KTfGYAA1";
-    console.log("baseUrls--->"+this.baseUrl);
-    var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams=" +
+    console.log("baseUrls--->" + this.baseUrl);
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams=" +
       JSON.stringify(orderParams);
     console.log("this.order url ---->" + url);
     fetch(url, {
@@ -321,7 +324,7 @@ class App extends Component {
         //console.log("RESponse    ------>", response);
         var contactReponse = JSON.parse(response);
         var orderReponse = JSON.stringify(JSON.parse(response));
-        console.log("OrderReponse    --QQQqQqQQQQQQQq---->" + orderReponse);
+        console.log("OrderReponse ----->" + orderReponse);
         var orderNum = contactReponse.orderdetails[0].OrderNumber;
         var total = contactReponse.orderdetails[0].TotalAmount;
         var city = contactReponse.orderdetails[0].BillingAddress.city;
@@ -331,14 +334,15 @@ class App extends Component {
         var state = contactReponse.orderdetails[0].BillingAddress.state;
         var street = contactReponse.orderdetails[0].BillingAddress.street;
         console.log("street -1--->" + street);
-        this.setState({OrderNumber: orderNum,});
-        this.setState({ OrderTotal: total,});
-        this.setState({Billingcity: city,});
-        this.setState({Billingstreet: street,});
-        this.setState({Billingstate: state,});
-        this.setState({Billingzip: postalCode,});
-        this.setState({Billingcountry: country,});
-        console.log("this.state.OrderNumber -1--->" + this.state.OrderNumber);
+        this.setState({ OrderNumber: orderNum });
+        this.setState({ OrderTotal: total });
+        this.setState({ Billingcity: city });
+        this.setState({ Billingstreet: street });
+        this.setState({ Billingstate: state });
+        this.setState({ Billingzip: postalCode });
+        this.setState({ Billingcountry: country });
+        console.log("this.state.OrderNumber -1-->" + this.state.setState);
+
         // console.log("crma_pay__Default_Payment_Method__c#########",contactReponse.crma_pay__Default_Payment_Method__c);
         // this.defaultId = contactReponse.crma_pay__Default_Payment_Method__c;
         // this.onloadeddata(this.defaultId);
@@ -355,12 +359,12 @@ class App extends Component {
         console.log("err" + err);
       })
       .finally(
-        () =>
-          //{
+        () => {
           console.log(
             "******08888888***+++++++++++//00/////////=*******$$$$$$$$$$" +
               this.state.defaultId
-          )
+          );
+        }
         // this.setState({
         //   x: this.state.defaultId,
         //});
@@ -503,12 +507,12 @@ class App extends Component {
   }
   opendropdown() {
     console.log("invoke dropdown");
-    if (this.state.dropdown == false) {
+    if (this.state.dropdown) {
       console.log("invoke dropdown if false");
-      this.setState({ dropdown: true });
-    } else {
       this.setState({ dropdown: false });
-      console.log("invoke dropdown if true");
+    } else {
+      this.setState({ dropdown: true });
+      console.log("invoke dropdoown if true");
     }
   }
   handleInputChange(event) {
@@ -598,30 +602,35 @@ class App extends Component {
     this.newAddressParams.billingCountry = this.country;
     console.log("this.urlParam--->" + JSON.stringify(this.newAddressParams));
   }
-  handleEditInput(event){
+  handleEditInput(event) {
     console.log("Invoked create handleEditInput.");
-  const target = event.target;
-  if (target.name == "newExpYear") {
-    this.newExpYear = target.value;
+    const target = event.target;
+    if (target.name == "newExpYear") {
+      this.newExpYear = target.value;
+    }
+    if (target.name == "newExpMonth") {
+      this.newExpMonth = target.value;
+    }
+
+    if (this.newExpYear || this.newExpMonth) {
+      this.setState({
+        editCard: true,
+      });
+    } else {
+      this.setState({
+        editCard: false,
+      });
+    }
   }
-  if (target.name == "newExpMonth") {
-    this.newExpMonth = target.value;
-  }
-  
-  if (this.newExpYear || this.newExpMonth) {
-    this.setState({
-      editCard: true,
-    });
-  } else {
-    this.setState({
-      editCard: false,
-    });
-  }}
-  updateBillingAddress(){
-    console.log("Invoked updateBillingAddress"+ JSON.stringify(this.newAddressParams));
-    this.newAddressParams.orderId = this.urlOrderId
-    console.log("baseUrls--->"+this.baseUrl);
-    var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
+  updateBillingAddress() {
+    console.log(
+      "Invoked updateBillingAddress" + JSON.stringify(this.newAddressParams)
+    );
+    this.newAddressParams.orderId = this.urlOrderId;
+    console.log("baseUrls--->" + this.baseUrl);
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
       JSON.stringify(this.newAddressParams);
     console.log("this.final transaction url --->" + url);
     fetch(url, {
@@ -633,31 +642,35 @@ class App extends Component {
     })
       .then((response) => response.json())
       .then((response) => {
-         var orderId = response;
+        var orderId = response;
         console.log(" update  address-->" + JSON.stringify(response));
-        if(orderId){
-          if(this.newAddressParams.billingCity){
-            this.setState({Billingcity: this.newAddressParams.billingCity,});
+        if (orderId) {
+          if (this.newAddressParams.billingCity) {
+            this.setState({ Billingcity: this.newAddressParams.billingCity });
           }
-          if(this.newAddressParams.billingStreet){
-            this.setState({Billingstreet: this.newAddressParams.billingStreet,});
+          if (this.newAddressParams.billingStreet) {
+            this.setState({
+              Billingstreet: this.newAddressParams.billingStreet,
+            });
           }
-          if(this.newAddressParams.billingState){
-            this.setState({Billingstate: this.newAddressParams.billingState,});
+          if (this.newAddressParams.billingState) {
+            this.setState({ Billingstate: this.newAddressParams.billingState });
           }
-          if(this.newAddressParams.billingZip){
-            this.setState({Billingzip: this.newAddressParams.billingZip,});
+          if (this.newAddressParams.billingZip) {
+            this.setState({ Billingzip: this.newAddressParams.billingZip });
           }
-          if(this.newAddressParams.billingCountry){
-            this.setState({Billingcountry: this.newAddressParams.billingCountry,});
+          if (this.newAddressParams.billingCountry) {
+            this.setState({
+              Billingcountry: this.newAddressParams.billingCountry,
+            });
           }
         }
       })
       .catch((err) => {
         console.log("err" + err);
       });
-    
-        this.setState({isAddressEdit: false,});
+
+    this.setState({ isAddressEdit: false });
   }
   handleAddCard() {
     console.log("invoked handleAddCard ------>");
@@ -698,8 +711,10 @@ class App extends Component {
         console.log("customer create -->" + response.id);
         if (this.newcustomerId) {
           this.inputParams.customerId = this.newcustomerId;
-          console.log("baseUrls--->"+this.baseUrl);
-    var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
+          console.log("baseUrls--->" + this.baseUrl);
+          var url =
+            this.baseUrl +
+            "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
             JSON.stringify(this.inputParams);
           console.log("this.final url --->" + url);
           fetch(url, {
@@ -813,13 +828,13 @@ class App extends Component {
           this.transactionId = response.id;
           this.transactionstatus = response.status;
           var currency = response.currency;
-          if(response.charges.data[0]){
-          this.gatewayMessage = JSON.parse(
-            JSON.stringify(response.charges.data[0].outcome.seller_message)
-          );
-          this.gatewayStatus = JSON.parse(
-            JSON.stringify(response.charges.data[0].outcome.network_status)
-          );
+          if (response.charges.data[0]) {
+            this.gatewayMessage = JSON.parse(
+              JSON.stringify(response.charges.data[0].outcome.seller_message)
+            );
+            this.gatewayStatus = JSON.parse(
+              JSON.stringify(response.charges.data[0].outcome.network_status)
+            );
           }
           // var currency = JSON.parse(
           //   JSON.stringify(response.charges.data[0].currency)
@@ -924,8 +939,10 @@ class App extends Component {
     transactionParams.transactionStatus = transactionstatus;
     transactionParams.gatewayMessage = gatewayMessage;
     transactionParams.gatewayNetworkStatus = gatewayStatus;
-    console.log("baseUrls--->"+this.baseUrl);
-    var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
+    console.log("baseUrls--->" + this.baseUrl);
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
       JSON.stringify(transactionParams);
     console.log("this.final transaction url --->" + url);
     fetch(url, {
@@ -962,6 +979,8 @@ class App extends Component {
       isnewcard: false,
       //isClick: true
     });
+    this.isCheckValue = false;
+    console.log("this.isCheckValue-->"+this.isCheckValue);
   }
   handleCardInput(event) {
     console.log("Invoked create handleCardInput");
@@ -974,29 +993,29 @@ class App extends Component {
     }
     if (target.name == "expMonth") {
       this.expMonth = target.value;
-    //   // if(this.expMonth.length==2){
-    //   // console.log("Exp Month length in if"+ this.expMonth.length);
-    //   // this.setState({
-    //   //   expValue: this.expMonth+'/',
-    //   // });
-    //   // console.log("setState expValue in if"+ this.state.expValue);
-    //   // }
-    //   if(typeof this.expMonth == 'number' || this.expMonth ==0 || this.expMonth<13){
-    //     console.log("All conditions are met")
-    //     if(this.expMonth.length==2){
-    //       console.log("Exp Month length in if"+ this.expMonth.length);
-    //       this.setState({
-    //         expValue: this.expMonth+'/',
-    //       });
-    //       console.log("setState expValue in if"+ this.state.expValue);
-    //       }
-    //   }
-    // //   if(this.expMonth.length==3){
-    // //   this.setState({
-    // //     expValue: this.expMonth,
-    // //   });
-    // // }
-    //   console.log("final exp month year"+this.expMonth)
+      //   // if(this.expMonth.length==2){
+      //   // console.log("Exp Month length in if"+ this.expMonth.length);
+      //   // this.setState({
+      //   //   expValue: this.expMonth+'/',
+      //   // });
+      //   // console.log("setState expValue in if"+ this.state.expValue);
+      //   // }
+      //   if(typeof this.expMonth == 'number' || this.expMonth ==0 || this.expMonth<13){
+      //     console.log("All conditions are met")
+      //     if(this.expMonth.length==2){
+      //       console.log("Exp Month length in if"+ this.expMonth.length);
+      //       this.setState({
+      //         expValue: this.expMonth+'/',
+      //       });
+      //       console.log("setState expValue in if"+ this.state.expValue);
+      //       }
+      //   }
+      // //   if(this.expMonth.length==3){
+      // //   this.setState({
+      // //     expValue: this.expMonth,
+      // //   });
+      // // }
+      //   console.log("final exp month year"+this.expMonth)
     }
     if (target.name == "expYear") {
       this.expYear = target.value;
@@ -1089,12 +1108,12 @@ class App extends Component {
       }
     )
       .then((response) => {
-        console.log("default 1st response")
+        console.log("default 1st response");
         console.log("response ===> " + JSON.stringify(response));
         return response.json(); // returning the response in the form of JSON
       })
       .then((jsonResponse) => {
-        console.log("default 2st response")
+        console.log("default 2st response");
         console.log("jsonResponse ===> " + JSON.stringify(jsonResponse));
         if (jsonResponse.id) {
           console.log("update contact ===> ");
@@ -1175,20 +1194,20 @@ class App extends Component {
       isDelete: true,
     });
   }
-  handledDefaultChechBox() {
-    if (this.isDefaultValue == false) {
-      // this.setState({
-      this.isDefaultValue = true;
-      // })
-    } else {
-      // this.setState({
-      this.isDefaultValue = false;
-      // })
-    }
+  // handledDefaultChechBox() {
+  //   if (this.isDefaultValue == false) {
+  //     // this.setState({
+  //     this.isDefaultValue = true;
+  //     // })
+  //   } else {
+  //     // this.setState({
+  //     this.isDefaultValue = false;
+  //     // })
+  //   }
 
     // console.log("isCheckValue----------",this.state.isCheckValue)
-    console.log("isCheckValue----------", this.isDefaultValue);
-  }
+  //   console.log("isCheckValue----------", this.isDefaultValue);
+  // }
   handleIsEdit() {
     console.log("invoked handleIsDelete ");
     this.setState({
@@ -1201,7 +1220,7 @@ class App extends Component {
       isAddressEdit: true,
     });
   }
-  
+
   closeDeleteModal() {
     console.log("Invoked close popup");
     this.setState({
@@ -1213,6 +1232,8 @@ class App extends Component {
     this.setState({
       isEdit: false,
     });
+    this.isCheckValue = false;
+    console.log("this.isCheckValue"+this.isCheckValue);
   }
   updatePaymentMethod() {
     // const queryParams = new URLSearchParams(window.location.search);
@@ -1222,13 +1243,18 @@ class App extends Component {
     // } else {
     //   this.customerId = window.custId;
     // }
-    console.log("this.newExpMonth"+this.newExpMonth);
+    console.log("this.newExpMonth" + this.newExpMonth);
     //var updatePaymentMethodUrl = "https://api.stripe.com/v1/payment_methods/" + this.pmId + "?card[exp_month]=" + this.expiryMonth + "&card[exp_year]=" + this.expiryYear;
     if (this.isDefaultValue) {
       this.defaultCardPayment(this.paymentMethodId, this.customerId);
     }
     var updatePaymentMethodUrl =
-    "https://api.stripe.com/v1/payment_methods/" + this.paymentMethodId + "?card[exp_month]=" + this.newExpMonth + "&card[exp_year]=" + this.newExpYear;
+      "https://api.stripe.com/v1/payment_methods/" +
+      this.paymentMethodId +
+      "?card[exp_month]=" +
+      this.newExpMonth +
+      "&card[exp_year]=" +
+      this.newExpYear;
     console.log("updatePaymentMethodUrl==>" + updatePaymentMethodUrl);
     fetch(updatePaymentMethodUrl, {
       method: "POST",
@@ -1303,8 +1329,10 @@ class App extends Component {
     updateContactParams.defaultPaymentMethodId = paymentId;
     updateContactParams.contactId = this.contactId;
 
-    console.log("baseUrls--->"+this.baseUrl);
-    var url =    this.baseUrl + "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
+    console.log("baseUrls--->" + this.baseUrl);
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
       JSON.stringify(updateContactParams);
     console.log("this.final transaction url --->" + url);
     fetch(url, {
@@ -1323,7 +1351,6 @@ class App extends Component {
       .catch((err) => {
         console.log("err" + err);
       });
-
   }
   deletePaymentMethod(event) {
     console.log("invoked deletePaymentMethod");
@@ -1382,7 +1409,7 @@ class App extends Component {
   render() {
     var achResponseList = this.state.achItems;
     var cardlist = this.state.carditems;
-    console.log("Invoked render---->"+this.state.expValue);
+    console.log("Invoked render---->" + this.state.expValue);
     const queryParams = new URLSearchParams(window.location.search);
     window.isContactExist = queryParams.get("isContactExist");
     console.log(" window.isConatctExist==>" + window.isContactExist);
@@ -1401,18 +1428,35 @@ class App extends Component {
         }
       }
     }
-    console.log("window.isNewCard in onLOad  " + window.isNewCard);
+    //console.log("window.isNewCard in onLOad  " + window.isNewCard);
+    //console.log("Address details---->"+this.state.Billingcity  + this.state.Billingstreet  +this.state.Billingstate  +this.state.Billingcountry   +this.state.Billingzip)
+    if (
+      this.state.Billingcity &&
+      this.state.Billingstreet &&
+      this.state.Billingstate &&
+      this.state.Billingcountry &&
+      this.state.Billingzip
+    ) {
+      this.isValidAddress = true;
+    }
+    // if(this.state.dropdown){
+    //   this.isdropdown = true;
+    // }
+    // else{
+    //   this.isdropdown = false;
+    // }
+    console.log("Address value -->" + this.setupAddress);
     return (
       <div className="App">
         <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
           <div class="container py-3">
             <a class="navbar-brand" href="#">
-            < img src ={this.state.brandLogo} height="25"/>
-              </a>
+              <img src={this.state.brandLogo} height="25" />
+            </a>
             <a class="navbar-brand text-right" href="#">
               <p class="Interactheader ml-sm-4 m-0 ">POWERED BY</p>
               <div>
-              <IoMdInformationCircle />
+                <IoMdInformationCircle />
                 {/* <i class="fa fa-info-circle mr-2 fa-lg" aria-hidden="true"></i> */}
                 <i class="material-icons"></i>
                 <span class="ml-2 font-weight-bold">InterACT Pay</span>
@@ -1443,14 +1487,29 @@ class App extends Component {
                 </div>
               </div>
               <div class="card p-3">
-                <h5 class="border-bottom pb-3">Billing Address <IoMdCreate
-                onClick={() => this.handleIsAddressEdit()}
-                /></h5>
-                
-                <p>{this.state.Billingstreet}</p>
+                <h5 class="border-bottom pb-3">
+                  Billing Address{" "}
+                  <IoMdCreate onClick={() => this.handleIsAddressEdit()} />
+                </h5>
+                {this.isValidAddress ? (
+                  <div>
+                    <p>{this.state.Billingstreet}</p>
+                    <p>{this.state.Billingcity}</p>
+                    <p>
+                      {this.state.Billingstate} - {this.state.Billingcountry}
+                    </p>
+                    <p>ZipCode: {this.state.Billingzip}</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p>Please add your Billing Address{this.setupAddress}</p>
+                  </div>
+                )}
+                {/* <p>Please add your Billing Address</p> 
+              <p>{this.state.Billingstreet}</p>
                 <p>{this.state.Billingcity}</p>
                 <p>{this.state.Billingstate} - {this.state.Billingcountry}</p>
-                <p>ZipCode: {this.state.Billingzip}</p>
+                <p>ZipCode: {this.state.Billingzip}</p> */}
               </div>
             </div>
             <div class="col-lg-8 col-md-8 col-sm-1">
@@ -1460,7 +1519,7 @@ class App extends Component {
                     <div class="col-md-10">
                       <h5 class=" p-3">Please submit your payment details..</h5>
                     </div>
-                    {this.state.isClick ? (
+                    {/* {this.state.isClick ? (
                       <button
                         type="button"
                         onClick={this.myFunction.bind(this)}
@@ -1471,7 +1530,7 @@ class App extends Component {
                     ) : (
                       // <div className="drt_clearfix drt_CartableItem" onClick={() => props.callDetails()}></div>
                       ""
-                    )}
+                    )} */}
                     <div class="col-md-2 float-right mt-2">
                       <div
                         class="btn-group btn-group-toggle float-right"
@@ -1486,6 +1545,7 @@ class App extends Component {
                             name="options"
                             id="option1"
                             autocomplete="off"
+                            //class="test"
                             checked
                           />{" "}
                           Card
@@ -1512,7 +1572,8 @@ class App extends Component {
                             aria-haspopup="true"
                             aria-expanded="false"
                             onClick={this.opendropdown}
-                          ><IoMdAddCircle />
+                          >
+                            <IoMdAddCircle />
                             {/* <i class="fa fa-plus-square"></i> */}
                           </button>
                           {this.state.dropdown ? (
@@ -1570,26 +1631,28 @@ class App extends Component {
                                   </p>
                                 </div>
                                 <span>
-                                <span pr-3>
-                                  <IoMdCreate data-id={listValues.id}
-                                  onClick={() => this.handleIsEdit()} />
-                                </span> 
-                                <IoMdTrash
-                                  data-id={listValues.id}
-                                  //onClick={(event) =>
+                                  <span pr-3>
+                                    <IoMdCreate
+                                      data-id={listValues.id}
+                                      onClick={() => this.handleIsEdit()}
+                                    />
+                                  </span>
+                                  <IoMdTrash
+                                    data-id={listValues.id}
+                                    //onClick={(event) =>
                                     //this.selectedPaymentMethod(event)
-                                 // }
-                                //  onClick={(event) =>
-                                //   this.handleIsDelete(event)
-                               //}
-                                  onClick={() => this.handleIsDelete()}
-                                />
-                                {/* <i
+                                    // }
+                                    //  onClick={(event) =>
+                                    //   this.handleIsDelete(event)
+                                    //}
+                                    onClick={() => this.handleIsDelete()}
+                                  />
+                                  {/* <i
                                   class="fas fa-pencil-alt mr-3 text-dark"
                                   data-id={listValues.id}
                                   onClick={() => this.handleIsEdit()}
                                 ></i>*/}
-                                {/* <i
+                                  {/* <i
                                   class="fas fa-trash-alt text-dark"
                                   data-id={listValues.id}
                                   onClick={() => this.handleIsDelete()}
@@ -1597,7 +1660,7 @@ class App extends Component {
                                   //onClick = {this.handleIsDelete()}
                                   //onClick={() => this.handleIsDelete()}
                                 ></i>  */}
-                              </span>
+                                </span>
                               </li>
                             </ul>
                           </div>
@@ -1649,16 +1712,18 @@ class App extends Component {
                               </div>
                               <span>
                                 <span pr-3>
-                                  <IoMdCreate 
-                                  data-id={listValues.id}
-                                  onClick={() => this.handleIsEdit()} 
+                                  <IoMdCreate
+                                    data-id={listValues.id}
+                                    onClick={() => this.handleIsEdit()}
                                   />
                                 </span>
-                                <span 
-                                  //onClick={(event) =>this.selectedPaymentMethod(event)}
-                                  >
-                                <IoMdTrash data-id={listValues.id}
-                                  onClick={() => this.handleIsDelete()}/>
+                                <span
+                                //onClick={(event) =>this.selectedPaymentMethod(event)}
+                                >
+                                  <IoMdTrash
+                                    data-id={listValues.id}
+                                    onClick={() => this.handleIsDelete()}
+                                  />
                                 </span>
                                 {/* <i
                                   class="fas fa-pencil-alt mr-3 text-dark"
@@ -1705,12 +1770,91 @@ class App extends Component {
             <div className="box">
               <span className="close-icon">x</span>
               <form>
-                <h5 class="border-bottom mb-4 text-center">
+                <h5 class="border-bottom mb-4 text-center pb-2">
                   Please enter your card details.
                 </h5>
-                <div class="form-row">
+                <div class="form-group row">
+                  <label class="ml-1 required pl-5">CardHolder Name :</label>
+                  <div class="col-sm-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="inputPassword4"
+                      name="cardName"
+                      autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <label class="ml-1 required">Card Number :</label>
+                  <div class="col-sm-3">
+                    <input
+                      type=" "
+                      class="form-control"
+                      id="inputEmail4"
+                      name="cardNumber"
+                      autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="ml-1 required mr-5 pl-5">Expiry Date :</label>
+                  {/* <div class="col-sm-10">
+                     <input
+                      placeholder="MM"
+                      type="tel"
+                      class="form-control"
+                      id="inputEmail4"
+                      name="expMonth"
+                      onChange={this.handleCardInput}
+                    />
+                    <input
+                      placeholder="YY"
+                      type="tel"
+                      class="form-control expDate"
+                      id="inputEmail4"
+                      name="expYear"
+                      onChange={this.handleCardInput}
+                    /> 
+                  </div> */}
+
+                  <div class="col-sm-1">
+                  <input
+                      placeholder="MM"
+                      type="tel"
+                      class="form-control"
+                      id="inputEmail4"
+                      name="expMonth"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <div class="col-sm-1">
+                  <input
+                      placeholder="YY"
+                      type="tel"
+                      class="form-control expDate"
+                      id="inputEmail4"
+                      name="expYear"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="ml-1 mr-lg-5 pl-5 required">CVV :</label>
+                  <div class="col-sm-1">
+                    <input
+                      placeholder="CVV"
+                      type="tel"
+                      class="form-control ml-5"
+                      id="inputEmail4"
+                      name="cardCVV"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                </div>
+                {/* <div class="form-row">
                   <div class="form-group col-md-4">
-                    <label class="ml-1 required">Name on the card</label>
+                    <label class="ml-1 required">CardHolder Name</label>
                     <input
                       type="text"
                       class="form-control"
@@ -1731,6 +1875,7 @@ class App extends Component {
                       onChange={this.handleCardInput}
                     />
                   </div>
+                  
                   <div class="form-group col-md-4">
                     <label class="ml-1 required">Expiry Month</label>
                     <input
@@ -1748,7 +1893,7 @@ class App extends Component {
                     <input
                       placeholder="YY"
                       type="tel"
-                      class="form-control"
+                      class="form-control expDate"
                       id="inputEmail4"
                       name="expYear"
                       onChange={this.handleCardInput}
@@ -1765,11 +1910,7 @@ class App extends Component {
                       onChange={this.handleCardInput}
                     />
                   </div>
-                  {/* <div class="form-group col-md-4">
-                  <input placeholder="MM/YY" type="tel" name="expiry" 
-                              //oninput={handleExpiryInput} onblur={handleExpiryInput} 
-                              style=" width:250px;"></input></div> */}
-                </div>
+                  </div> */}
               </form>
 
               <div class="flex-container">
@@ -1778,6 +1919,7 @@ class App extends Component {
                 <input
                   type="checkbox"
                   id="default"
+                  class="mr-2 ml-5"
                   onChange={this.handleChechBox}
                 />
                 <span>Make this card as default</span>
@@ -1835,7 +1977,7 @@ class App extends Component {
                     />
                   </div>
                   <div class="form-group col-md-3">
-                    {/* <i class="fa fa-asterisk" style="font-size:24px;color:red"></i> */}
+                    {/* <i class="fa fa-asterisk" style="display:inline-block"font-size:24px;color:red"></i> */}
                     <label class="ml-1 required">LastName</label>
                     <input
                       type="text"
@@ -2024,7 +2166,8 @@ class App extends Component {
                 <input
                   type="checkbox"
                   id="default"
-                  onChange={this.handledDefaultChechBox}
+                  class="mr-2"
+                  onChange={this.handleChechBox}
                 />
                 <span>Make this card as default</span>
               </div>
@@ -2057,7 +2200,7 @@ class App extends Component {
                 Edit Billing Address
               </h5>
               <div class="form">
-              <div class="form-row">
+                <div class="form-row">
                   <div class="form-group col-md-4">
                     <label class="ml-1">Street</label>
                     <input
@@ -2124,21 +2267,21 @@ class App extends Component {
                   Cancel
                 </button>
                 {this.state.updateAddress ? (
-                <button
-                  class="btn btn-primary float-right mr-3"
-                  onClick={() => this.updateBillingAddress()}
-                >
-                  Update Address
-                </button>
-              ) : (
-                <button
-                  class="btn btn-primary float-right mr-3"
-                  disabled
-                  //onClick={() => this.createContact() }
-                >
-                  Update Address
-                </button>
-              )}
+                  <button
+                    class="btn btn-primary float-right mr-3"
+                    onClick={() => this.updateBillingAddress()}
+                  >
+                    Update Address
+                  </button>
+                ) : (
+                  <button
+                    class="btn btn-primary float-right mr-3"
+                    disabled
+                    //onClick={() => this.createContact() }
+                  >
+                    Update Address
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -44,8 +44,11 @@
   padding: 20px;
   border: 1px solid #999;
   overflow: auto;
+  z-index: 2;
 }
-
+/* .test{
+  z-index: 0;
+} */
 .close-icon {
   content: 'x';
   cursor: pointer;
@@ -76,6 +79,9 @@
   color: white;
   cursor: pointer;
 }
+/* .expDate{
+  display:inline-block;
+} */
 /* .deletePopup{
   position:fixed; 
   top:0px; 
