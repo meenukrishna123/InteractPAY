@@ -119,7 +119,6 @@ class App extends Component {
   }
   getStripeKey() {
     console.log("Invoked stripe key");
-    console.log("baseUrls--->" + this.baseUrl);
     var url =
       this.baseUrl +
       "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams={}";
@@ -144,7 +143,6 @@ class App extends Component {
         this.stripeKey = mdt_Reponse.StripeKey;
         this.brandLogo = mdt_Reponse.BrandLogo;
         this.setState({ brandLogo: this.brandLogo });
-        console.log("this.stripeKey--->" + this.stripeKey);
         console.log("this.brandLogo--->" + this.brandLogo);
       })
       .catch((err) => {
@@ -156,6 +154,11 @@ class App extends Component {
         //   "from here defaultpayment function callsss---------" + this.x
         // );
         this.getContactDetails();
+        if (this.urlContactId && !this.urlCustomerId) {
+          console.log("******************************No Customer***********");
+          console.log("window.name--->"+window.name);
+          this.createCustomer(window.name, this.urlmail);
+        }
       });
   }
   selectedPaymentMethod(event) {
@@ -178,7 +181,6 @@ class App extends Component {
   getContactDetails() {
     // const queryParams = new URLSearchParams(window.location.search);
     //   this.contId = queryParams.get("contactId");
-    console.log("new contact id inonload()" + this.newcontId);
     if (this.urlContactId) {
       this.contactId = this.urlContactId;
     } else {
@@ -214,13 +216,14 @@ class App extends Component {
         );
         this.defaultId = contactReponse.crma_pay__Default_Payment_Method__c;
         this.name = contactReponse.Name;
-        // this.onloadeddata(this.defaultId);
-        if (this.urlContactId && !this.urlCustomerId) {
-          console.log("******************************No Customer***********");
-          this.createCustomer(this.name, this.urlmail);
-        } else {
+        window.name = contactReponse.Name;
+        this.onloadeddata(this.defaultId);
+        // if (this.urlContactId && !this.urlCustomerId) {
+        //   console.log("******************************No Customer***********");
+        //   this.createCustomer(this.name, this.urlmail);
+        // } else {
           this.onloadeddata(this.defaultId);
-        }
+        //}
         // var x = contactReponse.crma_pay__Default_Payment_Method__c;
         // this.default2Id.push(x);
         // this.setState({
@@ -251,7 +254,8 @@ class App extends Component {
     // console.log("this.x---->" + this.state.x);
   }
   createCustomer(name, email) {
-    console.log("Invoked create customer");
+    console.log("Invoked create customer on component did mount");
+    console.log("this.stripeKey--->"+this.stripeKey);
     fetch(
       "https://api.stripe.com/v1/customers?name=" + name + "&email=" + email,
       {
@@ -327,6 +331,8 @@ class App extends Component {
         console.log("OrderReponse ----->" + orderReponse);
         var orderNum = contactReponse.orderdetails[0].OrderNumber;
         var total = contactReponse.orderdetails[0].TotalAmount;
+        this.setState({ OrderNumber: orderNum });
+        this.setState({ OrderTotal: total });
         if(contactReponse.orderdetails[0].BillingAddress){
         var city = contactReponse.orderdetails[0].BillingAddress.city;
         var country = contactReponse.orderdetails[0].BillingAddress.country;
@@ -335,8 +341,6 @@ class App extends Component {
         var state = contactReponse.orderdetails[0].BillingAddress.state;
         var street = contactReponse.orderdetails[0].BillingAddress.street;
         console.log("street -1--->" + street);
-        this.setState({ OrderNumber: orderNum });
-        this.setState({ OrderTotal: total });
         this.setState({ Billingcity: city });
         this.setState({ Billingstreet: street });
         this.setState({ Billingstate: state });
@@ -782,8 +786,9 @@ class App extends Component {
     console.log("Invoked createTransaction");
     // const queryParams = new URLSearchParams(window.location.search);
     // this.amount = queryParams.get("amount");
-    console.log("this.urlAmount --->" + this.urlAmount);
-    var conAmount = this.urlAmount + "00";
+    this.orderAmount = this.state.OrderTotal;
+    console.log("this.urlAmount --->" + this.orderAmount);
+    var conAmount = this.orderAmount + "00";
     //console.log("concatedamount --->"+conAmount);
     //this.custId = queryParams.get("customerId");
     // var transactionUrl;
@@ -932,7 +937,8 @@ class App extends Component {
     }
     var transactionParams = {};
     transactionParams.paymentGatewayIdentifier = transactionId;
-    transactionParams.Amount = this.urlAmount;
+    //transactionParams.Amount = this.urlAmount;
+    transactionParams.Amount = this.state.OrderTotal;
     transactionParams.transactionEmail = this.mail;
     transactionParams.transactionCurrencyCode = currencyCode;
     transactionParams.transactionOrder = this.urlOrderId;
@@ -1075,6 +1081,7 @@ class App extends Component {
         if (response.id) {
           this.paymentMethodId = response.id;
           console.log("paymentId ===> " + this.paymentMethodId);
+          console.log("customerId ===> " + this.customerId);
           this.attachPaymentmethod(this.paymentMethodId, this.customerId);
         } else {
           var message = response.error.message;
@@ -1411,16 +1418,13 @@ class App extends Component {
   render() {
     var achResponseList = this.state.achItems;
     var cardlist = this.state.carditems;
-    console.log("Invoked render---->" + this.state.expValue);
+    console.log("Invoked render---->" );
     const queryParams = new URLSearchParams(window.location.search);
     window.isContactExist = queryParams.get("isContactExist");
-    console.log(" window.isConatctExist==>" + window.isContactExist);
     if (window.isContactExist == "true") {
       window.newContact = false;
-      console.log("contact exxists--->");
     } else {
       if (window.isContactExist == "false") {
-        console.log("contact createpopup--->");
         window.newContact = true;
         this.contactFlag++;
         if (this.contactFlag == 1) {
@@ -1447,7 +1451,6 @@ class App extends Component {
     // else{
     //   this.isdropdown = false;
     // }
-    console.log("Address value -->" + this.setupAddress);
     return (
       <div className="App">
         <nav class="navbar navbar-expand-lg navbar-dark  Interactpay my-3 py-0">
