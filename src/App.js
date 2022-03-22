@@ -1565,7 +1565,7 @@ class App extends Component {
                           ACH
                         </label>
 
-                        <div class="btn-group">crmantra
+                        <div class="btn-group">
 
                           <button
                             class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
