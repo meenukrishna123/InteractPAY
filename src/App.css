@@ -102,7 +102,10 @@
   border: 1px solid #999;
   overflow: auto;
 }
-
+.required::before{
+  content: "*";
+  color: red;
+}
 /* .App {
   text-align: center;
 }
