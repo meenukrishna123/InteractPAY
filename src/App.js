@@ -91,6 +91,9 @@ class App extends Component {
     this.state = { Billingzip: "" };
     this.state = { Billingcountry: "" };
     this.state = { expValue: "" };
+    this.state = {
+      cardListShow: false,
+    };
     //this.state = { setupAddress: "" };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -411,6 +414,20 @@ class App extends Component {
       .then((response) => {
         //console.log("ListPaymentMethods--->" +JSON.stringify(response));
         var cardList = response.data;
+        if(cardList.length !== 0){
+          console.log('INSIDE IF to check-----');
+          console.log('cardlist: ',cardList.length);
+          this.setState({
+              cardListShow: true,
+            });
+        
+      }
+      else {
+        console.log('CARDLISTTTTTTTTT- IN ELSE---------->>>>>-+++----->>'+cardList)
+        this.setState({
+          cardListShow: false,
+        });
+      }
         var paymentMethodList = [];
         var jsonValues = JSON.parse(JSON.stringify(cardList));
         var crd = new Object();
@@ -1691,7 +1708,8 @@ class App extends Component {
                 ) : (
                   <div>
                     {/* <PaymentMethodList /> */}
-                    {cardlist ? (
+                    {/* {cardlist ? ( */}
+                      {this.state.cardListShow ? (
                       (this.namesList = cardlist.map((listValues, index) => (
                         <div>
                           <ul class="list-group  list-group-flush listDetails border">
@@ -1761,7 +1779,7 @@ class App extends Component {
                       )))
                     ) : (
                       <div>
-                        <h7 class="ml-4"> No Payment Methods are availabe.</h7>
+                        <h7 class="ml-4"> No payment method is availabe. Please add a payment method.</h7>
                       </div>
                     )}
                   </div>
@@ -1829,12 +1847,27 @@ class App extends Component {
                 Pay
               </button> */}
               </div>
-              <button
+              {/* <button
+                class="btn btn-primary float-right mt-4"
+                onClick={this.createStripeTransaction}
+              >
+                Pay
+              </button> */}
+              {this.state.cardListShow ? (
+                <button
                 class="btn btn-primary float-right mt-4"
                 onClick={this.createStripeTransaction}
               >
                 Pay
               </button>
+              ) : (
+                <button
+                class="btn btn-primary float-right mt-4" disabled
+                onClick={this.createStripeTransaction}
+              >
+                Pay
+              </button>
+              )}
             </div>
           </div>
         </div>
