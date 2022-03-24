@@ -98,6 +98,7 @@ class App extends Component {
     this.updateBillingAddress = this.updateBillingAddress.bind(this);
     this.closeAddressModal = this.closeAddressModal.bind(this);
     this.handleEditInput = this.handleEditInput.bind(this);
+    this.handleTransAmount = this.handleTransAmount.bind(this);
     this.contactFlag = 0;
     this.state = {
       achItems: [],
@@ -156,7 +157,7 @@ class App extends Component {
         this.getContactDetails();
         if (this.urlContactId && !this.urlCustomerId) {
           console.log("******************************No Customer***********");
-          console.log("window.name--->"+window.name);
+          console.log("window.name--->" + window.name);
           this.createCustomer(window.name, this.urlmail);
         }
       });
@@ -222,7 +223,7 @@ class App extends Component {
         //   console.log("******************************No Customer***********");
         //   this.createCustomer(this.name, this.urlmail);
         // } else {
-          this.onloadeddata(this.defaultId);
+        this.onloadeddata(this.defaultId);
         //}
         // var x = contactReponse.crma_pay__Default_Payment_Method__c;
         // this.default2Id.push(x);
@@ -255,7 +256,7 @@ class App extends Component {
   }
   createCustomer(name, email) {
     console.log("Invoked create customer on component did mount");
-    console.log("this.stripeKey--->"+this.stripeKey);
+    console.log("this.stripeKey--->" + this.stripeKey);
     fetch(
       "https://api.stripe.com/v1/customers?name=" + name + "&email=" + email,
       {
@@ -333,20 +334,20 @@ class App extends Component {
         var total = contactReponse.orderdetails[0].TotalAmount;
         this.setState({ OrderNumber: orderNum });
         this.setState({ OrderTotal: total });
-        if(contactReponse.orderdetails[0].BillingAddress){
-        var city = contactReponse.orderdetails[0].BillingAddress.city;
-        var country = contactReponse.orderdetails[0].BillingAddress.country;
-        var postalCode =
-          contactReponse.orderdetails[0].BillingAddress.postalCode;
-        var state = contactReponse.orderdetails[0].BillingAddress.state;
-        var street = contactReponse.orderdetails[0].BillingAddress.street;
-        console.log("street -1--->" + street);
-        this.setState({ Billingcity: city });
-        this.setState({ Billingstreet: street });
-        this.setState({ Billingstate: state });
-        this.setState({ Billingzip: postalCode });
-        this.setState({ Billingcountry: country });
-        console.log("this.state.OrderNumber -1-->" + this.state.setState);
+        if (contactReponse.orderdetails[0].BillingAddress) {
+          var city = contactReponse.orderdetails[0].BillingAddress.city;
+          var country = contactReponse.orderdetails[0].BillingAddress.country;
+          var postalCode =
+            contactReponse.orderdetails[0].BillingAddress.postalCode;
+          var state = contactReponse.orderdetails[0].BillingAddress.state;
+          var street = contactReponse.orderdetails[0].BillingAddress.street;
+          console.log("street -1--->" + street);
+          this.setState({ Billingcity: city });
+          this.setState({ Billingstreet: street });
+          this.setState({ Billingstate: state });
+          this.setState({ Billingzip: postalCode });
+          this.setState({ Billingcountry: country });
+          console.log("this.state.OrderNumber -1-->" + this.state.setState);
         }
 
         // console.log("crma_pay__Default_Payment_Method__c#########",contactReponse.crma_pay__Default_Payment_Method__c);
@@ -786,9 +787,16 @@ class App extends Component {
     console.log("Invoked createTransaction");
     // const queryParams = new URLSearchParams(window.location.search);
     // this.amount = queryParams.get("amount");
-    this.orderAmount = this.state.OrderTotal;
-    console.log("this.urlAmount --->" + this.orderAmount);
-    var conAmount = this.orderAmount + "00";
+    if(this.transactionAmount){
+    this.payingAmount = this.transactionAmount;
+    }
+    else{
+      this.payingAmount = this.state.OrderTotal;
+    }
+    console.log("Invoked createTransaction amount--->"+this.payingAmount);
+    //this.orderAmount = this.state.OrderTotal;
+    //console.log("this.urlAmount --->" + this.orderAmount);
+    var conAmount = this.payingAmount + "00";
     //console.log("concatedamount --->"+conAmount);
     //this.custId = queryParams.get("customerId");
     // var transactionUrl;
@@ -938,7 +946,7 @@ class App extends Component {
     var transactionParams = {};
     transactionParams.paymentGatewayIdentifier = transactionId;
     //transactionParams.Amount = this.urlAmount;
-    transactionParams.Amount = this.state.OrderTotal;
+    transactionParams.Amount = this.payingAmount;
     transactionParams.transactionEmail = this.mail;
     transactionParams.transactionCurrencyCode = currencyCode;
     transactionParams.transactionOrder = this.urlOrderId;
@@ -988,7 +996,7 @@ class App extends Component {
       //isClick: true
     });
     this.isCheckValue = false;
-    console.log("this.isCheckValue-->"+this.isCheckValue);
+    console.log("this.isCheckValue-->" + this.isCheckValue);
   }
   handleCardInput(event) {
     console.log("Invoked create handleCardInput");
@@ -1214,7 +1222,7 @@ class App extends Component {
   //     // })
   //   }
 
-    // console.log("isCheckValue----------",this.state.isCheckValue)
+  // console.log("isCheckValue----------",this.state.isCheckValue)
   //   console.log("isCheckValue----------", this.isDefaultValue);
   // }
   handleIsEdit() {
@@ -1242,7 +1250,7 @@ class App extends Component {
       isEdit: false,
     });
     this.isCheckValue = false;
-    console.log("this.isCheckValue"+this.isCheckValue);
+    console.log("this.isCheckValue" + this.isCheckValue);
   }
   updatePaymentMethod() {
     // const queryParams = new URLSearchParams(window.location.search);
@@ -1414,11 +1422,26 @@ class App extends Component {
     console.log("After refresh--->");
     //onloadeddata();
   }
+  selectedTotalAmount(){
+    console.log("Invoked Selected amount");
+    this.transactionAmount = this.state.OrderTotal;
+    console.log("Invoked transactionAmount"+this.transactionAmount);
+  }
+  selectedOtherAmount(){
+    this.transactionAmount = this.inputAmount;
+    console.log("Invoked other transactionAmount"+this.transactionAmount);
+  }
+  handleTransAmount(event){
+    const target = event.target;
+    this.inputAmount = target.value;
+    this.transactionAmount = this.inputAmount;
+    console.log("Invoked other transactionAmount on change"+this.transactionAmount);
+  }
 
   render() {
     var achResponseList = this.state.achItems;
     var cardlist = this.state.carditems;
-    console.log("Invoked render---->" );
+    console.log("Invoked render---->");
     const queryParams = new URLSearchParams(window.location.search);
     window.isContactExist = queryParams.get("isContactExist");
     if (window.isContactExist == "true") {
@@ -1524,18 +1547,6 @@ class App extends Component {
                     <div class="col-md-10">
                       <h5 class=" p-3">Please submit your payment details..</h5>
                     </div>
-                    {/* {this.state.isClick ? (
-                      <button
-                        type="button"
-                        onClick={this.myFunction.bind(this)}
-                      >
-                        {" "}
-                        myButton{" "}
-                      </button>
-                    ) : (
-                      // <div className="drt_clearfix drt_CartableItem" onClick={() => props.callDetails()}></div>
-                      ""
-                    )} */}
                     <div class="col-md-2 float-right mt-2">
                       <div
                         class="btn-group btn-group-toggle float-right"
@@ -1569,7 +1580,6 @@ class App extends Component {
                         </label>
 
                         <div class="btn-group">
-
                           <button
                             class="btn btn btn-light btn-sm dropdown-toggle ml-3 border-secondary"
                             type="button"
@@ -1756,11 +1766,68 @@ class App extends Component {
                     )}
                   </div>
                 )}
-
-                {/* {ask} */}
-                {/* <ul class="list-group list-group-flush listDetails">
-                   {ask}
-                </ul> */}
+              </div>
+              <div class="card mt-3">
+                <h5 class=" p-2 text-center">Amount to Pay</h5>
+                <ul class="list-group  list-group-flush  border">
+                  <li
+                    class="list-group-item"
+                    name="livalue"
+                  >
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault1" checked
+                        onClick={(event) =>
+                          this.selectedTotalAmount(event)
+                        }
+                      />
+                      <div class="row">
+                      <div class="col-lg-10 col-md-10 col-sm-1">
+                    <p>Total Amount</p>
+                  </div>
+                  <div class="col-lg-2 col-md-2 col-sm-1">
+                    <p>$ {this.state.OrderTotal}</p>
+                  </div>
+                  </div>
+                    </div>
+                  </li>
+                  <li
+                    class="list-group-item"
+                    name="livalue"
+                  >
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault1"
+                        onClick={(event) =>
+                          this.selectedOtherAmount(event)
+                        }
+                      />
+                      <div class="row">
+                      <div class="col-lg-10 col-md-10 col-sm-1">
+                    <p>Other Amount</p>
+                  </div>
+                  <div class="col-lg-2 col-md-2 col-sm-1">
+                  <div class="form-group row">
+                  <label >$</label><div class="col-lg col-sm-1">
+                    <input type="phone" class="form-control" id="" name="amount" onChange={this.handleTransAmount} /></div>
+                  </div>
+                  </div>
+                  </div>
+                    </div>
+                  </li>
+                </ul>
+                {/* <button
+                class="btn btn-primary float-right mt-4"
+                onClick={this.createStripeTransaction}
+              >
+                Pay
+              </button> */}
               </div>
               <button
                 class="btn btn-primary float-right mt-4"
@@ -1825,7 +1892,7 @@ class App extends Component {
                   </div> */}
 
                   <div class="col-sm-1">
-                  <input
+                    <input
                       placeholder="MM"
                       type="tel"
                       class="form-control"
@@ -1835,7 +1902,7 @@ class App extends Component {
                     />
                   </div>
                   <div class="col-sm-1">
-                  <input
+                    <input
                       placeholder="YY"
                       type="tel"
                       class="form-control expDate"
