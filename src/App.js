@@ -1625,10 +1625,10 @@ class App extends Component {
                               // onClick={() => handleAddACH()}
                               >Add new ACH</span>
                               </div> */}
-                                <div>
+                                {/* <div>
                                   <h7>ACH Pending</h7>
-                                  {/* <Link onChange={this.onloadAchFetch} /> */}
-                                </div>
+                                  {/* <Link onChange={this.onloadAchFetch} /> 
+                                </div> */}
                               </div>
                             </div>
                           ) : (
@@ -1833,7 +1833,8 @@ class App extends Component {
                   <div class="col-lg-2 col-md-2 col-sm-1">
                   <div class="form-group row">
                   <label >$</label><div class="col-lg col-sm-1">
-                    <input type="phone" class="form-control" id="" name="amount" onChange={this.handleTransAmount} /></div>
+                    <input type="phone" class="form-control" id="" name="amount" autocomplete="off" onChange={this.handleTransAmount} />
+                    </div>
                   </div>
                   </div>
                   </div>
@@ -1847,12 +1848,7 @@ class App extends Component {
                 Pay
               </button> */}
               </div>
-              {/* <button
-                class="btn btn-primary float-right mt-4"
-                onClick={this.createStripeTransaction}
-              >
-                Pay
-              </button> */}
+              
               {this.state.cardListShow ? (
                 <button
                 class="btn btn-primary float-right mt-4"
