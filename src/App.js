@@ -171,6 +171,15 @@ class App extends Component {
     // console.log("Invooked expMonth" + event.target.getAttribute("data-expmonth"));
     this.initExpMonth = event.target.getAttribute("data-expmonth");
     //window.paymentMethodId = event.target.getAttribute("data-id");
+    this.billStreet = event.target.getAttribute("data-billStreet");
+    this.billCity = event.target.getAttribute("data-billCity");
+    this.billCountry = event.target.getAttribute("data-billCountry");
+    this.billZip = event.target.getAttribute("data-billZip");
+    this.setState({ Billingcity: this.billCity});
+    this.setState({ Billingstreet: this.billStreet});
+    this.setState({ Billingzip: this.billZip });
+    this.setState({ Billingcountry: this.billCountry });
+    console.log("Invooked billSTreet" + this.billSTreet);
     this.paymentMethodId = event.target.getAttribute("data-id");
     //this.x = window.paymentMethodId;
     var acc = document.querySelectorAll(".list-group-item");
@@ -345,12 +354,12 @@ class App extends Component {
           var state = contactReponse.orderdetails[0].BillingAddress.state;
           var street = contactReponse.orderdetails[0].BillingAddress.street;
           console.log("street -1--->" + street);
-          this.setState({ Billingcity: city });
-          this.setState({ Billingstreet: street });
-          this.setState({ Billingstate: state });
-          this.setState({ Billingzip: postalCode });
-          this.setState({ Billingcountry: country });
-          console.log("this.state.OrderNumber -1-->" + this.state.setState);
+          // this.setState({ Billingcity: city });
+          // this.setState({ Billingstreet: street });
+          // this.setState({ Billingstate: state });
+          // this.setState({ Billingzip: postalCode });
+          // this.setState({ Billingcountry: country });
+          // console.log("this.state.OrderNumber -1-->" + this.state.setState);
         }
 
         // console.log("crma_pay__Default_Payment_Method__c#########",contactReponse.crma_pay__Default_Payment_Method__c);
@@ -435,6 +444,10 @@ class App extends Component {
           crd = jsonValues[i].card;
           crd.id = jsonValues[i].id;
           crd.name = jsonValues[i].billing_details.name;
+          crd.billStreet = jsonValues[i].billing_details.address.line1;
+          crd.billCity = jsonValues[i].billing_details.address.city;
+          crd.billCountry = jsonValues[i].billing_details.address.country;
+          crd.billZip = jsonValues[i].billing_details.address.postal_code;
           paymentMethodList.push(crd);
         }
         //console.log("*********************$$$$$$$$$$" + defaultPaymentId);
@@ -447,9 +460,26 @@ class App extends Component {
         for (var i = 0; i < paymentMethodList.length; i++) {
           if (paymentMethodList[i].id == defaultMethod) {
             paymentMethodList[i].isDefault = true;
-          } else {
+            console.log("billing data-->"+paymentMethodList[i].billStreet);
+            this.setState({ Billingcity: paymentMethodList[i].billCity});
+            this.setState({ Billingstreet: paymentMethodList[i].billStreet });
+            this.setState({ Billingzip: paymentMethodList[i].billZip });
+            this.setState({ Billingcountry: paymentMethodList[i].billCountry });
+          } else{ 
+            if(i==0){
+            paymentMethodList[0].isDefault = true;
+            console.log("billing data-->"+paymentMethodList[0].billStreet);
+            this.setState({ Billingcity: paymentMethodList[0].billCity});
+            this.setState({ Billingstreet: paymentMethodList[0].billStreet });
+            this.setState({ Billingzip: paymentMethodList[0].billZip });
+            this.setState({ Billingcountry: paymentMethodList[0].billCountry });
+            this.paymentMethodId = paymentMethodList[0].id
+          }
+          else{
             paymentMethodList[i].isDefault = false;
           }
+        }
+          //console.log("this.state.OrderNumber -1-->" + this.state.setState);
         }
         console.log("default ====> " + JSON.stringify(paymentMethodList));
         // console.log("----->namesList-->" + window.namesList);
@@ -1026,29 +1056,6 @@ class App extends Component {
     }
     if (target.name == "expMonth") {
       this.expMonth = target.value;
-      //   // if(this.expMonth.length==2){
-      //   // console.log("Exp Month length in if"+ this.expMonth.length);
-      //   // this.setState({
-      //   //   expValue: this.expMonth+'/',
-      //   // });
-      //   // console.log("setState expValue in if"+ this.state.expValue);
-      //   // }
-      //   if(typeof this.expMonth == 'number' || this.expMonth ==0 || this.expMonth<13){
-      //     console.log("All conditions are met")
-      //     if(this.expMonth.length==2){
-      //       console.log("Exp Month length in if"+ this.expMonth.length);
-      //       this.setState({
-      //         expValue: this.expMonth+'/',
-      //       });
-      //       console.log("setState expValue in if"+ this.state.expValue);
-      //       }
-      //   }
-      // //   if(this.expMonth.length==3){
-      // //   this.setState({
-      // //     expValue: this.expMonth,
-      // //   });
-      // // }
-      //   console.log("final exp month year"+this.expMonth)
     }
     if (target.name == "expYear") {
       this.expYear = target.value;
@@ -1056,13 +1063,29 @@ class App extends Component {
     if (target.name == "cardCVV") {
       this.cardCVV = target.value;
     }
+    if (target.name == "billingStreet") {
+      this.billingStreet = target.value;
+    }
+    if (target.name == "billingCity") {
+      this.billingCity = target.value;
+    }
+    if (target.name == "billingCountry") {
+      this.billingCountry = target.value;
+    }
+    if (target.name == "billingZip") {
+      this.billingZip = target.value;
+    }
     // card validation
     if (
-      this.cardName != null &&
-      this.cardNumber != null &&
-      this.expMonth != null &&
-      this.expYear != null &&
-      this.cardCVV != null
+      this.cardName &&
+      this.cardNumber &&
+      this.expMonth  &&
+      this.expYear  &&
+      this.cardCVV  &&
+      this.billingStreet  &&
+      this.billingCity  &&
+      this.billingCountry  &&
+      this.billingZip  
     ) {
       this.setState({
         isSaveCard: true,
@@ -1093,8 +1116,10 @@ class App extends Component {
       "&card[exp_year]=" +
       this.expYear +
       "&card[cvc]=" +
-      this.cardCVV;
-    fetch(createMethodUrl, {
+      this.cardCVV +
+      "&billing_details[address[city]]=" + this.billingCity + "&billing_details[address[line1]]=" + this.billingStreet +"&billing_details[address[country]]=" + this.billingCountry +"&billing_details[address[postal_code]]=" + this.billingZip;
+       //console.log("createcard url-->"+createMethodUrl);
+      fetch(createMethodUrl, {
       method: "POST",
       headers: {
         "x-rapidapi-host": "https://api.stripe.com",
@@ -1228,20 +1253,6 @@ class App extends Component {
       isDelete: true,
     });
   }
-  // handledDefaultChechBox() {
-  //   if (this.isDefaultValue == false) {
-  //     // this.setState({
-  //     this.isDefaultValue = true;
-  //     // })
-  //   } else {
-  //     // this.setState({
-  //     this.isDefaultValue = false;
-  //     // })
-  //   }
-
-  // console.log("isCheckValue----------",this.state.isCheckValue)
-  //   console.log("isCheckValue----------", this.isDefaultValue);
-  // }
   handleIsEdit() {
     console.log("invoked handleIsDelete ");
     this.setState({
@@ -1454,6 +1465,14 @@ class App extends Component {
     this.transactionAmount = this.inputAmount;
     console.log("Invoked other transactionAmount on change"+this.transactionAmount);
   }
+  onlyNumberKey(event) {
+         console.log("Invoked only number") 
+    // Only ASCII character in that range allowed
+    var ASCIICode = (event.which) ? event.which : event.keyCode
+    if (ASCIICode > 31 && (ASCIICode < 48 || ASCIICode > 57))
+        return false;
+    return true;
+}
 
   render() {
     var achResponseList = this.state.achItems;
@@ -1479,7 +1498,6 @@ class App extends Component {
     if (
       this.state.Billingcity &&
       this.state.Billingstreet &&
-      this.state.Billingstate &&
       this.state.Billingcountry &&
       this.state.Billingzip
     ) {
@@ -1531,17 +1549,16 @@ class App extends Component {
                   </div>
                 </div>
               </div>
-              <div class="card p-3">
+              {this.state.cardListShow ? ( <div class="card p-3">
                 <h5 class="border-bottom pb-3">
                   Billing Address{" "}
-                  <IoMdCreate onClick={() => this.handleIsAddressEdit()} />
+                  {/* <IoMdCreate onClick={() => this.handleIsAddressEdit()} /> */}
                 </h5>
                 {this.isValidAddress ? (
                   <div>
                     <p>{this.state.Billingstreet}</p>
                     <p>{this.state.Billingcity}</p>
-                    <p>
-                      {this.state.Billingstate} - {this.state.Billingcountry}
+                    <p>{this.state.Billingcountry}
                     </p>
                     <p>ZipCode: {this.state.Billingzip}</p>
                   </div>
@@ -1550,12 +1567,7 @@ class App extends Component {
                     <p>Please add your Billing Address{this.setupAddress}</p>
                   </div>
                 )}
-                {/* <p>Please add your Billing Address</p> 
-              <p>{this.state.Billingstreet}</p>
-                <p>{this.state.Billingcity}</p>
-                <p>{this.state.Billingstate} - {this.state.Billingcountry}</p>
-                <p>ZipCode: {this.state.Billingzip}</p> */}
-              </div>
+              </div> ):("")}
             </div>
             <div class="col-lg-8 col-md-8 col-sm-1">
               <div class="card p-3">
@@ -1716,12 +1728,24 @@ class App extends Component {
                             <li
                               class="d-flex justify-content-between align-items-center listDetails list-group-item"
                               data-id={listValues.id}
-                              name="livalue"
-                              data-expmonth={listValues.exp_month}
-                              onClick={(event) =>
-                                this.selectedPaymentMethod(event)
-                              }
+                               name="livalue"
+                               data-expmonth={listValues.exp_month}
+                               data-billStreet = {listValues.billStreet}
+                               data-billCity = {listValues.billCity}
+                               data-billCountry = {listValues.billCountry}
+                               data-billZip = {listValues.billZip}
+                              onClick={(event) =>this.selectedPaymentMethod(event)}
                             >
+                              {/* <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault1" 
+                        data-id={listValues.id}
+                        name="livalue"
+                        data-expmonth={listValues.exp_month}
+                        onClick={(event) =>this.selectedPaymentMethod(event)}
+                      /> */}
                               <div data-id={listValues.id}>
                                 <p
                                   class="text-uppercase mb-1"
@@ -1785,7 +1809,7 @@ class App extends Component {
                   </div>
                 )}
               </div>
-              <div class="card mt-3">
+              {this.state.cardListShow ? ( <div class="card mt-3">
                 <h5 class=" p-2 text-center">Amount to Pay</h5>
                 <ul class="list-group  list-group-flush  border">
                   <li
@@ -1847,7 +1871,7 @@ class App extends Component {
               >
                 Pay
               </button> */}
-              </div>
+              </div>):("")}
               
               {this.state.cardListShow ? (
                 <button
@@ -1875,8 +1899,11 @@ class App extends Component {
                 <h5 class="border-bottom mb-4 text-center pb-2">
                   Please enter your card details.
                 </h5>
+                <div class="form-row">
+                  <h5 class="pl-4 pb-2 required">Payment Information</h5>
+                </div>
                 <div class="form-group row">
-                  <label class="ml-1 required pl-5">CardHolder Name :</label>
+                  <label class="ml-1  pl-5">CardHolder Name :</label>
                   <div class="col-sm-3">
                     <input
                       type="text"
@@ -1887,7 +1914,7 @@ class App extends Component {
                       onChange={this.handleCardInput}
                     />
                   </div>
-                  <label class="ml-1 required">Card Number :</label>
+                  <label class="ml-1">Card Number :</label>
                   <div class="col-sm-3">
                     <input
                       type=" "
@@ -1895,31 +1922,15 @@ class App extends Component {
                       id="inputEmail4"
                       name="cardNumber"
                       autocomplete="off"
+                      maxlength="16"
+                      pattern="[0-9]*"
+                      //onKeyPress={(event) => this.onlyNumberKey(event)}
                       onChange={this.handleCardInput}
                     />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="ml-1 required mr-5 pl-5">Expiry Date :</label>
-                  {/* <div class="col-sm-10">
-                     <input
-                      placeholder="MM"
-                      type="tel"
-                      class="form-control"
-                      id="inputEmail4"
-                      name="expMonth"
-                      onChange={this.handleCardInput}
-                    />
-                    <input
-                      placeholder="YY"
-                      type="tel"
-                      class="form-control expDate"
-                      id="inputEmail4"
-                      name="expYear"
-                      onChange={this.handleCardInput}
-                    /> 
-                  </div> */}
-
+                  <label class="ml-1  mr-5 pl-5">Expiry Date :</label>
                   <div class="col-sm-1">
                     <input
                       placeholder="MM"
@@ -1927,6 +1938,7 @@ class App extends Component {
                       class="form-control"
                       id="inputEmail4"
                       name="expMonth"
+                      maxlength="2"
                       onChange={this.handleCardInput}
                     />
                   </div>
@@ -1937,12 +1949,13 @@ class App extends Component {
                       class="form-control expDate"
                       id="inputEmail4"
                       name="expYear"
+                      maxlength="2"
                       onChange={this.handleCardInput}
                     />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="ml-1 mr-lg-5 pl-5 required">CVV :</label>
+                  <label class="ml-1 mr-lg-5 pl-5 ">CVV :</label>
                   <div class="col-sm-1">
                     <input
                       placeholder="CVV"
@@ -1950,6 +1963,69 @@ class App extends Component {
                       class="form-control ml-5"
                       id="inputEmail4"
                       name="cardCVV"
+                      maxlength="4"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                </div>
+               <div class="pb-3">
+                {/* make default card */}
+                {/* -------------------------------------------------------------------------- */}
+                <input
+                  type="checkbox"
+                  id="default"
+                  class="mr-2 ml-5"
+                  onChange={this.handleChechBox}
+                />
+                <span>Make this card as default</span>
+                </div>
+                <div class="form-row">
+                  <h5 class="pl-4 pb-2 required">Billing Address</h5>
+                </div>
+                <div class="form-group row">
+                  <label class="pl-5 mr-lg-5">Street:</label>
+                  <div class="col-sm-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="inputPassword4"
+                      name="billingStreet"
+                      autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <label class="ml-1 ">City :</label>
+                  <div class="col-sm-3">
+                    <input
+                      type=" "
+                      class="form-control"
+                      id="inputEmail4"
+                      name="billingCity"
+                      autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="pl-5 mr-lg-4">Country :</label>
+                  <div class="col-sm-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="inputPassword4"
+                      name="billingCountry"
+                      autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <label class="ml-1 mr-2 ">Zip :</label>
+                  <div class="col-sm-3">
+                    <input
+                      type=" "
+                      class="form-control"
+                      id="inputEmail4"
+                      name="billingZip"
+                      autocomplete="off"
                       onChange={this.handleCardInput}
                     />
                   </div>
@@ -2018,13 +2094,13 @@ class App extends Component {
               <div class="flex-container">
                 {/* make default card */}
                 {/* -------------------------------------------------------------------------- */}
-                <input
+                {/* <input
                   type="checkbox"
                   id="default"
                   class="mr-2 ml-5"
                   onChange={this.handleChechBox}
                 />
-                <span>Make this card as default</span>
+                <span>Make this card as default</span> */}
                 {/* -------------------------------------------------------------------------- */}
 
                 <button
