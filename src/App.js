@@ -49,7 +49,7 @@ class App extends Component {
       this.destination = destination;
     }
     }
-    console.log("patientName    ------>"+inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c);
+    //console.log("patientName    ------>"+inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c);
     const current = new Date();
     this.todaysDate = `${current.getFullYear()}-${
       current.getMonth() + 1
