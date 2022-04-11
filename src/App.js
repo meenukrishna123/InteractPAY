@@ -31,6 +31,25 @@ class App extends Component {
     this.urlAmount = queryParams.get("amount");
     this.urlmail = queryParams.get("mail");
     this.baseUrl = queryParams.get("baseUrl");
+    var inputJson = queryParams.get("inputJson");
+    if(inputJson){
+      console.log("inside inputjson");
+    var inputJsonValue = JSON.parse(inputJson);
+    var patientName = inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c;
+    if(patientName){
+      console.log("inside patientName");
+      this.patientName = patientName;
+    }
+    var origin = inputJsonValue.orderdetails[0].crma_pay__Origin__c;
+    if(origin){
+      this.origin = origin;
+    }
+    var destination = inputJsonValue.orderdetails[0].crma_pay__Destination__c;
+    if(destination){
+      this.destination = destination;
+    }
+    }
+    console.log("patientName    ------>"+inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c);
     const current = new Date();
     this.todaysDate = `${current.getFullYear()}-${
       current.getMonth() + 1
@@ -397,7 +416,7 @@ class App extends Component {
   //---------------------------------------------------------------------------------------------------------------------------
   onloadeddata(defaultPaymentId) {
     // onloadeddata() {
-    console.log("invoke onload---->");
+    //console.log("invoke onload---->");
     // const queryParams = new URLSearchParams(window.location.search);
     // this.custId = queryParams.get("customerId");
     if (this.urlCustomerId) {
@@ -405,7 +424,7 @@ class App extends Component {
     } else {
       this.customerId = this.newcustomerId;
     }
-    console.log("this.customerId in onloadxx---> " + this.customerId);
+    //console.log("this.customerId in onloadxx---> " + this.customerId);
     //  if(this.customerId){
     fetch(
       "https://api.stripe.com/v1/payment_methods?type=card&customer=" +
@@ -424,15 +443,15 @@ class App extends Component {
         //console.log("ListPaymentMethods--->" +JSON.stringify(response));
         var cardList = response.data;
         if(cardList.length !== 0){
-          console.log('INSIDE IF to check-----');
-          console.log('cardlist: ',cardList.length);
+          //console.log('INSIDE IF to check-----');
+          //console.log('cardlist: ',cardList.length);
           this.setState({
               cardListShow: true,
             });
         
       }
       else {
-        console.log('CARDLISTTTTTTTTT- IN ELSE---------->>>>>-+++----->>'+cardList)
+        //console.log('CARDLISTTTTTTTTT- IN ELSE---------->>>>>-+++----->>'+cardList)
         this.setState({
           cardListShow: false,
         });
@@ -448,6 +467,7 @@ class App extends Component {
           crd.billCity = jsonValues[i].billing_details.address.city;
           crd.billCountry = jsonValues[i].billing_details.address.country;
           crd.billZip = jsonValues[i].billing_details.address.postal_code;
+          crd.billState = jsonValues[i].billing_details.address.state;
           paymentMethodList.push(crd);
         }
         //console.log("*********************$$$$$$$$$$" + defaultPaymentId);
@@ -463,6 +483,7 @@ class App extends Component {
             console.log("billing data-->"+paymentMethodList[i].billStreet);
             this.setState({ Billingcity: paymentMethodList[i].billCity});
             this.setState({ Billingstreet: paymentMethodList[i].billStreet });
+            this.setState({ Billingstate: paymentMethodList[i].billState });
             this.setState({ Billingzip: paymentMethodList[i].billZip });
             this.setState({ Billingcountry: paymentMethodList[i].billCountry });
           } else{ 
@@ -471,6 +492,7 @@ class App extends Component {
             console.log("billing data-->"+paymentMethodList[0].billStreet);
             this.setState({ Billingcity: paymentMethodList[0].billCity});
             this.setState({ Billingstreet: paymentMethodList[0].billStreet });
+            this.setState({ Billingstate: paymentMethodList[i].billState });
             this.setState({ Billingzip: paymentMethodList[0].billZip });
             this.setState({ Billingcountry: paymentMethodList[0].billCountry });
             this.paymentMethodId = paymentMethodList[0].id
@@ -906,8 +928,8 @@ class App extends Component {
           var message = "Your payment is successfully completed";
           var type = "success";
           this.notification(message, type);
-          //var redirectUrl = response.charges.data[0].receipt_url;
-          //this.navigateTo(redirectUrl);
+          var redirectUrl = response.charges.data[0].receipt_url;
+          this.navigateTo(redirectUrl);
         } else {
           this.transactionId = response.error.payment_intent.id;
           this.gatewayMessage = JSON.parse(
@@ -973,6 +995,7 @@ class App extends Component {
     currencyCode
   ) {
     console.log("Invoked Create Transaction Record");
+    console.log("Billing details--->"+this.state.Billingcountry);
     // const queryParams = new URLSearchParams(window.location.search);
     // this.contId = queryParams.get("contactId");
     // if (this.contId) {
@@ -1002,6 +1025,11 @@ class App extends Component {
     transactionParams.transactionStatus = transactionstatus;
     transactionParams.gatewayMessage = gatewayMessage;
     transactionParams.gatewayNetworkStatus = gatewayStatus;
+    transactionParams.billingStreet = this.state.Billingstreet;
+    transactionParams.billingCity = this.state.Billingstate;
+    transactionParams.billingCountry = this.state.Billingcountry;
+    transactionParams.billingState = this.state.Billingstate;
+    transactionParams.billingZip = this.state.Billingzip;
     console.log("baseUrls--->" + this.baseUrl);
     var url =
       this.baseUrl +
@@ -1069,6 +1097,9 @@ class App extends Component {
     if (target.name == "billingCity") {
       this.billingCity = target.value;
     }
+    if (target.name == "billingState") {
+      this.billingState = target.value;
+    }
     if (target.name == "billingCountry") {
       this.billingCountry = target.value;
     }
@@ -1084,6 +1115,7 @@ class App extends Component {
       this.cardCVV  &&
       this.billingStreet  &&
       this.billingCity  &&
+      this.billingState  &&
       this.billingCountry  &&
       this.billingZip  
     ) {
@@ -1098,7 +1130,7 @@ class App extends Component {
   }
 
   createPaymentMethod() {
-    console.log("Invoked createPaymentMethod");
+    //console.log("Invoked createPaymentMethod");
     if (this.urlCustomerId) {
       this.customerId = this.urlCustomerId;
     } else {
@@ -1117,8 +1149,8 @@ class App extends Component {
       this.expYear +
       "&card[cvc]=" +
       this.cardCVV +
-      "&billing_details[address[city]]=" + this.billingCity + "&billing_details[address[line1]]=" + this.billingStreet +"&billing_details[address[country]]=" + this.billingCountry +"&billing_details[address[postal_code]]=" + this.billingZip;
-       //console.log("createcard url-->"+createMethodUrl);
+      "&billing_details[address[city]]=" + this.billingCity + "&billing_details[address[line1]]=" + this.billingStreet +"&billing_details[address[country]]=" + this.billingCountry +"&billing_details[address[postal_code]]=" + this.billingZip+"&billing_details[address[state]]=" + this.billingState;
+       console.log("createcard url-->"+createMethodUrl);
       fetch(createMethodUrl, {
       method: "POST",
       headers: {
@@ -1534,7 +1566,7 @@ class App extends Component {
                 <h5 class="border-bottom pb-3">OrderSummary</h5>
                 <div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>Order Number</p>
+                    <p>Order Number :</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>{this.state.OrderNumber}</p>
@@ -1542,12 +1574,44 @@ class App extends Component {
                 </div>
                 <div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>Order Total</p>
+                    <p>Order Total :</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>$ {this.state.OrderTotal}</p>
                   </div>
                 </div>
+                {this.patientName ? (<div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Patient Name :</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>{this.patientName}</p>
+                  </div>
+                </div>) : ("")}
+                {this.origin ? (<div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Origin :</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>{this.origin}</p>
+                  </div>
+                </div>) : ("")}
+                {this.destination ? (<div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Destination :</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>{this.destination}</p>
+                  </div>
+                </div>) : ("")}
+                {/* {this.patientName ? (<div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Patient Name</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>{this.patientName}</p>
+                  </div>
+                </div>) : ("")} */}
               </div>
               {this.state.cardListShow ? ( <div class="card p-3">
                 <h5 class="border-bottom pb-3">
@@ -1558,6 +1622,7 @@ class App extends Component {
                   <div>
                     <p>{this.state.Billingstreet}</p>
                     <p>{this.state.Billingcity}</p>
+                    <p>{this.state.Billingstate}</p>
                     <p>{this.state.Billingcountry}
                     </p>
                     <p>ZipCode: {this.state.Billingzip}</p>
@@ -1903,7 +1968,7 @@ class App extends Component {
                   <h5 class="pl-4 pb-2 required">Payment Information</h5>
                 </div>
                 <div class="form-group row">
-                  <label class="ml-1  pl-5">CardHolder Name :</label>
+                  <label class="ml-1  pl-5">Cardholder Name :</label>
                   <div class="col-sm-3">
                     <input
                       type="text"
@@ -1994,7 +2059,7 @@ class App extends Component {
                       onChange={this.handleCardInput}
                     />
                   </div>
-                  <label class="ml-1 ">City :</label>
+                  <label class="ml-1 mr-4 ">City :</label>
                   <div class="col-sm-3">
                     <input
                       type=" "
@@ -2007,18 +2072,31 @@ class App extends Component {
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="pl-5 mr-lg-4">Country :</label>
+                  <label class="mr-lg-5 pl-5">State :</label>
                   <div class="col-sm-3">
                     <input
                       type="text"
                       class="form-control"
                       id="inputPassword4"
+                      name="billingState"
+                      autocomplete="off"
+                      onChange={this.handleCardInput}
+                    />
+                  </div>
+                  <label class="ml-1">Country :</label>
+                  <div class="col-sm-3">
+                    <input
+                      type=" "
+                      class="form-control"
+                      id="inputEmail4"
                       name="billingCountry"
                       autocomplete="off"
                       onChange={this.handleCardInput}
                     />
                   </div>
-                  <label class="ml-1 mr-2 ">Zip :</label>
+                </div>
+                <div class="form-group row">
+                  <label class=" mr-lg-4 pl-5">Zip code :</label>
                   <div class="col-sm-3">
                     <input
                       type=" "
