@@ -935,8 +935,8 @@ class App extends Component {
           var message = "Your payment is successfully completed";
           var type = "success";
           this.notification(message, type);
-          var redirectUrl = response.charges.data[0].receipt_url;
-          this.navigateTo(redirectUrl);
+          //var redirectUrl = response.charges.data[0].receipt_url;
+          //this.navigateTo(redirectUrl);
         } else {
           this.transactionId = response.error.payment_intent.id;
           this.gatewayMessage = JSON.parse(
