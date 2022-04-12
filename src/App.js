@@ -104,6 +104,8 @@ class App extends Component {
     this.state = { editCard: false };
     this.state = { OrderNumber: "" };
     this.state = { OrderTotal: "" };
+    this.state = { OrderOpportunity: "" };
+    this.state = { OrderQuote: "" };
     this.state = { Billingcity: "" };
     this.state = { Billingstreet: "" };
     this.state = { Billingstate: "" };
@@ -365,6 +367,11 @@ class App extends Component {
         var total = contactReponse.orderdetails[0].TotalAmount;
         this.setState({ OrderNumber: orderNum });
         this.setState({ OrderTotal: total });
+        if (contactReponse.orderdetails[0].OpportunityId) {
+          console.log("OrderReponse orderOpportunity----->" + contactReponse.orderdetails[0].OpportunityId);
+          this.setState({ OrderOpportunity: contactReponse.orderdetails[0].OpportunityId });
+          this.setState({ OrderQuote: contactReponse.orderdetails[0].QuoteId });
+        }
         if (contactReponse.orderdetails[0].BillingAddress) {
           var city = contactReponse.orderdetails[0].BillingAddress.city;
           var country = contactReponse.orderdetails[0].BillingAddress.country;
@@ -1030,6 +1037,8 @@ class App extends Component {
     transactionParams.billingCountry = this.state.Billingcountry;
     transactionParams.billingState = this.state.Billingstate;
     transactionParams.billingZip = this.state.Billingzip;
+    transactionParams.transctionOpportunity = this.state.OrderOpportunity;
+    transactionParams.transactionQuote = this.state.OrderQuote;
     console.log("baseUrls--->" + this.baseUrl);
     var url =
       this.baseUrl +
@@ -2052,14 +2061,14 @@ class App extends Component {
                   <div class="col-sm-3">
                     <input
                       type="text"
-                      class="form-control"
+                      class="form-control ml-3"
                       id="inputPassword4"
                       name="billingStreet"
                       autocomplete="off"
                       onChange={this.handleCardInput}
                     />
                   </div>
-                  <label class="ml-1 mr-4 ">City :</label>
+                  <label class="ml-4 mr-4 ">City :</label>
                   <div class="col-sm-3">
                     <input
                       type=" "
@@ -2072,7 +2081,7 @@ class App extends Component {
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="mr-lg-5 pl-5">State :</label>
+                  <label class="pl-5">State/Province :</label>
                   <div class="col-sm-3">
                     <input
                       type="text"
@@ -2091,16 +2100,17 @@ class App extends Component {
                       id="inputEmail4"
                       name="billingCountry"
                       autocomplete="off"
+                      placeholder="2-letter Country Code"
                       onChange={this.handleCardInput}
                     />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class=" mr-lg-4 pl-5">Zip code :</label>
+                  <label class="pl-5">Zip code :</label>
                   <div class="col-sm-3">
                     <input
                       type=" "
-                      class="form-control"
+                      class="form-control ml-sm-5"
                       id="inputEmail4"
                       name="billingZip"
                       autocomplete="off"
