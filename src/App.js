@@ -33,20 +33,25 @@ class App extends Component {
     this.baseUrl = queryParams.get("baseUrl");
     var inputJson = queryParams.get("inputJson");
     if(inputJson){
-      console.log("inside inputjson");
-    var inputJsonValue = JSON.parse(inputJson);
-    var patientName = inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c;
-    if(patientName){
+      var inputJsonValue = JSON.parse(inputJson);
+      console.log("inside inputjson--->"+inputJsonValue);
+    if(inputJsonValue.oppdetails[0].PatientName__c){
+      var patientName = inputJsonValue.oppdetails[0].PatientName__c;
       console.log("inside patientName");
       this.patientName = patientName;
     }
-    var origin = inputJsonValue.orderdetails[0].crma_pay__Origin__c;
-    if(origin){
+    if(inputJsonValue.oppdetails[0].OriginDesired__c){
+      var origin = inputJsonValue.oppdetails[0].OriginDesired__c;
       this.origin = origin;
     }
-    var destination = inputJsonValue.orderdetails[0].crma_pay__Destination__c;
-    if(destination){
+    if(inputJsonValue.oppdetails[0].DestinationDesired__c){
+      var destination = inputJsonValue.oppdetails[0].DestinationDesired__c;
       this.destination = destination;
+    }
+    if(inputJsonValue.oppdetails[0].TravelDate__c){
+      var date = inputJsonValue.oppdetails[0].TravelDate__c;
+      var travelDate = date.substring(0, 10);
+      this.travelDate = travelDate;
     }
     }
     //console.log("patientName    ------>"+inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c);
@@ -1625,6 +1630,14 @@ class App extends Component {
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>{this.destination}</p>
+                  </div>
+                </div>) : ("")}
+                {this.travelDate ? (<div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Travel Date :</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>{this.travelDate}</p>
                   </div>
                 </div>) : ("")}
                 {/* {this.patientName ? (<div class="row">
