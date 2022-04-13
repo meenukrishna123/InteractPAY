@@ -104,6 +104,7 @@ class App extends Component {
     this.state = { editCard: false };
     this.state = { OrderNumber: "" };
     this.state = { OrderTotal: "" };
+    this.state = { TransactionTotal: "" };
     this.state = { OrderOpportunity: "" };
     this.state = { OrderQuote: "" };
     this.state = { Billingcity: "" };
@@ -367,6 +368,10 @@ class App extends Component {
         var total = contactReponse.orderdetails[0].TotalAmount;
         this.setState({ OrderNumber: orderNum });
         this.setState({ OrderTotal: total });
+         //var inputAmount = this.state.OrderTotal;
+         this.initialOrderAmount = ''+total+'';
+         this.setState({TransactionTotal: this.initialOrderAmount });
+        console.log("Order total for tyransaction-----#######>"+this.initialOrderAmount);
         if (contactReponse.orderdetails[0].OpportunityId) {
           console.log("OrderReponse orderOpportunity----->" + contactReponse.orderdetails[0].OpportunityId);
           this.setState({ OrderOpportunity: contactReponse.orderdetails[0].OpportunityId });
@@ -865,14 +870,19 @@ class App extends Component {
     // this.amount = queryParams.get("amount");
     if(this.transactionAmount){
     this.payingAmount = this.transactionAmount;
+    // var conAmount = this.PayAmount + "00";
+    // this.payingAmount = conAmount;
+
     }
     else{
-      this.payingAmount = this.state.OrderTotal;
+      //this.payingAmount = this.state.OrderTotal;
+      this.payingAmount = this.state.TransactionTotal
     }
     console.log("Invoked createTransaction amount--->"+this.payingAmount);
     //this.orderAmount = this.state.OrderTotal;
     //console.log("this.urlAmount --->" + this.orderAmount);
     var conAmount = this.payingAmount + "00";
+
     //console.log("concatedamount --->"+conAmount);
     //this.custId = queryParams.get("customerId");
     // var transactionUrl;
@@ -1001,7 +1011,7 @@ class App extends Component {
     gatewayStatus,
     currencyCode
   ) {
-    console.log("Invoked Create Transaction Record");
+    console.log("Invoked Create Transaction Record---->"+this.payingAmount);
     console.log("Billing details--->"+this.state.Billingcountry);
     // const queryParams = new URLSearchParams(window.location.search);
     // this.contId = queryParams.get("contactId");
@@ -1020,10 +1030,14 @@ class App extends Component {
     } else {
       this.mail = this.email;
     }
+    var amount = '"'+ this.payingAmount+  '"'; 
+    console.log("New amount------>"+amount);
+    //const amount = this.payingAmount;
     var transactionParams = {};
     transactionParams.paymentGatewayIdentifier = transactionId;
-    //transactionParams.Amount = this.urlAmount;
+    //transactionParams.Amount = this.state.TransactionTotal;
     transactionParams.Amount = this.payingAmount;
+    //transactionParams.Amount = amount;TransactionTotal
     transactionParams.transactionEmail = this.mail;
     transactionParams.transactionCurrencyCode = currencyCode;
     transactionParams.transactionOrder = this.urlOrderId;
