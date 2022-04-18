@@ -1958,7 +1958,7 @@ class App extends Component {
                     </div>
                   </li>
                   </div>
-                  <div class="list-group-item d-flex justify-content-between align-items-center listDetails"
+                  {/* <div class="list-group-item d-flex justify-content-between align-items-center listDetails"
                     onClick={(event) =>
                       this.selectedTotalAmount(event)
                      }>
@@ -1989,7 +1989,7 @@ class App extends Component {
                   </div>
                     </div>
                   </li>
-                  </div>
+                  </div> */}
                   <li
                     class="list-group-item d-flex justify-content-between align-items-center listDetails"
                     name="livalue"
@@ -1998,7 +1998,7 @@ class App extends Component {
                     }
                   >
                     <div class="form-check">
-                      <input
+                      {/* <input
                         class="form-check-input"
                         type="radio"
                         name="flexRadioDefault"
@@ -2006,7 +2006,7 @@ class App extends Component {
                         onClick={(event) =>
                           this.selectedOtherAmount(event)
                         }
-                      />
+                      /> */}
                       <div class="row">
                       <div class="col-lg-10 col-md-10 col-sm-1">
                     <p>Other Amount</p>
