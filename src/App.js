@@ -1510,8 +1510,16 @@ class App extends Component {
     console.log("After refresh--->");
     //onloadeddata();
   }
-  selectedTotalAmount(){
+  selectedTotalAmount(event){
     console.log("Invoked Selected amount");
+    var acc = document.querySelectorAll(".list-group-item");
+    for (let i = 0; i < acc.length; i++) {
+      if (acc[i].classList.contains("activeList")) {
+        acc[i].classList.remove("activeList");
+      }
+    }
+    let _listItems = event.target;
+    _listItems.classList.add("activeList");
     this.transactionAmount = this.state.OrderTotal;
     console.log("Invoked transactionAmount"+this.transactionAmount);
   }
@@ -1913,12 +1921,19 @@ class App extends Component {
               {this.state.cardListShow ? ( <div class="card mt-3">
                 <h5 class=" p-2 text-center">Amount to Pay</h5>
                 <ul class="list-group  list-group-flush  border">
+                  <div class="list-group-item  justify-content-between align-items-center listDetails"
+                    onClick={(event) =>
+                      this.selectedTotalAmount(event)
+                     }>
                   <li
-                    class="list-group-item"
-                    name="livalue"
+                    //class="justify-content-between align-items-center listDetails "
+                    //name="livalue"
+                    // onClick={(event) =>
+                    //   this.selectedTotalAmount(event)
+                    // }
                   >
                     <div class="form-check">
-                      <input
+                      {/* <input
                         class="form-check-input"
                         type="radio"
                         name="flexRadioDefault"
@@ -1926,7 +1941,44 @@ class App extends Component {
                         onClick={(event) =>
                           this.selectedTotalAmount(event)
                         }
-                      />
+                      /> */}
+                      {/* <div class="row justify-content-between align-items-center listDetails"
+                      onClick={(event) =>
+                        this.selectedTotalAmount(event)
+                      }
+                     > */}
+                     <div class="row">
+                      <div class="col-lg-10 col-md-10 col-sm-1">
+                    <p>Total Amount</p>
+                  </div>
+                  <div class="col-lg-2 col-md-2 col-sm-1 ">
+                    <p>$ {this.state.OrderTotal}</p>
+                  </div>
+                   </div> 
+                    </div>
+                  </li>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center listDetails"
+                    onClick={(event) =>
+                      this.selectedTotalAmount(event)
+                     }>
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center listDetails"
+                    name="livalue"
+                    // onClick={(event) =>
+                    //   this.selectedTotalAmount(event)
+                    // }
+                  >
+                    <div class="form-check">
+                       <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault1" checked
+                        onClick={(event) =>
+                          this.selectedTotalAmount(event)
+                        }
+                      /> 
                       <div class="row">
                       <div class="col-lg-10 col-md-10 col-sm-1">
                     <p>Total Amount</p>
@@ -1937,9 +1989,13 @@ class App extends Component {
                   </div>
                     </div>
                   </li>
+                  </div>
                   <li
-                    class="list-group-item"
+                    class="list-group-item d-flex justify-content-between align-items-center listDetails"
                     name="livalue"
+                    onClick={(event) =>
+                      this.selectedOtherAmount(event)
+                    }
                   >
                     <div class="form-check">
                       <input
