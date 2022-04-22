@@ -1035,8 +1035,8 @@ class App extends Component {
     } else {
       this.mail = this.email;
     }
-    var amount = '"'+ this.payingAmount+  '"'; 
-    console.log("New amount------>"+amount);
+    //var amount = '"'+ this.payingAmount+  '"'; 
+    //console.log("New amount------>"+amount);
     //const amount = this.payingAmount;
     var transactionParams = {};
     transactionParams.paymentGatewayIdentifier = transactionId;
@@ -1522,7 +1522,8 @@ class App extends Component {
     // //let _listItems = event.currentTarget
     // let _listItems = event.target;
     // _listItems.classList.add("selectedAmount");
-    this.transactionAmount = this.state.OrderTotal;
+    this.transactionAmount = '"'+ this.state.OrderTotal+  '"'; 
+    //this.transactionAmount = this.state.OrderTotal;
     console.log("Invoked transactionAmount"+this.transactionAmount);
   }
   selectedOtherAmount(event){
