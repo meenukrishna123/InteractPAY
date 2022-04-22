@@ -950,7 +950,7 @@ class App extends Component {
           var message = "Your payment is successfully completed";
           var type = "success";
           this.notification(message, type);
-          //var redirectUrl = response.charges.data[0].receipt_url;
+          var redirectUrl = response.charges.data[0].receipt_url;
           //this.navigateTo(redirectUrl);
         } else {
           this.transactionId = response.error.payment_intent.id;
@@ -1512,20 +1512,31 @@ class App extends Component {
   }
   selectedTotalAmount(event){
     console.log("Invoked Selected amount");
-    var acc = document.querySelectorAll(".list-group-item");
-    for (let i = 0; i < acc.length; i++) {
-      if (acc[i].classList.contains("activeList")) {
-        acc[i].classList.remove("activeList");
-      }
-    }
-    let _listItems = event.target;
-    _listItems.classList.add("activeList");
+    // var acc1 = document.querySelectorAll(".amount-list");
+    // console.log("accc--->"+acc1);
+    // for (let i = 0; i < acc1.length; i++) {
+    //   if (acc1[i].classList.contains("selectedAmount")) {
+    //     acc1[i].classList.remove("selectedAmount");
+    //   }
+    // }
+    // //let _listItems = event.currentTarget
+    // let _listItems = event.target;
+    // _listItems.classList.add("selectedAmount");
     this.transactionAmount = this.state.OrderTotal;
     console.log("Invoked transactionAmount"+this.transactionAmount);
   }
-  selectedOtherAmount(){
+  selectedOtherAmount(event){
     this.transactionAmount = this.inputAmount;
     console.log("Invoked other transactionAmount"+this.transactionAmount);
+    // var acc1 = document.querySelectorAll(".amount-list");
+    // console.log("accc--->"+acc1);
+    // for (let i = 0; i < acc1.length; i++) {
+    //   if (acc1[i].classList.contains("selectedAmount")) {
+    //     acc1[i].classList.remove("selectedAmount");
+    //   }
+    // }
+    // let _listItems = event.target;
+    // _listItems.classList.add("selectedAmount");
   }
   handleTransAmount(event){
     const target = event.target;
@@ -1921,19 +1932,16 @@ class App extends Component {
               {this.state.cardListShow ? ( <div class="card mt-3">
                 <h5 class=" p-2 text-center">Amount to Pay</h5>
                 <ul class="list-group  list-group-flush  border">
-                  <div class="list-group-item  justify-content-between align-items-center listDetails"
-                    onClick={(event) =>
-                      this.selectedTotalAmount(event)
-                     }>
                   <li
-                    //class="justify-content-between align-items-center listDetails "
-                    //name="livalue"
+                    class="list-group-item amount-list amountlist"
+                    name="livalue"
                     // onClick={(event) =>
                     //   this.selectedTotalAmount(event)
+                    //   //this.selectedPaymentMethod(event)
                     // }
                   >
                     <div class="form-check">
-                      {/* <input
+                      <input
                         class="form-check-input"
                         type="radio"
                         name="flexRadioDefault"
@@ -1941,24 +1949,60 @@ class App extends Component {
                         onClick={(event) =>
                           this.selectedTotalAmount(event)
                         }
-                      /> */}
-                      {/* <div class="row justify-content-between align-items-center listDetails"
-                      onClick={(event) =>
-                        this.selectedTotalAmount(event)
-                      }
-                     > */}
-                     <div class="row">
+                      />
+                      <div class="row">
                       <div class="col-lg-10 col-md-10 col-sm-1">
                     <p>Total Amount</p>
                   </div>
-                  <div class="col-lg-2 col-md-2 col-sm-1 ">
+                  <div class="col-lg-2 col-md-2 col-sm-1">
                     <p>$ {this.state.OrderTotal}</p>
                   </div>
-                   </div> 
+                  </div>
                     </div>
                   </li>
+                  <li
+                    class="list-group-item amount-list amountlist"
+                    name="livalue"
+                    // onClick={(event) =>
+                    //   this.selectedOtherAmount(event)
+                    // }
+                  >
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="flexRadioDefault"
+                        id="flexRadioDefault1"
+                        onClick={(event) =>
+                          this.selectedOtherAmount(event)
+                        }
+                      />
+                      <div class="row">
+                      <div class="col-lg-10 col-md-10 col-sm-1">
+                    <p>Other Amount</p>
                   </div>
-                  {/* <div class="list-group-item d-flex justify-content-between align-items-center listDetails"
+                  <div class="col-lg-2 col-md-2 col-sm-1">
+                  <div class="form-group row">
+                  <label >$</label><div class="col-lg col-sm-1">
+                    <input type="phone" class="form-control" id="" name="amount" autocomplete="off" onChange={this.handleTransAmount} />
+                    </div>
+                  </div>
+                  </div>
+                  </div>
+                    </div>
+                  </li>
+                </ul>
+                {/* <button
+                class="btn btn-primary float-right mt-4"
+                onClick={this.createStripeTransaction}
+              >
+                Pay
+              </button> */}
+              </div>):("")}
+              {/* {this.state.cardListShow ? ( <div class="card mt-3">
+                <h5 class=" p-2 text-center">Amount to Pay</h5>
+                <ul class="list-group  list-group-flush  border">
+                  <div class="list-group-item d-flex justify-content-between align-items-center listDetails"
                     onClick={(event) =>
                       this.selectedTotalAmount(event)
                      }>
@@ -1989,7 +2033,7 @@ class App extends Component {
                   </div>
                     </div>
                   </li>
-                  </div> */}
+                  </div>
                   <li
                     class="list-group-item d-flex justify-content-between align-items-center listDetails"
                     name="livalue"
@@ -1998,7 +2042,7 @@ class App extends Component {
                     }
                   >
                     <div class="form-check">
-                      {/* <input
+                      <input
                         class="form-check-input"
                         type="radio"
                         name="flexRadioDefault"
@@ -2006,7 +2050,7 @@ class App extends Component {
                         onClick={(event) =>
                           this.selectedOtherAmount(event)
                         }
-                      /> */}
+                      />
                       <div class="row">
                       <div class="col-lg-10 col-md-10 col-sm-1">
                     <p>Other Amount</p>
@@ -2022,13 +2066,7 @@ class App extends Component {
                     </div>
                   </li>
                 </ul>
-                {/* <button
-                class="btn btn-primary float-right mt-4"
-                onClick={this.createStripeTransaction}
-              >
-                Pay
-              </button> */}
-              </div>):("")}
+              </div>):("")} */}
               
               {this.state.cardListShow ? (
                 <button
@@ -2637,6 +2675,7 @@ class App extends Component {
         ) : (
           ""
         )}
+        <iframe src="https://pay.stripe.com/receipts/acct_1KFJFDEgsgymTP2Q/ch_3KrFvEEgsgymTP2Q0DHfMrgv/rcpt_LYMefjTwgfhgkT5ji20ku8rb0rTQDoL" />
       </div>
     );
   }

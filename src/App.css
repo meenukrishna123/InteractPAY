@@ -14,6 +14,9 @@
 .listDetails .activeList{
   background-color: lightsteelblue;
 }
+.amountlist .selectedAmount{
+  background-color: lightsteelblue;
+}
 /* Popup style */
 .popup-box {
   position: fixed;
