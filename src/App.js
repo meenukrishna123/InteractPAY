@@ -1950,6 +1950,7 @@ class App extends Component {
                           this.selectedTotalAmount(event)
                         }
                       />
+                      <label for="flexRadioDefault1" class="d-block">
                       <div class="row">
                       <div class="col-lg-10 col-md-10 col-sm-1">
                     <p>Total Amount</p>
@@ -1958,6 +1959,7 @@ class App extends Component {
                     <p>$ {this.state.OrderTotal}</p>
                   </div>
                   </div>
+                  </label>
                     </div>
                   </li>
                   <li
@@ -1972,11 +1974,13 @@ class App extends Component {
                         class="form-check-input"
                         type="radio"
                         name="flexRadioDefault"
-                        id="flexRadioDefault1"
+                        id="flexRadioDefault2"
+                  
                         onClick={(event) =>
                           this.selectedOtherAmount(event)
                         }
                       />
+                      <label for="flexRadioDefault2" class="d-block">
                       <div class="row">
                       <div class="col-lg-10 col-md-10 col-sm-1">
                     <p>Other Amount</p>
@@ -1989,6 +1993,7 @@ class App extends Component {
                   </div>
                   </div>
                   </div>
+                  </label>
                     </div>
                   </li>
                 </ul>
@@ -2675,7 +2680,7 @@ class App extends Component {
         ) : (
           ""
         )}
-        <iframe src="https://pay.stripe.com/receipts/acct_1KFJFDEgsgymTP2Q/ch_3KrFvEEgsgymTP2Q0DHfMrgv/rcpt_LYMefjTwgfhgkT5ji20ku8rb0rTQDoL" />
+        {/* <iframe src="https://pay.stripe.com/receipts/acct_1KFJFDEgsgymTP2Q/ch_3KrFvEEgsgymTP2Q0DHfMrgv/rcpt_LYMefjTwgfhgkT5ji20ku8rb0rTQDoL" /> */}
       </div>
     );
   }
