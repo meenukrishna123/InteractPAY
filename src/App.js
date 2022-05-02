@@ -25,12 +25,17 @@ class App extends Component {
   constructor(props) {
     super(props);
     const queryParams = new URLSearchParams(window.location.search);
-    this.urlCustomerId = queryParams.get("customerId");
-    this.urlContactId = queryParams.get("contactId");
-    this.urlOrderId = queryParams.get("orderId");
-    this.urlAmount = queryParams.get("amount");
-    this.urlmail = queryParams.get("mail");
-    this.baseUrl = queryParams.get("baseUrl");
+    //-------- InterACTPay Dev  ------//
+    //this.baseUrl="https://crma-pay-developer-edition.na163.force.com/"
+    //-------- Medviation Dev  ------//
+    this.baseUrl="https://crmapay-developer-edition.na213.force.com/"
+    this.urlPaymentLinkId = queryParams.get("Id");
+    //this.urlCustomerId = queryParams.get("customerId");
+    //this.urlContactId = queryParams.get("contactId");
+    //this.urlOrderId = queryParams.get("orderId");
+    //this.urlAmount = queryParams.get("amount");
+    //this.urlmail = queryParams.get("mail");
+    //this.baseUrl = queryParams.get("baseUrl");
     var inputJson = queryParams.get("inputJson");
     if(inputJson){
       var inputJsonValue = JSON.parse(inputJson);
@@ -98,6 +103,8 @@ class App extends Component {
     this.state = {
       items: [],
     };
+    this.state = { validLink: "" }; 
+    this.state = { expiredLink: "" };
     this.state = { isnewcard: false };
     this.state = { dropdown: "" };
     this.state = { newcontact: false };
@@ -138,15 +145,90 @@ class App extends Component {
     };
   }
   componentDidMount() {
-    this.getOrderDetails();
-    this.getStripeKey();
-    // this.getContactDetails();
-    // this.onloadAchFetch();
-    // this.onloadeddata();
+    this.getPaymentLinkDetails();
+     //this.getOrderDetails();
+     //this.getStripeKey();
     this.isCheckValue = false;
     this.isDefaultValue = false;
-    //this.isdropdown = false ;
-    //this.setupAddress = false;
+  }
+  getPaymentLinkDetails(){
+    console.log("Invoked getPaymentLinkDetails---->"+this.urlPaymentLinkId);
+    var payLinkParams = {};
+    payLinkParams.paymentLinkId = this.urlPaymentLinkId;
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams=" +
+      JSON.stringify(payLinkParams);
+      console.log("payAPI=====>"+url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        mode: "cors",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((response) => response.text())
+      .then((response) => {
+        response = response.slice(1, response.length - 1);
+        console.log("response-->y------>"+apiUrl);
+        var apiResponse = [];
+          apiResponse = JSON.parse(response);
+          console.log("apiResponse-->y------>"+apiResponse);
+          console.log("apiResponse-->xxxxxx------>"+JSON.stringify(apiResponse));
+        var apiUrl = apiResponse.crma_pay__PaymentURL__c;
+        this.url = new URL(apiUrl);
+        this.urlOrderId = this.url.searchParams.get("orderId");
+        this.urlCustomerId = this.url.searchParams.get("customerId");
+        this.setState({ apicustomerId: this.urlCustomerId });
+        this.urlContactId = this.url.searchParams.get("contactId");
+        this.urlAmount = this.url.searchParams.get("amount");
+        this.urlmail = this.url.searchParams.get("mail");
+        this.createdDate = apiResponse.CreatedDate;
+        console.log("this.createdDate--->"+this.createdDate);
+        //**************************************************************//
+       // var inputDate = '2022-04-28T03:51:50.417-07:00'
+        let date = new Date( Date.parse(this.createdDate) );
+        console.log("date---->"+date);
+        var addedDate = date.setHours(date.getHours() + 8 );
+       console.log("addedDate---->"+new Date(addedDate));
+        const current = new Date();
+        this.todaysDate = `${current.getFullYear()}-${
+          current.getMonth() + 1
+          }-${current.getDate()}`;
+        console.log("current---->"+current);
+        var d1 = new Date(addedDate); 
+          var d2 = new Date(current); 
+        var timeleft = d1.getTime() - d2.getTime(); 
+         var days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
+        console.log(days+' Day'+hours+' Hr'+minutes+' Min'+seconds+' Sec');
+        this.valid = false;
+        if(days>=0){
+          if(hours>0){
+            this.setState({ validLink: true });
+          }
+        }
+        else{
+          this.setState({ expiredLink: true });
+        }
+        //console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^"+this.valid);
+         //**************************************************************//
+        var inputJson = apiResponse.crma_pay__JSON_Input__c;
+        // var inputArray = [];
+        //var inputArray = (JSON.stringify(inputJson));
+        //var x = 
+        console.log("inputJson--->"+JSON.stringify(inputJson));
+        //console.log("attributes--->"+inputArray[0].Id);
+        console.log("this.redirectURL-->y------>"+this.urlOrderId);
+        this.getOrderDetails(this.urlOrderId);
+        console.log("Response-->y------>"+apiUrl);
+        this.getStripeKey();
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      })
   }
   getStripeKey() {
     console.log("Invoked stripe key");
@@ -345,9 +427,11 @@ class App extends Component {
         console.log(err);
       });
   }
-  getOrderDetails() {
+  getOrderDetails(orderId) {
+    console.log("Invoked Order details--->"+this.redirectURL);
     var orderParams = {};
-    orderParams.orderId = this.urlOrderId;
+    orderParams.orderId = orderId;
+    //orderParams.orderId = this.urlOrderId;
     //contactParams.contactId = "0035f00000KTfGYAA1";
     console.log("baseUrls--->" + this.baseUrl);
     var url =
@@ -951,6 +1035,7 @@ class App extends Component {
           var type = "success";
           this.notification(message, type);
           var redirectUrl = response.charges.data[0].receipt_url;
+          //var redirectUrl =  "https%3A%2F%2Fmaster.d1mihbvts34rn0.amplifyapp.com/?orderId=8018c000001xEGZAA2&amount=28000.00&isContactExist=true&customerId=cus_LV545SPw2znHvF&mail=akshaya.sreekumarmail@gmail.com&baseUrl=https://crmapay-developer-edition.na213.force.com/&contactId=0038c00002lPUMEAA4";
           //this.navigateTo(redirectUrl);
         } else {
           this.transactionId = response.error.payment_intent.id;
@@ -1607,7 +1692,14 @@ class App extends Component {
             </a>
           </div>
         </nav>
-        <div class="container">
+        {this.state.expiredLink ? (
+          // <div>hiii..</div>
+        <div class="message">
+        <h1>Oops, this link is expired</h1>
+        <p>This URL is not valid anymore.</p>
+      </div>
+        ) : (
+          <div class="container">
           <div class="row my-5">
             <div class="col-lg-4 col-md-4 col-sm-1">
               <div class="card p-3 mb-3">
@@ -2092,6 +2184,7 @@ class App extends Component {
             </div>
           </div>
         </div>
+        )}
         {this.state.isnewcard ? (
           <div className="popup-box">
             <div className="box">
@@ -2681,7 +2774,76 @@ class App extends Component {
         ) : (
           ""
         )}
-        {/* <iframe src="https://pay.stripe.com/receipts/acct_1KFJFDEgsgymTP2Q/ch_3KrFvEEgsgymTP2Q0DHfMrgv/rcpt_LYMefjTwgfhgkT5ji20ku8rb0rTQDoL" /> */}
+        {/* <table class="body-wrap">
+    <tbody><tr>
+        <td></td>
+        <td class="container" width="600">
+            <div class="content">
+                <table class="main" width="100%" cellpadding="0" cellspacing="0">
+                    <tbody><tr>
+                        <td class="content-wrap aligncenter">
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tbody><tr>
+                                    <td class="content-block">
+                                        <h2>Thanks for using our app</h2>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="content-block">
+                                        <table class="invoice">
+                                            <tbody><tr>
+                                                <td>Anna SmithInvoice #12345June 01 2015</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table class="invoice-items" cellpadding="0" cellspacing="0">
+                                                        <tbody><tr>
+                                                            <td>Service 1</td>
+                                                            <td class="alignright">$ 20.00</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Service 2</td>
+                                                            <td class="alignright">$ 10.00</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Service 3</td>
+                                                            <td class="alignright">$ 6.00</td>
+                                                        </tr>
+                                                        <tr class="total">
+                                                            <td class="alignright" width="80%">Total</td>
+                                                            <td class="alignright">$ 36.00</td>
+                                                        </tr>
+                                                    </tbody></table>
+                                                </td>
+                                            </tr>
+                                        </tbody></table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="content-block">
+                                        <a href="#">View in browser</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="content-block">
+                                        Company Inc. 123 Van Ness, San Francisco 94102
+                                    </td>
+                                </tr>
+                            </tbody></table>
+                        </td>
+                    </tr>
+                </tbody></table>
+                <div class="footer">
+                    <table width="100%">
+                        <tbody><tr>
+                            <td class="aligncenter content-block">Questions? Email <a href="mailto:">support@company.inc</a></td>
+                        </tr>
+                    </tbody></table>
+                </div></div>
+        </td>
+        <td></td>
+    </tr>
+</tbody></table> */}
       </div>
     );
   }
