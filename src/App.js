@@ -1159,16 +1159,19 @@ class App extends Component {
       .then((response) => response.json())
       .then((response) => {
         if(response){
-        this.transId = response;
+        this.transIdUrl = response;
       }
-      else{
-        this.transId = 'a0A8c00000i9l4uEAA';
-      }
+      // else{
+      //   this.transId = 'a0A8c00000i9l4uEAA';
+        var redirectUrl = 'https://medviation-developer-edition.na213.force.com/s/invoice-page'+'?transId=' + this.transIdUrl;
+          console.log("invoked redirecturl"+redirectUrl);
+          //this.navigateTo(redirectUrl);
+      //}
       
         console.log(" create  transaction-->" + JSON.stringify(response));
-        var redirectUrl = 'https://medviation-developer-edition.na213.force.com/s/invoice-page'+'?transId=' + this.transId;
-          //var redirectUrl = response.charges.data[0].receipt_url;
-          this.navigateTo(redirectUrl);
+        // var redirectUrl = 'https://medviation-developer-edition.na213.force.com/s/invoice-page'+'?transId=' + this.transId;
+        //   //var redirectUrl = response.charges.data[0].receipt_url;
+        //   this.navigateTo(redirectUrl);
       })
       .catch((err) => {
         console.log("err" + err);
