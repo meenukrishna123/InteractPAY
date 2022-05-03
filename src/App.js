@@ -237,7 +237,7 @@ class App extends Component {
       "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=GET&inputParams={}";
     // console.log("yyyyyyy---->"+y)
     // var url = "https://crma-pay-developer-edition.na163.force.com/InteractPay/services/apexrest/crma_pay/InteractPayAuthorization/?methodType=GET&inputParams={}";
-    //console.log("this.final url --->" + url);
+    console.log("this.final url --->" + url);
     fetch(url, {
       method: "GET",
       headers: {
@@ -250,7 +250,7 @@ class App extends Component {
         // console.log(" Stripe key  -->" + JSON.stringify(response));
         // this.stripeKey = response;
         response = response.slice(1, response.length - 1);
-        //console.log("RESponse    ------>", response);
+        console.log("RESponse    ------>", response);
         var mdt_Reponse = JSON.parse(response);
         var orderReponse = JSON.stringify(JSON.parse(response));
         this.stripeKey = mdt_Reponse.StripeKey;
@@ -517,7 +517,7 @@ class App extends Component {
   //---------------------------------------------------------------------------------------------------------------------------
   onloadeddata(defaultPaymentId) {
     // onloadeddata() {
-    //console.log("invoke onload---->");
+    console.log("invoke onload---->"+this.stripeKey);
     // const queryParams = new URLSearchParams(window.location.search);
     // this.custId = queryParams.get("customerId");
     if (this.urlCustomerId) {
@@ -541,7 +541,7 @@ class App extends Component {
     )
       .then((response) => response.json())
       .then((response) => {
-        //console.log("ListPaymentMethods--->" +JSON.stringify(response));
+        console.log("ListPaymentMethods--->" +JSON.stringify(response));
         var cardList = response.data;
         if(cardList.length !== 0){
           //console.log('INSIDE IF to check-----');
@@ -1034,9 +1034,9 @@ class App extends Component {
           var message = "Your payment is successfully completed";
           var type = "success";
           this.notification(message, type);
-          var redirectUrl = response.charges.data[0].receipt_url;
-          //var redirectUrl =  "https%3A%2F%2Fmaster.d1mihbvts34rn0.amplifyapp.com/?orderId=8018c000001xEGZAA2&amount=28000.00&isContactExist=true&customerId=cus_LV545SPw2znHvF&mail=akshaya.sreekumarmail@gmail.com&baseUrl=https://crmapay-developer-edition.na213.force.com/&contactId=0038c00002lPUMEAA4";
-          //this.navigateTo(redirectUrl);
+          // var redirectUrl = "https://medviation-developer-edition.na213.force.com/s/invoice-page”?transId=" + this.catalogcode"
+          // //var redirectUrl = response.charges.data[0].receipt_url;
+          // //this.navigateTo(redirectUrl);
         } else {
           this.transactionId = response.error.payment_intent.id;
           this.gatewayMessage = JSON.parse(
@@ -1158,8 +1158,17 @@ class App extends Component {
     })
       .then((response) => response.json())
       .then((response) => {
-        this.contactId = response;
+        if(response){
+        this.transId = response;
+      }
+      else{
+        this.transId = 'a0A8c00000i9l4uEAA';
+      }
+      
         console.log(" create  transaction-->" + JSON.stringify(response));
+        var redirectUrl = 'https://medviation-developer-edition.na213.force.com/s/invoice-page'+'?transId=' + this.transId;
+          //var redirectUrl = response.charges.data[0].receipt_url;
+          this.navigateTo(redirectUrl);
       })
       .catch((err) => {
         console.log("err" + err);
