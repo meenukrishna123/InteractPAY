@@ -30,35 +30,6 @@ class App extends Component {
     //-------- Medviation Dev  ------//
     this.baseUrl="https://crmapay-developer-edition.na213.force.com/"
     this.urlPaymentLinkId = queryParams.get("Id");
-    //this.urlCustomerId = queryParams.get("customerId");
-    //this.urlContactId = queryParams.get("contactId");
-    //this.urlOrderId = queryParams.get("orderId");
-    //this.urlAmount = queryParams.get("amount");
-    //this.urlmail = queryParams.get("mail");
-    //this.baseUrl = queryParams.get("baseUrl");
-    var inputJson = queryParams.get("inputJson");
-    if(inputJson){
-      var inputJsonValue = JSON.parse(inputJson);
-      console.log("inside inputjson--->"+inputJsonValue);
-    if(inputJsonValue.oppdetails[0].PatientName__c){
-      var patientName = inputJsonValue.oppdetails[0].PatientName__c;
-      console.log("inside patientName");
-      this.patientName = patientName;
-    }
-    if(inputJsonValue.oppdetails[0].OriginDesired__c){
-      var origin = inputJsonValue.oppdetails[0].OriginDesired__c;
-      this.origin = origin;
-    }
-    if(inputJsonValue.oppdetails[0].DestinationDesired__c){
-      var destination = inputJsonValue.oppdetails[0].DestinationDesired__c;
-      this.destination = destination;
-    }
-    if(inputJsonValue.oppdetails[0].TravelDate__c){
-      var date = inputJsonValue.oppdetails[0].TravelDate__c;
-      var travelDate = date.substring(0, 10);
-      this.travelDate = travelDate;
-    }
-    }
     //console.log("patientName    ------>"+inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c);
     const current = new Date();
     this.todaysDate = `${current.getFullYear()}-${
@@ -128,6 +99,11 @@ class App extends Component {
     this.state = {
       cardListShow: false,
     };
+    this.state = { patientName: " " };
+    this.state = { origin: " " };
+    this.state = { destination: " " };
+    this.state = { travelDate: " " };
+    this.state = { dueAmount: " " };
     //this.state = { setupAddress: "" };
 
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -170,11 +146,18 @@ class App extends Component {
       .then((response) => response.text())
       .then((response) => {
         response = response.slice(1, response.length - 1);
-        console.log("response-->y------>"+apiUrl);
+        console.log("response-->y------>"+response);
         var apiResponse = [];
           apiResponse = JSON.parse(response);
           console.log("apiResponse-->y------>"+apiResponse);
           console.log("apiResponse-->xxxxxx------>"+JSON.stringify(apiResponse));
+          var linkActive = apiResponse.crma_pay__Active__c;
+          console.log("ActiveLink-->"+linkActive);
+          if(linkActive==false){
+            console.log("inside if -->"+linkActive);
+            this.setState({ expiredLink: true });
+          this.updatePaymentLinkRecord();
+          }
         var apiUrl = apiResponse.crma_pay__PaymentURL__c;
         this.url = new URL(apiUrl);
         this.urlOrderId = this.url.searchParams.get("orderId");
@@ -212,15 +195,47 @@ class App extends Component {
         }
         else{
           this.setState({ expiredLink: true });
+          this.updatePaymentLinkRecord();
         }
         //console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^"+this.valid);
          //**************************************************************//
         var inputJson = apiResponse.crma_pay__JSON_Input__c;
-        // var inputArray = [];
-        //var inputArray = (JSON.stringify(inputJson));
-        //var x = 
         console.log("inputJson--->"+JSON.stringify(inputJson));
-        //console.log("attributes--->"+inputArray[0].Id);
+        var x = JSON.stringify(inputJson);
+        var xy = x.slice(1, x.length - 1);
+        console.log("attributes--xxyy->"+xy);
+        var new1  = xy.replace(/!/g, '"');
+        console.log("new1--xxyy->"+new1);
+        var y = JSON.parse(new1);
+        //var y = new1;
+        console.log("yyyyy--->"+y);
+        if(y[0].PatientName__c){
+        console.log("attributes--yyy---->"+JSON.stringify(y[0].PatientName__c));
+        this.patientName = y[0].PatientName__c;
+        this.setState({ patientName: this.patientName });
+        }
+        if(y[0].OriginDesired__c){
+          console.log("attributes--yyy---->"+JSON.stringify(y[0].OriginDesired__c));
+          this.origin = y[0].OriginDesired__c;
+          this.setState({ origin: this.origin});
+          }
+          if(y[0].DestinationDesired__c){
+            console.log("attributes--yyy---->"+JSON.stringify(y[0].DestinationDesired__c));
+            this.destination = y[0].DestinationDesired__c;
+            this.setState({ destination: this.destination });
+            }
+            if(y[0].TravelDate__c){
+              console.log("attributes--yyy---->"+JSON.stringify(y[0].TravelDate__c));
+              var dateValue = y[0].TravelDate__c;
+              var travelDate = dateValue.substring(0, 10);
+              this.travelDate = travelDate;
+              this.setState({ travelDate: this.travelDate });
+              }
+              if(y[0].AmountDue__c){
+                console.log("attributes--yyy---->"+JSON.stringify(y[0].DestinationDesired__c));
+                this.dueAmount = y[0].AmountDue__c;
+                this.setState({ dueAmount: this.dueAmount }); 
+              }
         console.log("this.redirectURL-->y------>"+this.urlOrderId);
         this.getOrderDetails(this.urlOrderId);
         console.log("Response-->y------>"+apiUrl);
@@ -1160,15 +1175,41 @@ class App extends Component {
       .then((response) => {
         if(response){
         this.transIdUrl = response;
-      }
-      // else{
-      //   this.transId = 'a0A8c00000i9l4uEAA';
         var redirectUrl = 'https://medviation-developer-edition.na213.force.com/s/invoice-page'+'?transId=' + this.transIdUrl;
           console.log("invoked redirecturl"+redirectUrl);
-          //this.navigateTo(redirectUrl);
-      //}
-      
+          this.updatePaymentLinkRecord();
+        }
         console.log(" create  transaction-->" + JSON.stringify(response));
+          this.navigateTo(redirectUrl);
+      })
+      .catch((err) => {
+        console.log("err" + err);
+      });
+  }
+  updatePaymentLinkRecord(){
+    console.log("Invoked Update PayLink"+this.urlPaymentLinkId);
+    var payLinkRcdParams = {};
+    payLinkRcdParams.paymentLinkId = this.urlPaymentLinkId;
+    if(this.transIdUrl){
+    payLinkRcdParams.PaymentTransaction = this.transIdUrl;
+  }
+    payLinkRcdParams.Active = false;
+    console.log("baseUrls--->" + this.baseUrl);
+    var url =
+      this.baseUrl +
+      "InteractPay/services/apexrest/crma_pay/InterACTPayAuthorizationUpdated/?methodType=POST&inputParams=" +
+      JSON.stringify(payLinkRcdParams);
+    console.log("this.final transaction url --->" + url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        mode: "cors",
+        "Access-Control-Allow-Origin": "*",
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(" update  payLink-->" + JSON.stringify(response));
         // var redirectUrl = 'https://medviation-developer-edition.na213.force.com/s/invoice-page'+'?transId=' + this.transId;
         //   //var redirectUrl = response.charges.data[0].receipt_url;
         //   this.navigateTo(redirectUrl);
@@ -1732,36 +1773,44 @@ class App extends Component {
                     <p>$ {this.state.OrderTotal}</p>
                   </div>
                 </div>
-                {this.patientName ? (<div class="row">
+                {this.state.dueAmount ? (<div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>Amount Due :</p>
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1">
+                    <p>{this.state.dueAmount}</p>
+                  </div>
+                </div>) : ("")}
+                {this.state.patientName ? (<div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>Patient Name :</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>{this.patientName}</p>
+                    <p>{this.state.patientName}</p>
                   </div>
                 </div>) : ("")}
-                {this.origin ? (<div class="row">
+                {this.state.origin ? (<div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>Origin :</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>{this.origin}</p>
+                    <p>{this.state.origin}</p>
                   </div>
                 </div>) : ("")}
-                {this.destination ? (<div class="row">
+                {this.state.destination ? (<div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>Destination :</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>{this.destination}</p>
+                    <p>{this.state.destination}</p>
                   </div>
                 </div>) : ("")}
-                {this.travelDate ? (<div class="row">
+                {this.state.travelDate ? (<div class="row">
                   <div class="col-lg-6 col-md-6 col-sm-1">
                     <p>Travel Date :</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>{this.travelDate}</p>
+                    <p>{this.state.travelDate}</p>
                   </div>
                 </div>) : ("")}
                 {/* {this.patientName ? (<div class="row">
@@ -2061,7 +2110,7 @@ class App extends Component {
                     <p>Total Amount</p>
                   </div>
                   <div class="col-lg-2 col-md-2 col-sm-1">
-                    <p>$ {this.state.OrderTotal}</p>
+                    <p>$ {this.state.dueAmount}</p>
                   </div>
                   </div>
                   </label>
@@ -2786,76 +2835,6 @@ class App extends Component {
         ) : (
           ""
         )}
-        {/* <table class="body-wrap">
-    <tbody><tr>
-        <td></td>
-        <td class="container" width="600">
-            <div class="content">
-                <table class="main" width="100%" cellpadding="0" cellspacing="0">
-                    <tbody><tr>
-                        <td class="content-wrap aligncenter">
-                            <table width="100%" cellpadding="0" cellspacing="0">
-                                <tbody><tr>
-                                    <td class="content-block">
-                                        <h2>Thanks for using our app</h2>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="content-block">
-                                        <table class="invoice">
-                                            <tbody><tr>
-                                                <td>Anna SmithInvoice #12345June 01 2015</td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <table class="invoice-items" cellpadding="0" cellspacing="0">
-                                                        <tbody><tr>
-                                                            <td>Service 1</td>
-                                                            <td class="alignright">$ 20.00</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Service 2</td>
-                                                            <td class="alignright">$ 10.00</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Service 3</td>
-                                                            <td class="alignright">$ 6.00</td>
-                                                        </tr>
-                                                        <tr class="total">
-                                                            <td class="alignright" width="80%">Total</td>
-                                                            <td class="alignright">$ 36.00</td>
-                                                        </tr>
-                                                    </tbody></table>
-                                                </td>
-                                            </tr>
-                                        </tbody></table>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="content-block">
-                                        <a href="#">View in browser</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="content-block">
-                                        Company Inc. 123 Van Ness, San Francisco 94102
-                                    </td>
-                                </tr>
-                            </tbody></table>
-                        </td>
-                    </tr>
-                </tbody></table>
-                <div class="footer">
-                    <table width="100%">
-                        <tbody><tr>
-                            <td class="aligncenter content-block">Questions? Email <a href="mailto:">support@company.inc</a></td>
-                        </tr>
-                    </tbody></table>
-                </div></div>
-        </td>
-        <td></td>
-    </tr>
-</tbody></table> */}
       </div>
     );
   }
