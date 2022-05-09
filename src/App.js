@@ -28,8 +28,9 @@ class App extends Component {
     //-------- InterACTPay Dev  ------//
     //this.baseUrl="https://crma-pay-developer-edition.na163.force.com/"
     //-------- Medviation Dev  ------//
-    this.baseUrl="https://crmapay-developer-edition.na213.force.com/"
+    //this.baseUrl="https://crmapay-developer-edition.na213.force.com/"
     this.urlPaymentLinkId = queryParams.get("Id");
+    this.baseUrl = queryParams.get("baseUrl");
     //console.log("patientName    ------>"+inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c);
     const current = new Date();
     this.todaysDate = `${current.getFullYear()}-${
@@ -96,15 +97,14 @@ class App extends Component {
     this.state = { Billingzip: "" };
     this.state = { Billingcountry: "" };
     this.state = { expValue: "" };
-    this.state = {
-      cardListShow: false,
-    };
+    this.state = { cardListShow: false,};
     this.state = { patientName: " " };
     this.state = { origin: " " };
     this.state = { destination: " " };
     this.state = { travelDate: " " };
     this.state = { dueAmount: " " };
-    //this.state = { setupAddress: "" };
+    this.state = { errorMsg: " " };
+    this.state = { showPayButton: " ",};
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleAddressChange = this.handleAddressChange.bind(this);
@@ -151,13 +151,17 @@ class App extends Component {
           apiResponse = JSON.parse(response);
           console.log("apiResponse-->y------>"+apiResponse);
           console.log("apiResponse-->xxxxxx------>"+JSON.stringify(apiResponse));
+          var amountDue = apiResponse.crma_pay__AmountDue__c;
+          console.log("amountDue-->"+amountDue);
+        //   this.initialOrderAmount = ''+amountDue+'';
+        //  this.setState({TransactionTotal: this.initialOrderAmount });
+        //  this.setState({ dueAmount: amountDue }); 
           var linkActive = apiResponse.crma_pay__Active__c;
-          console.log("ActiveLink-->"+linkActive);
-          if(linkActive==false){
-            console.log("inside if -->"+linkActive);
-            this.setState({ expiredLink: true });
-          this.updatePaymentLinkRecord();
-          }
+          // if(linkActive==false){
+          //   console.log("inside if -->"+linkActive);
+          //   this.setState({ expiredLink: true });
+          // this.updatePaymentLinkRecord();
+          // }
         var apiUrl = apiResponse.crma_pay__PaymentURL__c;
         this.url = new URL(apiUrl);
         this.urlOrderId = this.url.searchParams.get("orderId");
@@ -194,8 +198,8 @@ class App extends Component {
           }
         }
         else{
-          this.setState({ expiredLink: true });
-          this.updatePaymentLinkRecord();
+          // this.setState({ expiredLink: true });
+          // this.updatePaymentLinkRecord();
         }
         //console.log("^^^^^^^^^^^^^^^^^^^^^^^^^^"+this.valid);
          //**************************************************************//
@@ -470,9 +474,9 @@ class App extends Component {
         console.log("OrderReponse ----->" + orderReponse);
         var orderNum = contactReponse.orderdetails[0].OrderNumber;
         var total = contactReponse.orderdetails[0].TotalAmount;
+        console.log("orderTotal---->"+total);
         this.setState({ OrderNumber: orderNum });
         this.setState({ OrderTotal: total });
-         //var inputAmount = this.state.OrderTotal;
          this.initialOrderAmount = ''+total+'';
          this.setState({TransactionTotal: this.initialOrderAmount });
         console.log("Order total for tyransaction-----#######>"+this.initialOrderAmount);
@@ -529,6 +533,9 @@ class App extends Component {
     // console.log("Deafault---->" + this.state.defaultId);
     // console.log("this.x---->" + this.state.x);
   }
+  updatepayButton(){
+    this.setState({showPayButton:false,})
+  }
   //---------------------------------------------------------------------------------------------------------------------------
   onloadeddata(defaultPaymentId) {
     // onloadeddata() {
@@ -564,6 +571,7 @@ class App extends Component {
           this.setState({
               cardListShow: true,
             });
+            this.setState({showPayButton:true,})
         
       }
       else {
@@ -571,6 +579,8 @@ class App extends Component {
         this.setState({
           cardListShow: false,
         });
+        this.setState({showPayButton:false,})
+        //this.updatepayButton();
       }
         var paymentMethodList = [];
         var jsonValues = JSON.parse(JSON.stringify(cardList));
@@ -1118,13 +1128,6 @@ class App extends Component {
   ) {
     console.log("Invoked Create Transaction Record---->"+this.payingAmount);
     console.log("Billing details--->"+this.state.Billingcountry);
-    // const queryParams = new URLSearchParams(window.location.search);
-    // this.contId = queryParams.get("contactId");
-    // if (this.contId) {
-    //   this.contactId = this.contId;
-    // } else {
-    //   this.contactId = window.contId;
-    // }
     if (this.urlContactId) {
       this.contactId = this.urlContactId;
     } else {
@@ -1177,7 +1180,7 @@ class App extends Component {
         this.transIdUrl = response;
         var redirectUrl = 'https://medviation-developer-edition.na213.force.com/s/invoice-page'+'?transId=' + this.transIdUrl;
           console.log("invoked redirecturl"+redirectUrl);
-          this.updatePaymentLinkRecord();
+          //this.updatePaymentLinkRecord();
         }
         console.log(" create  transaction-->" + JSON.stringify(response));
           this.navigateTo(redirectUrl);
@@ -1650,6 +1653,9 @@ class App extends Component {
   }
   selectedTotalAmount(event){
     console.log("Invoked Selected amount");
+    document.querySelector(".otherAmountClss").value = '';
+    this.setState({showPayButton:true,})
+    this.setState({errorMsg: false,});
     // var acc1 = document.querySelectorAll(".amount-list");
     // console.log("accc--->"+acc1);
     // for (let i = 0; i < acc1.length; i++) {
@@ -1663,10 +1669,23 @@ class App extends Component {
     this.transactionAmount = '"'+ this.state.OrderTotal+  '"'; 
     //this.transactionAmount = this.state.OrderTotal;
     console.log("Invoked transactionAmount"+this.transactionAmount);
+    
   }
   selectedOtherAmount(event){
     this.transactionAmount = this.inputAmount;
+    //console.log("Invalid amount"+this.state.dueAmount);
+    // if(this.transactionAmount>this.state.dueAmount){
+    //   console.log("Invalid amount");
+    //   this.setState({errorMsg: true,});
+    //   this.setState({showPayButton:false,})
+    //   this.updatepayButton();
+    // }else{
+    //   console.log("valid amount");
+    //    this.setState({showPayButton:true,})
+    //    this.setState({errorMsg: false,});
+    // }
     console.log("Invoked other transactionAmount"+this.transactionAmount);
+    
     // var acc1 = document.querySelectorAll(".amount-list");
     // console.log("accc--->"+acc1);
     // for (let i = 0; i < acc1.length; i++) {
@@ -1681,6 +1700,15 @@ class App extends Component {
     const target = event.target;
     this.inputAmount = target.value;
     this.transactionAmount = this.inputAmount;
+    if(this.transactionAmount>this.state.dueAmount){
+      console.log("Invalid amount");
+      this.setState({errorMsg: true,});
+      this.setState({showPayButton:false,})
+      this.updatepayButton();
+    }else{
+       this.setState({showPayButton:true,})
+       this.setState({errorMsg: false,});
+    }
     console.log("Invoked other transactionAmount on change"+this.transactionAmount);
   }
   onlyNumberKey(event) {
@@ -1778,7 +1806,7 @@ class App extends Component {
                     <p>Amount Due :</p>
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-1">
-                    <p>{this.state.dueAmount}</p>
+                    <p>$ {this.state.dueAmount}</p>
                   </div>
                 </div>) : ("")}
                 {this.state.patientName ? (<div class="row">
@@ -2107,7 +2135,7 @@ class App extends Component {
                       <label for="flexRadioDefault1" class="d-block">
                       <div class="row">
                       <div class="col-lg-10 col-md-10 col-sm-1">
-                    <p>Total Amount</p>
+                    <p> Due Amount</p>
                   </div>
                   <div class="col-lg-2 col-md-2 col-sm-1">
                     <p>$ {this.state.dueAmount}</p>
@@ -2142,92 +2170,26 @@ class App extends Component {
                   <div class="col-lg-2 col-md-2 col-sm-1">
                   <div class="form-group row">
                   <label >$</label><div class="col-lg col-sm-1">
-                    <input type="phone" class="form-control" id="" name="amount" autocomplete="off" onChange={this.handleTransAmount} />
+                    <input type="phone" class="form-control otherAmountClss" id="" name="amount" autocomplete="off" onChange={this.handleTransAmount} />
                     </div>
                   </div>
                   </div>
                   </div>
+                  {this.state.errorMsg ? ( <div class="row">
+                  <div class="col-lg-6 col-md-16 col-sm-6">
+                  </div>
+                  <div class="col-lg-6 col-md-6 col-sm-1 text-right">
+        <small id="passwordHelp" class="text-danger">
+          Amount should be less than total amount.
+        </small>      
+      </div>
+      </div>):("")}
                   </label>
                     </div>
                   </li>
                 </ul>
-                {/* <button
-                class="btn btn-primary float-right mt-4"
-                onClick={this.createStripeTransaction}
-              >
-                Pay
-              </button> */}
               </div>):("")}
-              {/* {this.state.cardListShow ? ( <div class="card mt-3">
-                <h5 class=" p-2 text-center">Amount to Pay</h5>
-                <ul class="list-group  list-group-flush  border">
-                  <div class="list-group-item d-flex justify-content-between align-items-center listDetails"
-                    onClick={(event) =>
-                      this.selectedTotalAmount(event)
-                     }>
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center listDetails"
-                    name="livalue"
-                    // onClick={(event) =>
-                    //   this.selectedTotalAmount(event)
-                    // }
-                  >
-                    <div class="form-check">
-                       <input
-                        class="form-check-input"
-                        type="radio"
-                        name="flexRadioDefault"
-                        id="flexRadioDefault1" checked
-                        onClick={(event) =>
-                          this.selectedTotalAmount(event)
-                        }
-                      /> 
-                      <div class="row">
-                      <div class="col-lg-10 col-md-10 col-sm-1">
-                    <p>Total Amount</p>
-                  </div>
-                  <div class="col-lg-2 col-md-2 col-sm-1">
-                    <p>$ {this.state.OrderTotal}</p>
-                  </div>
-                  </div>
-                    </div>
-                  </li>
-                  </div>
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center listDetails"
-                    name="livalue"
-                    onClick={(event) =>
-                      this.selectedOtherAmount(event)
-                    }
-                  >
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="radio"
-                        name="flexRadioDefault"
-                        id="flexRadioDefault1"
-                        onClick={(event) =>
-                          this.selectedOtherAmount(event)
-                        }
-                      />
-                      <div class="row">
-                      <div class="col-lg-10 col-md-10 col-sm-1">
-                    <p>Other Amount</p>
-                  </div>
-                  <div class="col-lg-2 col-md-2 col-sm-1">
-                  <div class="form-group row">
-                  <label >$</label><div class="col-lg col-sm-1">
-                    <input type="phone" class="form-control" id="" name="amount" autocomplete="off" onChange={this.handleTransAmount} />
-                    </div>
-                  </div>
-                  </div>
-                  </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>):("")} */}
-              
-              {this.state.cardListShow ? (
+              {this.state.showPayButton ? (
                 <button
                 class="btn btn-primary float-right mt-4"
                 onClick={this.createStripeTransaction}
