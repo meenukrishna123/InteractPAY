@@ -28,7 +28,7 @@ class App extends Component {
     //-------- InterACTPay Dev  ------//
     //this.baseUrl="https://crma-pay-developer-edition.na163.force.com/"
     //-------- Medviation Dev  ------//
-    //this.baseUrl="https://crmapay-developer-edition.na213.force.com/"
+    this.baseUrl="https://crmapay-developer-edition.na213.force.com/";
     this.urlPaymentLinkId = queryParams.get("Id");
     this.baseUrl = queryParams.get("baseUrl");
     //console.log("patientName    ------>"+inputJsonValue.orderdetails[0].crma_pay__Patient_Name__c);
@@ -1782,62 +1782,62 @@ class App extends Component {
         ) : (
           <div class="container">
           <div class="row my-5">
-            <div class="col-lg-4 col-md-4 col-sm-1">
+            <div class="col-lg-4 col-md-4 col-sm-12">
               <div class="card p-3 mb-3">
                 <h5 class="border-bottom pb-3">OrderSummary</h5>
                 <div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>Order Number :</p>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>{this.state.OrderNumber}</p>
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>Order Total :</p>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>$ {this.state.OrderTotal}</p>
                   </div>
                 </div>
                 {this.state.dueAmount ? (<div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>Amount Due :</p>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>$ {this.state.dueAmount}</p>
                   </div>
                 </div>) : ("")}
                 {this.state.patientName ? (<div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>Patient Name :</p>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>{this.state.patientName}</p>
                   </div>
                 </div>) : ("")}
                 {this.state.origin ? (<div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>Origin :</p>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>{this.state.origin}</p>
                   </div>
                 </div>) : ("")}
                 {this.state.destination ? (<div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>Destination :</p>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>{this.state.destination}</p>
                   </div>
                 </div>) : ("")}
                 {this.state.travelDate ? (<div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>Travel Date :</p>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-1">
+                  <div class="col-6">
                     <p>{this.state.travelDate}</p>
                   </div>
                 </div>) : ("")}
@@ -2134,11 +2134,11 @@ class App extends Component {
                       />
                       <label for="flexRadioDefault1" class="d-block">
                       <div class="row">
-                      <div class="col-lg-10 col-md-10 col-sm-1">
+                      <div class="col">
                     <p> Due Amount</p>
                   </div>
-                  <div class="col-lg-2 col-md-2 col-sm-1">
-                    <p>$ {this.state.dueAmount}</p>
+                  <div class="col">
+                    <p class="text-right">$ {this.state.dueAmount}</p>
                   </div>
                   </div>
                   </label>
@@ -2164,12 +2164,12 @@ class App extends Component {
                       />
                       <label for="flexRadioDefault2" class="d-block">
                       <div class="row">
-                      <div class="col-lg-10 col-md-10 col-sm-1">
+                      <div class="col">
                     <p>Other Amount</p>
                   </div>
-                  <div class="col-lg-2 col-md-2 col-sm-1">
+                  <div class="col">
                   <div class="form-group row">
-                  <label >$</label><div class="col-lg col-sm-1">
+                  <label >$</label><div class="col">
                     <input type="phone" class="form-control otherAmountClss" id="" name="amount" autocomplete="off" onChange={this.handleTransAmount} />
                     </div>
                   </div>
