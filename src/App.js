@@ -1050,9 +1050,16 @@ class App extends Component {
 
     }
     else{
-      //this.payingAmount = this.state.OrderTotal;
-      this.payingAmount = this.state.dueAmount
+      //this.transactionAmount =  this.state.OrderTotal;
+      this.transactionAmount =  this.state.dueAmount;
+      this.maketransAmount = '"'+ this.transactionAmount+  '"';
+      this.maketransAmount = JSON.stringify(this.transactionAmount);
+      this.payingAmount = this.maketransAmount;
     }
+    // else{
+    //   //this.payingAmount = this.state.OrderTotal;
+    //   this.payingAmount = this.state.dueAmount
+    // }
     console.log("Invoked createTransaction amount--->"+this.payingAmount);
     //this.orderAmount = this.state.OrderTotal;
     //console.log("this.urlAmount --->" + this.orderAmount);
@@ -1784,6 +1791,7 @@ class App extends Component {
     const target = event.target;
     this.inputAmount = target.value;
     this.transactionAmount = this.inputAmount;
+    this.maketransAmount =  this.inputAmount;
     if(this.transactionAmount>this.state.dueAmount){
       console.log("Invalid amount");
       this.setState({errorMsg: true,});
