@@ -129,6 +129,7 @@ class App extends Component {
     };
   }
   componentDidMount() {
+    console.log("Invoked new hanges");
     this.createRandomKey();
     this.getPaymentLinkDetails();
      //this.getOrderDetails();
